@@ -221,6 +221,15 @@ select {
   padding: 1rem;
 }
 
+.results-divider {
+  margin: 0.2rem 0 0.1rem;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #3f5a51;
+  font-weight: 700;
+}
+
 .pass-disclaimer {
   margin: 0.75rem 0 0;
   padding-top: 0.65rem;

@@ -59,12 +59,6 @@ const regionParks = {
     "Valleyfair",
     "Worlds of Fun"
   ]
-const currencyToUsdRate = { 
-    "USD": 1,
-    "EUR": 0.85,
-    "JPY": 110,
-    "GBP": 0.75,
-    // ... other currencies
 };
 
 const passCatalog = {
@@ -227,6 +221,9 @@ const passOffers = Object.entries(passCatalog).flatMap(([passType, offers]) =>
     accessibleParks: offer.accessibleParks || getDefaultAccessibleParks(passType, offer.park)
   }))
 );
+const supportedCurrencies = Array.from(
+  new Set(passOffers.map((offer) => String(offer.currency || "USD").toUpperCase()))
+);
 
 const parkFilter = document.getElementById("parkFilter");
 const typeFilter = document.getElementById("typeFilter");
@@ -239,18 +236,21 @@ const template = document.getElementById("passCardTemplate");
 const passTypes = Object.keys(passCatalog);
 const regions = Object.keys(regionParks);
 const filterableRegions = regions.filter((region) => region !== "All Parks");
+const passTypeOrder = new Map(passTypes.map((passType, index) => [passType, index]));
 
 function parsePrice(rawPrice) {
   const normalized = String(rawPrice).replace(/[^\d.]/g, "");
   return Number.parseFloat(normalized) || 0;
 }
 
-// Update these rates whenever you want a closer USD conversion.
-const currencyToUsdRate = {
+const fallbackCurrencyToUsdRate = {
   USD: 1,
   CAD: 0.74,
   MXN: 0.058
 };
+const currencyToUsdRate = Object.fromEntries(
+  supportedCurrencies.map((code) => [code, fallbackCurrencyToUsdRate[code] || 1])
+);
 
 function convertToUsd(amount, currency = "USD") {
   const code = String(currency || "USD").toUpperCase();
@@ -266,6 +266,34 @@ function formatUsd(amount) {
   }).format(amount);
 }
 
+async function fetchExchangeRates() {
+  const currencies = Object.keys(currencyToUsdRate).filter((code) => code !== "USD");
+  if (currencies.length === 0) {
+    return;
+  }
+
+  const endpoint = new URL("https://api.frankfurter.app/latest");
+  endpoint.searchParams.set("from", "USD");
+  endpoint.searchParams.set("to", currencies.join(","));
+
+  try {
+    const response = await fetch(endpoint.toString());
+    if (!response.ok) {
+      throw new Error(`Exchange rate API request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    for (const code of currencies) {
+      const usdToCurrency = Number(data?.rates?.[code]);
+      if (Number.isFinite(usdToCurrency) && usdToCurrency > 0) {
+        currencyToUsdRate[code] = 1 / usdToCurrency;
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching exchange rates. Using fallback values.", error);
+  }
+}
+
 function expandAccessibleParks(accessEntries) {
   const expanded = [];
   const seen = new Set();
@@ -274,18 +302,6 @@ function expandAccessibleParks(accessEntries) {
     const entry = String(rawEntry || "").trim();
     if (!entry) {
       continue;
-async function fetchExchangeRates() {
-    try {
-        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-        if (!response.ok) throw new Error('Network response was not ok');
-        const data = await response.json();
-        Object.keys(currencyToUsdRate).forEach(currency => {
-            if (data.rates[currency]) {
-                currencyToUsdRate[currency] = data.rates[currency];
-            }
-        });
-    } catch (error) {
-        console.error('Error fetching exchange rates:', error);
     }
 
     const parks = regionParks[entry] ?? [entry];
@@ -363,9 +379,10 @@ for (const region of filterableRegions) {
 function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion = "all", selectedSort = "none") {
   passGrid.innerHTML = "";
 
-  const visibleOffers = passOffers
-    .map((offer) => ({
+  let visibleOffers = passOffers
+    .map((offer, index) => ({
       ...offer,
+      originalIndex: index,
       expandedParks: expandAccessibleParks(offer.accessibleParks),
       numericPrice: convertToUsd(parsePrice(offer.price), offer.currency)
     }))
@@ -377,10 +394,54 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
       return matchesPark && matchesType && matchesRegion;
     });
 
-  if (selectedSort === "low-high") {
-    visibleOffers.sort((a, b) => a.numericPrice - b.numericPrice);
-  } else if (selectedSort === "high-low") {
-    visibleOffers.sort((a, b) => b.numericPrice - a.numericPrice);
+  const compareBySelectedSort = (a, b) => {
+    if (selectedSort === "low-high") {
+      return a.numericPrice - b.numericPrice;
+    }
+    if (selectedSort === "high-low") {
+      return b.numericPrice - a.numericPrice;
+    }
+    return a.originalIndex - b.originalIndex;
+  };
+  const compareByPassTypeThenOriginal = (a, b) => {
+    const typeOrderDiff = (passTypeOrder.get(a.passType) ?? Number.MAX_SAFE_INTEGER)
+      - (passTypeOrder.get(b.passType) ?? Number.MAX_SAFE_INTEGER);
+    if (typeOrderDiff !== 0) {
+      return typeOrderDiff;
+    }
+    return a.originalIndex - b.originalIndex;
+  };
+
+  let otherPassesDividerIndex = -1;
+  if (selectedPark !== "all") {
+    const selectedParkRegion = parkRegionByName[selectedPark] || "";
+    const homeParkOffers = [];
+    const sameRegionOffers = [];
+    const otherOffers = [];
+
+    for (const offer of visibleOffers) {
+      if (offer.homePark === selectedPark) {
+        homeParkOffers.push(offer);
+      } else if (
+        selectedParkRegion
+        && parkRegionByName[offer.homePark] === selectedParkRegion
+      ) {
+        sameRegionOffers.push(offer);
+      } else {
+        otherOffers.push(offer);
+      }
+    }
+
+    homeParkOffers.sort(compareByPassTypeThenOriginal);
+    sameRegionOffers.sort(compareBySelectedSort);
+    otherOffers.sort(compareBySelectedSort);
+
+    otherPassesDividerIndex = homeParkOffers.length > 0 && (sameRegionOffers.length + otherOffers.length) > 0
+      ? homeParkOffers.length
+      : -1;
+    visibleOffers = [...homeParkOffers, ...sameRegionOffers, ...otherOffers];
+  } else {
+    visibleOffers.sort(compareBySelectedSort);
   }
 
   resultsMeta.textContent = `Showing ${visibleOffers.length} pass offer${visibleOffers.length === 1 ? "" : "s"}`;
@@ -393,7 +454,14 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
     return;
   }
 
-  for (const offer of visibleOffers) {
+  visibleOffers.forEach((offer, index) => {
+    if (index === otherPassesDividerIndex) {
+      const divider = document.createElement("p");
+      divider.className = "results-divider";
+      divider.textContent = "Other passes that include this park";
+      passGrid.appendChild(divider);
+    }
+
     const node = template.content.cloneNode(true);
     node.querySelector(".pass-name").textContent = `${offer.homePark} - ${offer.passType} Pass`;
     const usdPrice = convertToUsd(parsePrice(offer.price), offer.currency);
@@ -420,7 +488,7 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
 
     passGrid.appendChild(node);
     setupParkToggle(cardEl);
-  }
+  });
 }
 
 function applyFilters() {
@@ -433,9 +501,6 @@ regionFilter.addEventListener("change", applyFilters);
 priceSort.addEventListener("change", applyFilters);
 
 renderPasses();
-// Call fetchExchangeRates after DOM elements are retrieved but before rendering passes
-document.addEventListener('DOMContentLoaded', async () => {
-    await fetchExchangeRates();
-    // Call the function that renders your currencies here
-    renderCurrencies();
+fetchExchangeRates().then(() => {
+  renderPasses(parkFilter.value, typeFilter.value, regionFilter.value, priceSort.value);
 });
