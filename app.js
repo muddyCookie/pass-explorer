@@ -386,7 +386,11 @@ function getFilteredParkOptions(query) {
     return parkFilterOptions;
   }
 
-  return parkFilterOptions.filter((option) => option.value === "all" || option.label.toLowerCase().includes(normalizedQuery));
+  const matchingParkOptions = parkFilterOptions.filter(
+    (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
+  );
+  const allParksOption = parkFilterOptions.find((option) => option.value === "all");
+  return allParksOption ? [...matchingParkOptions, allParksOption] : matchingParkOptions;
 }
 
 function closeParkFilterDropdown() {
@@ -602,10 +606,30 @@ parkFilterInput.addEventListener("click", () => {
 });
 
 parkFilterInput.addEventListener("input", () => {
+  const query = parkFilterInput.value;
+  const normalizedQuery = String(query || "").trim().toLowerCase();
   highlightedParkOptionIndex = 0;
-  renderParkFilterOptions(parkFilterInput.value);
+  renderParkFilterOptions(query);
   openParkFilterDropdown();
-  selectedParkFilterValue = "all";
+
+  if (!normalizedQuery) {
+    selectedParkFilterValue = "all";
+    applyFilters();
+    return;
+  }
+
+  const matchingParks = parkFilterOptions.filter(
+    (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
+  );
+  const exactMatch = matchingParks.find((option) => option.label.toLowerCase() === normalizedQuery);
+  const autoSelectedOption = exactMatch || (matchingParks.length === 1 ? matchingParks[0] : null);
+
+  if (!autoSelectedOption) {
+    return;
+  }
+
+  selectedParkFilterValue = autoSelectedOption.value;
+  applyFilters();
 });
 
 parkFilterInput.addEventListener("keydown", (event) => {
@@ -635,8 +659,21 @@ parkFilterInput.addEventListener("keydown", (event) => {
 
   if (event.key === "Enter") {
     event.preventDefault();
-    const selectedOption = filteredOptions[highlightedParkOptionIndex] || filteredOptions[0];
-    selectedParkFilterValue = selectedOption.value;
+    const normalizedQuery = String(parkFilterInput.value || "").trim().toLowerCase();
+    if (!normalizedQuery) {
+      selectedParkFilterValue = "all";
+    } else {
+      const parkOnlyOptions = filteredOptions.filter((option) => option.value !== "all");
+      const exactMatch = parkOnlyOptions.find((option) => option.label.toLowerCase() === normalizedQuery);
+      const highlightedOption = filteredOptions[highlightedParkOptionIndex];
+      const fallbackOption = parkOnlyOptions[0];
+      const selectedOption = exactMatch
+        || (highlightedOption && highlightedOption.value !== "all" ? highlightedOption : null)
+        || fallbackOption;
+
+      selectedParkFilterValue = selectedOption ? selectedOption.value : "all";
+    }
+
     syncParkInputWithSelection();
     closeParkFilterDropdown();
     applyFilters();
