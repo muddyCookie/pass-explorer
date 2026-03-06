@@ -243,18 +243,15 @@ function parsePrice(rawPrice) {
   return Number.parseFloat(normalized) || 0;
 }
 
-const fallbackCurrencyToUsdRate = {
-  USD: 1,
-  CAD: 0.74,
-  MXN: 0.058
-};
-const currencyToUsdRate = Object.fromEntries(
-  supportedCurrencies.map((code) => [code, fallbackCurrencyToUsdRate[code] || 1])
-);
+const currencyToUsdRate = { USD: 1 };
+let exchangeRatesLoaded = false;
 
 function convertToUsd(amount, currency = "USD") {
   const code = String(currency || "USD").toUpperCase();
-  const rate = currencyToUsdRate[code] || 1;
+  const rate = currencyToUsdRate[code];
+  if (!Number.isFinite(rate) || rate <= 0) {
+    return Number.NaN;
+  }
   return amount * rate;
 }
 
@@ -267,8 +264,9 @@ function formatUsd(amount) {
 }
 
 async function fetchExchangeRates() {
-  const currencies = Object.keys(currencyToUsdRate).filter((code) => code !== "USD");
+  const currencies = supportedCurrencies.filter((code) => code !== "USD");
   if (currencies.length === 0) {
+    exchangeRatesLoaded = true;
     return;
   }
 
@@ -283,15 +281,39 @@ async function fetchExchangeRates() {
     }
 
     const data = await response.json();
+    let allRatesResolved = true;
     for (const code of currencies) {
       const usdToCurrency = Number(data?.rates?.[code]);
       if (Number.isFinite(usdToCurrency) && usdToCurrency > 0) {
         currencyToUsdRate[code] = 1 / usdToCurrency;
+      } else {
+        allRatesResolved = false;
       }
     }
+    exchangeRatesLoaded = allRatesResolved;
   } catch (error) {
-    console.error("Error fetching exchange rates. Using fallback values.", error);
+    exchangeRatesLoaded = false;
+    console.error("Error fetching exchange rates. Showing native currency prices.", error);
   }
+}
+
+function formatOfferPrice(offer) {
+  const code = String(offer.currency || "USD").toUpperCase();
+  const rawPrice = String(offer.price || "").trim();
+  if (code === "USD") {
+    return rawPrice;
+  }
+
+  if (!exchangeRatesLoaded) {
+    return `${code} ${rawPrice}`;
+  }
+
+  const usdPrice = convertToUsd(parsePrice(rawPrice), code);
+  if (Number.isFinite(usdPrice)) {
+    return `~${formatUsd(usdPrice)}`;
+  }
+
+  return `${code} ${rawPrice}`;
 }
 
 function expandAccessibleParks(accessEntries) {
@@ -384,7 +406,9 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
       ...offer,
       originalIndex: index,
       expandedParks: expandAccessibleParks(offer.accessibleParks),
-      numericPrice: convertToUsd(parsePrice(offer.price), offer.currency)
+      numericPrice: exchangeRatesLoaded
+        ? convertToUsd(parsePrice(offer.price), offer.currency)
+        : parsePrice(offer.price)
     }))
     .filter((offer) => {
       const matchesPark = selectedPark === "all" || offer.expandedParks.includes(selectedPark);
@@ -464,8 +488,7 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
 
     const node = template.content.cloneNode(true);
     node.querySelector(".pass-name").textContent = `${offer.homePark} - ${offer.passType} Pass`;
-    const usdPrice = convertToUsd(parsePrice(offer.price), offer.currency);
-    node.querySelector(".pass-price").textContent = `~${formatUsd(usdPrice)}`;
+    node.querySelector(".pass-price").textContent = formatOfferPrice(offer);
     const cardEl = node.querySelector(".pass-card");
 
     const parksToDisplay = selectedRegion === "all"
