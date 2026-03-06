@@ -1,222 +1,3 @@
-const passOffers = [
-  {
-    id: "cga-gold",
-    homePark: "California's Great America",
-    passType: "Gold",
-    price: "$85",
-    disclaimer: "Parking is not included at Knott's Berry Farm",
-    accessibleParks: ["West Region"]
-  },
-  {
-    id: "cwl-silver",
-    homePark: "Canada's Wonderland",
-    passType: "Silver",
-    price: "$89",
-    disclaimer: "Parking is not included at Canada's Wonderland",
-    accessibleParks: ["Canada's Wonderland"]
-  },
-  {
-    id: "cwl-gold",
-    homePark: "Canada's Wonderland",
-    passType: "Gold",
-    price: "$125",
-    disclaimer: "Parking is not included at Canada's Wonderland",
-    accessibleParks: ["Midwest Region"]
-  },
-  {
-    id: "cwl-prestige",
-    homePark: "Canada's Wonderland",
-    passType: "Prestige",
-    price: "$210",
-    disclaimer: "Parking is not included at La Ronde",
-    accessibleParks: ["All Parks"]
-  },
-  {
-    id: "cw-silver",
-    homePark: "Carowinds",
-    passType: "Silver",
-    price: "$89",
-    disclaimer: "",
-    accessibleParks: ["Carowinds"]
-  },
-  {
-    id: "cw-gold",
-    homePark: "Carowinds",
-    passType: "Gold",
-    price: "$110",
-    disclaimer: "",
-    accessibleParks: ["East Region"]
-  },
-  {
-    id: "cw-prestige",
-    homePark: "Carowinds",
-    passType: "Prestige",
-    price: "$165",
-    disclaimer: "Parking is not included at Canada's Wonderland and La Ronde",
-    accessibleParks: ["All Parks"]
-  },
-  {
-    id: "cp-silver",
-    homePark: "Cedar Point",
-    passType: "Silver",
-    price: "$99",
-    disclaimer: "",
-    accessibleParks: ["Cedar Point"]
-  },
-  {
-    id: "cp-gold",
-    homePark: "Cedar Point",
-    passType: "Gold",
-    price: "$150",
-    disclaimer: "",
-    accessibleParks: ["Midwest Region"]
-  },
-  {
-    id: "cp-prestige",
-    homePark: "Cedar Point",
-    passType: "Prestige",
-    price: "$250",
-    disclaimer: "Parking is not included at Canada's Wonderland and La Ronde",
-    accessibleParks: ["All Parks"]
-  },
-  {
-    id: "dp-gold",
-    homePark: "Dorney Park",
-    passType: "Gold",
-    price: "$105",
-    disclaimer: "",
-    accessibleParks: ["East Region"]
-  },
-  {
-    id: "dp-prestige",
-    homePark: "Dorney Park",
-    passType: "Prestige",
-    price: "$145",
-    disclaimer: "Parking is not included at Canada's Wonderland and La Ronde",
-    accessibleParks: ["All Parks"]
-  },
-  {
-    id: "fc-silver",
-    homePark: "Frontier City",
-    passType: "Silver",
-    price: "$55",
-    disclaimer: "",
-    accessibleParks: ["Frontier City"]
-  },
-  {
-    id: "fc-gold",
-    homePark: "Frontier City",
-    passType: "Gold",
-    price: "$79",
-    disclaimer: "",
-    accessibleParks: ["Texas Region"]
-  },
-  {
-    id: "fc-prestige",
-    homePark: "Frontier City",
-    passType: "Prestige",
-    price: "$125",
-    disclaimer: "Parking is not included at Canada's Wonderland and La Ronde",
-    accessibleParks: ["All Parks"]
-  },
-  {
-    id: "kd-silver",
-    homePark: "Kings Dominion",
-    passType: "Silver",
-    price: "$89",
-    disclaimer: "",
-    accessibleParks: ["Kings Dominion"]
-  },
-  {
-    id: "kd-gold",
-    homePark: "Kings Dominion",
-    passType: "Gold",
-    price: "$110",
-    disclaimer: "",
-    accessibleParks: ["East Region"]
-  },
-  {
-    id: "kd-prestige",
-    homePark: "Kings Dominion",
-    passType: "Prestige",
-    price: "$199",
-    disclaimer: "Parking is not included at Canada's Wonderland and La Ronde",
-    accessibleParks: ["All Parks"]
-  },
-  {
-    id: "ki-silver",
-    homePark: "Kings Island",
-    passType: "Silver",
-    price: "$105",
-    disclaimer: "",
-    accessibleParks: ["Kings Island"]
-  },
-  {
-    id: "ki-gold",
-    homePark: "Kings Island",
-    passType: "Gold",
-    price: "$145",
-    disclaimer: "",
-    accessibleParks: ["Midwest Region"]
-  },
-  {
-    id: "ki-prestige",
-    homePark: "Kings Island",
-    passType: "Prestige",
-    price: "$225",
-    disclaimer: "Parking is not included at Canada's Wonderland and La Ronde",
-    accessibleParks: ["All Parks"]
-  },
-  {
-    id: "kbf-silver",
-    homePark: "Knott's Berry Farm",
-    passType: "Silver",
-    price: "$110",
-    disclaimer: "Parking is not included at Knott's Berry Farm",
-    accessibleParks: ["Knott's Berry Farm"]
-  },
-  {
-    id: "kbf-gold",
-    homePark: "Knott's Berry Farm",
-    passType: "Gold",
-    price: "$140",
-    disclaimer: "Parking is not included at Knott's Berry Farm",
-    accessibleParks: ["West Region"]
-  },
-  {
-    id: "kbf-prestige",
-    homePark: "Knott's Berry Farm",
-    passType: "Prestige",
-    price: "$300",
-    disclaimer: "Parking is not included at Canada's Wonderland and La Ronde",
-    accessibleParks: ["All Parks"]
-  },
-  {
-    id: "lr-silver",
-    homePark: "La Ronde",
-    passType: "Silver",
-    price: "$73",
-    disclaimer: "",
-    accessibleParks: ["La Ronde"]
-  },
-  {
-    id: "lr-gold",
-    homePark: "La Ronde",
-    passType: "Gold",
-    price: "$95",
-    disclaimer: "Parking is not included at Canada's Wonderland",
-    accessibleParks: ["Midwest Region"]
-  },
-  {
-    id: "lr-prestige",
-    homePark: "La Ronde",
-    passType: "Prestige",
-    price: "$150",
-    disclaimer: "Parking is not included at Canada's Wonderland",
-    accessibleParks: ["All Parks"]
-  }
-];
-
 const regionParks = {
   "East Region": [
     "Carowinds",
@@ -280,6 +61,125 @@ const regionParks = {
   ]
 };
 
+const passCatalog = {
+  Silver: [
+    { park: "Canada's Wonderland", price: "$89" },
+    { park: "Carowinds", price: "$89" },
+    { park: "Cedar Point", price: "$99" },
+    { park: "Frontier City", price: "$55" },
+    { park: "Kings Dominion", price: "$89" },
+    { park: "Kings Island", price: "$105" },
+    { park: "Knott's Berry Farm", price: "$110" },
+    { park: "La Ronde", price: "$73" }
+  ],
+  Gold: [
+    { park: "California's Great America", price: "$85" },
+    { park: "Canada's Wonderland", price: "$125" },
+    { park: "Carowinds", price: "$110" },
+    { park: "Cedar Point", price: "$150" },
+    { park: "Dorney Park", price: "$105" },
+    { park: "Frontier City", price: "$79" },
+    { park: "Kings Dominion", price: "$110" },
+    { park: "Kings Island", price: "$145" },
+    { park: "Knott's Berry Farm", price: "$140" },
+    { park: "La Ronde", price: "$95" }
+  ],
+  Prestige: [
+    { park: "Canada's Wonderland", price: "$210" },
+    { park: "Carowinds", price: "$165" },
+    { park: "Cedar Point", price: "$250" },
+    { park: "Dorney Park", price: "$145" },
+    { park: "Frontier City", price: "$125" },
+    { park: "Kings Dominion", price: "$199" },
+    { park: "Kings Island", price: "$225" },
+    { park: "Knott's Berry Farm", price: "$300" },
+    { park: "La Ronde", price: "$150" }
+  ]
+};
+
+function slugify(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+const parkRegionByName = {};
+for (const [region, parks] of Object.entries(regionParks)) {
+  if (region === "All Parks") {
+    continue;
+  }
+  for (const park of parks) {
+    parkRegionByName[park] = region;
+  }
+}
+
+function getDefaultAccessibleParks(passType, homePark) {
+  if (passType === "Silver") {
+    return [homePark];
+  }
+  if (passType === "Gold") {
+    return [parkRegionByName[homePark] || homePark];
+  }
+  return ["All Parks"];
+}
+
+const homePrestigeOnlyParkingParks = new Set(["Canada's Wonderland", "La Ronde"]);
+const prestigeParkingOnlyParks = new Set(["Knott's Berry Farm"]);
+
+function hasIncludedParking(offer, parkName) {
+  if (homePrestigeOnlyParkingParks.has(parkName)) {
+    return offer.passType === "Prestige" && offer.homePark === parkName;
+  }
+
+  if (prestigeParkingOnlyParks.has(parkName)) {
+    return offer.passType === "Prestige";
+  }
+
+  if (offer.passType === "Silver") {
+    return offer.homePark === parkName;
+  }
+
+  return true;
+}
+
+function formatParkList(parks) {
+  if (parks.length === 0) {
+    return "";
+  }
+  if (parks.length === 1) {
+    return parks[0];
+  }
+  if (parks.length === 2) {
+    return `${parks[0]} and ${parks[1]}`;
+  }
+  return `${parks.slice(0, -1).join(", ")}, and ${parks[parks.length - 1]}`;
+}
+
+function buildParkingDisclaimer(offer, expandedParks) {
+  if (offer.disclaimer && offer.disclaimer.trim()) {
+    return offer.disclaimer.trim();
+  }
+
+  const excludedParks = expandedParks.filter((parkName) => !hasIncludedParking(offer, parkName));
+  if (excludedParks.length === 0) {
+    return "";
+  }
+
+  return `Parking is not included at ${formatParkList(excludedParks)}`;
+}
+
+const passOffers = Object.entries(passCatalog).flatMap(([passType, offers]) =>
+  offers.map((offer) => ({
+    id: `${slugify(offer.park)}-${slugify(passType)}`,
+    homePark: offer.park,
+    passType,
+    price: offer.price,
+    disclaimer: offer.disclaimer || "",
+    accessibleParks: offer.accessibleParks || getDefaultAccessibleParks(passType, offer.park)
+  }))
+);
+
 const parkFilter = document.getElementById("parkFilter");
 const typeFilter = document.getElementById("typeFilter");
 const regionFilter = document.getElementById("regionFilter");
@@ -288,7 +188,7 @@ const passGrid = document.getElementById("passGrid");
 const resultsMeta = document.getElementById("resultsMeta");
 const template = document.getElementById("passCardTemplate");
 
-const passTypes = ["Silver", "Gold", "Prestige"];
+const passTypes = Object.keys(passCatalog);
 const regions = Object.keys(regionParks);
 const filterableRegions = regions.filter((region) => region !== "All Parks");
 
@@ -319,6 +219,39 @@ function expandAccessibleParks(accessEntries) {
   }
 
   return expanded;
+}
+
+function setupParkToggle(cardEl) {
+  const parkList = cardEl.querySelector(".park-list");
+  const parkToggle = cardEl.querySelector(".park-toggle");
+  if (!parkList || !parkToggle) {
+    return;
+  }
+
+  const setCollapsed = (collapsed) => {
+    parkList.classList.toggle("is-collapsed", collapsed);
+    parkToggle.textContent = collapsed ? "More Parks" : "Less Parks";
+    parkToggle.setAttribute("aria-expanded", String(!collapsed));
+  };
+
+  setCollapsed(true);
+  requestAnimationFrame(() => {
+    const hasHorizontalOverflow = parkList.scrollWidth > parkList.clientWidth + 2;
+    const hasVerticalOverflow = parkList.scrollHeight > parkList.clientHeight + 2;
+    const hasOverflow = hasHorizontalOverflow || hasVerticalOverflow;
+    if (!hasOverflow) {
+      parkList.classList.remove("is-collapsed");
+      parkToggle.hidden = true;
+      return;
+    }
+
+    parkToggle.hidden = false;
+    setCollapsed(true);
+    parkToggle.addEventListener("click", () => {
+      const isCollapsed = parkList.classList.contains("is-collapsed");
+      setCollapsed(!isCollapsed);
+    });
+  });
 }
 
 const allParks = Array.from(
@@ -383,6 +316,7 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
     const node = template.content.cloneNode(true);
     node.querySelector(".pass-name").textContent = `${offer.homePark} - ${offer.passType} Pass`;
     node.querySelector(".pass-price").textContent = offer.price;
+    const cardEl = node.querySelector(".pass-card");
 
     const parksToDisplay = selectedRegion === "all"
       ? offer.expandedParks
@@ -396,12 +330,14 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
     }
 
     const disclaimerEl = node.querySelector(".pass-disclaimer");
-    if (offer.disclaimer && offer.disclaimer.trim()) {
-      disclaimerEl.textContent = offer.disclaimer;
+    const disclaimerText = buildParkingDisclaimer(offer, offer.expandedParks);
+    if (disclaimerText) {
+      disclaimerEl.textContent = disclaimerText;
       disclaimerEl.hidden = false;
     }
 
     passGrid.appendChild(node);
+    setupParkToggle(cardEl);
   }
 }
 

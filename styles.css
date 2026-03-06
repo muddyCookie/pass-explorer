@@ -178,12 +178,40 @@ select {
   padding: 0;
 }
 
+.park-list.is-collapsed {
+  max-height: 1.95rem;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, #000 84%, transparent 100%);
+}
+
 .park-list li {
   padding: 0.25rem 0.5rem;
   border-radius: 999px;
   font-size: 0.8rem;
   background: #eaf4e8;
   border: 1px solid #cadeca;
+}
+
+.park-toggle {
+  margin-top: 0.5rem;
+  border: 1px solid var(--accent);
+  background: #ebf6ef;
+  color: var(--accent);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.62rem;
+  cursor: pointer;
+}
+
+.park-toggle:hover,
+.park-toggle:focus-visible {
+  background: var(--accent);
+  color: #fff;
+  outline: none;
 }
 
 .empty-state {
