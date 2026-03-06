@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Six Flags Season Pass Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Archivo+Black&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+
+  <main class="app-shell">
+    <header class="hero">
+      <p class="eyebrow">Six Flags Pass Explorer</p>
+      <h1>Find The Right Pass For Any Park!</h1>
+      <p class="hero-copy">
+        Compare prices and find which parks are included!
+      </p>
+    </header>
+
+    <section class="controls" aria-label="Filter passes">
+      <div class="control">
+        <label for="parkFilter">Filter by Park Access</label>
+        <select id="parkFilter">
+          <option value="all">All Parks</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="typeFilter">Filter by Pass Type</label>
+        <select id="typeFilter">
+          <option value="all">All Pass Types</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="regionFilter">Filter by Region</label>
+        <select id="regionFilter">
+          <option value="all">All Regions</option>
+        </select>
+      </div>
+      <div class="control">
+        <label for="priceSort">Sort by Price</label>
+        <select id="priceSort">
+          <option value="none">Default Order</option>
+          <option value="low-high">Lowest to Highest</option>
+          <option value="high-low">Highest to Lowest</option>
+        </select>
+      </div>
+      <p id="resultsMeta" class="results-meta"></p>
+    </section>
+
+    <section>
+      <h2 class="section-title">Available Season Passes</h2>
+      <div id="passGrid" class="pass-grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <template id="passCardTemplate">
+    <article class="pass-card">
+      <div class="card-top">
+        <h3 class="pass-name"></h3>
+        <p class="pass-price"></p>
+      </div>
+      <div>
+        <p class="detail-label">Park Access</p>
+        <ul class="park-list"></ul>
+      </div>
+      <p class="pass-disclaimer" hidden></p>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
