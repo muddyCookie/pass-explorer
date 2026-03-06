@@ -154,6 +154,17 @@ select {
   font-size: 1.1rem;
 }
 
+.pass-name-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.pass-name-link:hover,
+.pass-name-link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .pass-price {
   margin: 0;
   color: var(--accent-2);
@@ -190,6 +201,17 @@ select {
   font-size: 0.8rem;
   background: #eaf4e8;
   border: 1px solid #cadeca;
+}
+
+.park-tag-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.park-tag-link:hover,
+.park-tag-link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .park-toggle {
@@ -236,6 +258,11 @@ select {
   border-top: 1px dashed #cadeca;
   font-size: 0.8rem;
   color: #425a51;
+}
+
+.pass-buy-link {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 @keyframes fade-up {

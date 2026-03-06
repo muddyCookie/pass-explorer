@@ -1,65 +1,45 @@
-const regionParks = {
+const parkDirectoryByRegion = {
   "East Region": [
-    "Carowinds",
-    "Dorney Park",
-    "Kings Dominion",
-    "Six Flags Great Adventure",
-    "Six Flags Great Escape",
-    "Six Flags New England",
-    "Six Flags Over Georgia"
+    { name: "Carowinds", website: "https://www.carowinds.com", passPurchaseUrl: "https://www.carowinds.com/season-passes" },
+    { name: "Dorney Park", website: "https://www.dorneypark.com", passPurchaseUrl: "https://www.dorneypark.com/season-passes" },
+    { name: "Kings Dominion", website: "https://www.kingsdominion.com", passPurchaseUrl: "https://www.kingsdominion.com/season-passes" },
+    { name: "Six Flags Great Adventure", website: "https://www.sixflags.com/greatadventure", passPurchaseUrl: "https://www.sixflags.com/greatadventure/store/tickets" },
+    { name: "Six Flags Great Escape", website: "https://www.sixflags.com/greatescape", passPurchaseUrl: "https://www.sixflags.com/greatescape/store/tickets" },
+    { name: "Six Flags New England", website: "https://www.sixflags.com/newengland", passPurchaseUrl: "https://www.sixflags.com/newengland/store/tickets" },
+    { name: "Six Flags Over Georgia", website: "https://www.sixflags.com/overgeorgia", passPurchaseUrl: "https://www.sixflags.com/overgeorgia/store/tickets" }
   ],
   "Midwest Region": [
-    "Canada's Wonderland",
-    "Cedar Point",
-    "Kings Island",
-    "La Ronde",
-    "Michigan's Adventure",
-    "Six Flags Darien Lake",
-    "Six Flags Great America",
-    "Six Flags St. Louis",
-    "Valleyfair",
-    "Worlds of Fun"
+    { name: "Canada's Wonderland", website: "https://www.canadaswonderland.com", passPurchaseUrl: "https://www.canadaswonderland.com/season-passes" },
+    { name: "Cedar Point", website: "https://www.cedarpoint.com", passPurchaseUrl: "https://www.cedarpoint.com/season-passes" },
+    { name: "Kings Island", website: "https://www.kingsisland.com", passPurchaseUrl: "https://www.kingsisland.com/season-passes" },
+    { name: "La Ronde", website: "https://www.laronde.com", passPurchaseUrl: "https://www.laronde.com/season-passes" },
+    { name: "Michigan's Adventure", website: "https://www.michigansadventure.com", passPurchaseUrl: "https://www.michigansadventure.com/season-passes" },
+    { name: "Six Flags Darien Lake", website: "https://www.sixflags.com/darienlake", passPurchaseUrl: "https://www.sixflags.com/darienlake/store/tickets" },
+    { name: "Six Flags Great America", website: "https://www.sixflags.com/greatamerica", passPurchaseUrl: "https://www.sixflags.com/greatamerica/store/tickets" },
+    { name: "Six Flags St. Louis", website: "https://www.sixflags.com/stlouis", passPurchaseUrl: "https://www.sixflags.com/stlouis/store/tickets" },
+    { name: "Valleyfair", website: "https://www.valleyfair.com", passPurchaseUrl: "https://www.valleyfair.com/season-passes" },
+    { name: "Worlds of Fun", website: "https://www.worldsoffun.com", passPurchaseUrl: "https://www.worldsoffun.com/season-passes" }
   ],
   "Texas Region": [
-    "Frontier City",
-    "Six Flags Fiesta Texas",
-    "Six Flags Over Texas"
+    { name: "Frontier City", website: "https://www.frontiercity.com", passPurchaseUrl: "https://www.frontiercity.com/season-passes" },
+    { name: "Six Flags Fiesta Texas", website: "https://www.sixflags.com/fiestatexas", passPurchaseUrl: "https://www.sixflags.com/fiestatexas/store/tickets" },
+    { name: "Six Flags Over Texas", website: "https://www.sixflags.com/overtexas", passPurchaseUrl: "https://www.sixflags.com/overtexas/store/tickets" }
   ],
   "West Region": [
-    "California's Great America",
-    "Knott's Berry Farm",
-    "Six Flags Discovery Kingdom",
-    "Six Flags Magic Mountain",
-    "Six Flags Mexico"
-  ],
-  "All Parks": [
-    "California's Great America",
-    "Canada's Wonderland",
-    "Carowinds",
-    "Cedar Point",
-    "Dorney Park",
-    "Frontier City",
-    "Kings Dominion",
-    "Kings Island",
-    "Knott's Berry Farm",
-    "La Ronde",
-    "Michigan's Adventure",
-    "Six Flags Darien Lake",
-    "Six Flags Discovery Kingdom",
-    "Six Flags Fiesta Texas",
-    "Six Flags Great Adventure",
-    "Six Flags Great America",
-    "Six Flags Great Escape",
-    "Six Flags Magic Mountain",
-    "Six Flags Mexico",
-    "Six Flags New England",
-    "Six Flags Over Georgia",
-    "Six Flags Over Texas",
-    "Six Flags St. Louis",
-    "Valleyfair",
-    "Worlds of Fun"
+    { name: "California's Great America", website: "https://www.cagreatamerica.com", passPurchaseUrl: "https://www.cagreatamerica.com/season-passes" },
+    { name: "Knott's Berry Farm", website: "https://www.knotts.com", passPurchaseUrl: "https://www.knotts.com/season-passes" },
+    { name: "Six Flags Discovery Kingdom", website: "https://www.sixflags.com/discoverykingdom", passPurchaseUrl: "https://www.sixflags.com/discoverykingdom/store/tickets" },
+    { name: "Six Flags Magic Mountain", website: "https://www.sixflags.com/magicmountain", passPurchaseUrl: "https://www.sixflags.com/magicmountain/store/tickets" },
+    { name: "Six Flags Mexico", website: "https://www.sixflags.com/mexico", passPurchaseUrl: "https://www.sixflags.com/mexico/store/tickets" }
   ]
 };
+
+const parkDirectory = Object.values(parkDirectoryByRegion).flat();
+const parkByName = Object.fromEntries(parkDirectory.map((park) => [park.name, park]));
+const regionParks = Object.fromEntries(
+  Object.entries(parkDirectoryByRegion).map(([region, parks]) => [region, parks.map((park) => park.name)])
+);
+regionParks["All Parks"] = parkDirectory.map((park) => park.name);
 
 const passCatalog = {
   Silver: [
@@ -143,6 +123,14 @@ function slugify(value) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+function getParkWebsiteUrl(parkName) {
+  return parkByName[parkName]?.website || "#";
+}
+
+function getPassPurchaseUrl(offer) {
+  return parkByName[offer.homePark]?.passPurchaseUrl || getParkWebsiteUrl(offer.homePark);
 }
 
 const parkRegionByName = {};
@@ -487,7 +475,15 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
     }
 
     const node = template.content.cloneNode(true);
-    node.querySelector(".pass-name").textContent = `${offer.homePark} - ${offer.passType} Pass`;
+    const passNameEl = node.querySelector(".pass-name");
+    const passNameLink = document.createElement("a");
+    passNameLink.className = "pass-name-link";
+    passNameLink.href = getPassPurchaseUrl(offer);
+    passNameLink.target = "_blank";
+    passNameLink.rel = "noopener noreferrer";
+    passNameLink.textContent = `${offer.homePark} - ${offer.passType} Pass`;
+    passNameEl.textContent = "";
+    passNameEl.appendChild(passNameLink);
     node.querySelector(".pass-price").textContent = formatOfferPrice(offer);
     const cardEl = node.querySelector(".pass-card");
 
@@ -498,7 +494,13 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
     const parkList = node.querySelector(".park-list");
     for (const parkName of parksToDisplay) {
       const li = document.createElement("li");
-      li.textContent = parkName;
+      const parkLink = document.createElement("a");
+      parkLink.className = "park-tag-link";
+      parkLink.href = getParkWebsiteUrl(parkName);
+      parkLink.target = "_blank";
+      parkLink.rel = "noopener noreferrer";
+      parkLink.textContent = parkName;
+      li.appendChild(parkLink);
       parkList.appendChild(li);
     }
 
@@ -507,6 +509,16 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
     if (disclaimerText) {
       disclaimerEl.textContent = disclaimerText;
       disclaimerEl.hidden = false;
+    } else {
+      disclaimerEl.hidden = false;
+      const buyLink = document.createElement("a");
+      buyLink.className = "pass-buy-link";
+      buyLink.href = getPassPurchaseUrl(offer);
+      buyLink.target = "_blank";
+      buyLink.rel = "noopener noreferrer";
+      buyLink.textContent = "Buy This Pass";
+      disclaimerEl.textContent = "";
+      disclaimerEl.appendChild(buyLink);
     }
 
     passGrid.appendChild(node);
