@@ -63,18 +63,29 @@ const regionParks = {
 
 const passCatalog = {
   Silver: [
-    { park: "Canada's Wonderland", price: "$89" },
+    { park: "Canada's Wonderland", price: "$89", currency: "CAD" },
     { park: "Carowinds", price: "$89" },
     { park: "Cedar Point", price: "$99" },
     { park: "Frontier City", price: "$55" },
     { park: "Kings Dominion", price: "$89" },
     { park: "Kings Island", price: "$105" },
     { park: "Knott's Berry Farm", price: "$110" },
-    { park: "La Ronde", price: "$73" }
+    { park: "La Ronde", price: "$73", currency: "CAD" },
+    { park: "Six Flags Discovery Kingdom", price: "$65" },
+    { park: "Six Flags Fiesta Texas", price: "$70" },
+    { park: "Six Flags Great Adventure", price: "$70" },
+    { park: "Six Flags Great America", price: "$79" },
+    { park: "Six Flags Magic Mountain", price: "$90" },
+    { park: "Six Flags Mexico", price: "$1300", currency: "MXN" },
+    { park: "Six Flags New England", price: "$70" },
+    { park: "Six Flags Over Georgia", price: "$65" },
+    { park: "Six Flags Over Texas", price: "$70" },
+    { park: "Six Flags St. Louis", price: "$59" },
+    { park: "Worlds of Fun", price: "$65" }
   ],
   Gold: [
     { park: "California's Great America", price: "$85" },
-    { park: "Canada's Wonderland", price: "$125" },
+    { park: "Canada's Wonderland", price: "$125", currency: "CAD" },
     { park: "Carowinds", price: "$110" },
     { park: "Cedar Point", price: "$150" },
     { park: "Dorney Park", price: "$105" },
@@ -82,10 +93,25 @@ const passCatalog = {
     { park: "Kings Dominion", price: "$110" },
     { park: "Kings Island", price: "$145" },
     { park: "Knott's Berry Farm", price: "$140" },
-    { park: "La Ronde", price: "$95" }
+    { park: "La Ronde", price: "$95", currency: "CAD" },
+    { park: "Michigan's Adventure", price: "$110" },
+    { park: "Six Flags Darien Lake", price: "$75" },
+    { park: "Six Flags Discovery Kingdom", price: "$79" },
+    { park: "Six Flags Fiesta Texas", price: "$99" },
+    { park: "Six Flags Great Adventure", price: "$89" },
+    { park: "Six Flags Great America", price: "$99" },
+    { park: "Six Flags Great Escape", price: "$65" },
+    { park: "Six Flags Magic Mountain", price: "$115" },
+    { park: "Six Flags Mexico", price: "$1500", currency: "MXN" },
+    { park: "Six Flags New England", price: "$89" },
+    { park: "Six Flags Over Georgia", price: "$89" },
+    { park: "Six Flags Over Texas", price: "$99" },
+    { park: "Six Flags St. Louis", price: "$75" },
+    { park: "Valleyfair", price: "$85" },
+    { park: "Worlds of Fun", price: "$90" }
   ],
   Prestige: [
-    { park: "Canada's Wonderland", price: "$210" },
+    { park: "Canada's Wonderland", price: "$210", currency: "CAD" },
     { park: "Carowinds", price: "$165" },
     { park: "Cedar Point", price: "$250" },
     { park: "Dorney Park", price: "$145" },
@@ -93,7 +119,22 @@ const passCatalog = {
     { park: "Kings Dominion", price: "$199" },
     { park: "Kings Island", price: "$225" },
     { park: "Knott's Berry Farm", price: "$300" },
-    { park: "La Ronde", price: "$150" }
+    { park: "La Ronde", price: "$150", currency: "CAD" },
+    { park: "Michigan's Adventure", price: "$190" },
+    { park: "Six Flags Darien Lake", price: "$135" },
+    { park: "Six Flags Discovery Kingdom", price: "$145" },
+    { park: "Six Flags Fiesta Texas", price: "$145" },
+    { park: "Six Flags Great Adventure", price: "$155" },
+    { park: "Six Flags Great America", price: "$145" },
+    { park: "Six Flags Great Escape", price: "$135" },
+    { park: "Six Flags Magic Mountain", price: "$250" },
+    { park: "Six Flags Mexico", price: "$2900", currency: "MXN" },
+    { park: "Six Flags New England", price: "$145" },
+    { park: "Six Flags Over Georgia", price: "$145" },
+    { park: "Six Flags Over Texas", price: "$155" },
+    { park: "Six Flags St. Louis", price: "$135" },
+    { park: "Valleyfair", price: "$125" },
+    { park: "Worlds of Fun", price: "$125" }
   ]
 };
 
@@ -175,6 +216,7 @@ const passOffers = Object.entries(passCatalog).flatMap(([passType, offers]) =>
     homePark: offer.park,
     passType,
     price: offer.price,
+    currency: offer.currency || "USD",
     disclaimer: offer.disclaimer || "",
     accessibleParks: offer.accessibleParks || getDefaultAccessibleParks(passType, offer.park)
   }))
@@ -195,6 +237,27 @@ const filterableRegions = regions.filter((region) => region !== "All Parks");
 function parsePrice(rawPrice) {
   const normalized = String(rawPrice).replace(/[^\d.]/g, "");
   return Number.parseFloat(normalized) || 0;
+}
+
+// Update these rates whenever you want a closer USD conversion.
+const currencyToUsdRate = {
+  USD: 1,
+  CAD: 0.74,
+  MXN: 0.058
+};
+
+function convertToUsd(amount, currency = "USD") {
+  const code = String(currency || "USD").toUpperCase();
+  const rate = currencyToUsdRate[code] || 1;
+  return amount * rate;
+}
+
+function formatUsd(amount) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  }).format(amount);
 }
 
 function expandAccessibleParks(accessEntries) {
@@ -286,7 +349,7 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
     .map((offer) => ({
       ...offer,
       expandedParks: expandAccessibleParks(offer.accessibleParks),
-      numericPrice: parsePrice(offer.price)
+      numericPrice: convertToUsd(parsePrice(offer.price), offer.currency)
     }))
     .filter((offer) => {
       const matchesPark = selectedPark === "all" || offer.expandedParks.includes(selectedPark);
@@ -315,7 +378,8 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
   for (const offer of visibleOffers) {
     const node = template.content.cloneNode(true);
     node.querySelector(".pass-name").textContent = `${offer.homePark} - ${offer.passType} Pass`;
-    node.querySelector(".pass-price").textContent = offer.price;
+    const usdPrice = convertToUsd(parsePrice(offer.price), offer.currency);
+    node.querySelector(".pass-price").textContent = `~${formatUsd(usdPrice)}`;
     const cardEl = node.querySelector(".pass-card");
 
     const parksToDisplay = selectedRegion === "all"
