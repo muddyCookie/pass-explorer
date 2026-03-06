@@ -24,15 +24,24 @@
 
     <section class="controls" aria-label="Filter passes">
       <div class="control">
-        <label for="parkFilter">Filter by Park Access</label>
-        <select id="parkFilter">
-          <option value="all">All Parks</option>
-        </select>
+        <label for="parkFilterInput">Filter by Park Access</label>
+        <div class="park-combobox">
+          <input
+            id="parkFilterInput"
+            type="search"
+            placeholder="Search parks"
+            autocomplete="off"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-controls="parkFilterList"
+          >
+          <ul id="parkFilterList" class="park-combobox-list" role="listbox" hidden></ul>
+        </div>
       </div>
       <div class="control">
-        <label for="typeFilter">Filter by Pass Type</label>
+        <label for="typeFilter">Filter by Pass Tiers</label>
         <select id="typeFilter">
-          <option value="all">All Pass Types</option>
+          <option value="all">All Tiers</option>
         </select>
       </div>
       <div class="control">
@@ -44,7 +53,7 @@
       <div class="control">
         <label for="priceSort">Sort by Price</label>
         <select id="priceSort">
-          <option value="none">Default Order</option>
+          <option value="none">Default</option>
           <option value="low-high">Lowest to Highest</option>
           <option value="high-low">Highest to Lowest</option>
         </select>

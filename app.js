@@ -213,7 +213,8 @@ const supportedCurrencies = Array.from(
   new Set(passOffers.map((offer) => String(offer.currency || "USD").toUpperCase()))
 );
 
-const parkFilter = document.getElementById("parkFilter");
+const parkFilterInput = document.getElementById("parkFilterInput");
+const parkFilterList = document.getElementById("parkFilterList");
 const typeFilter = document.getElementById("typeFilter");
 const regionFilter = document.getElementById("regionFilter");
 const priceSort = document.getElementById("priceSort");
@@ -365,11 +366,74 @@ const allParks = Array.from(
   new Set(passOffers.flatMap((offer) => expandAccessibleParks(offer.accessibleParks)))
 ).sort((a, b) => a.localeCompare(b));
 
-for (const park of allParks) {
-  const option = document.createElement("option");
-  option.value = park;
-  option.textContent = park;
-  parkFilter.appendChild(option);
+const parkFilterOptions = [{ value: "all", label: "All Parks" }, ...allParks.map((park) => ({ value: park, label: park }))];
+let selectedParkFilterValue = "all";
+let highlightedParkOptionIndex = 0;
+
+function syncParkInputWithSelection() {
+  if (selectedParkFilterValue === "all") {
+    parkFilterInput.value = "";
+    return;
+  }
+
+  const selectedOption = parkFilterOptions.find((option) => option.value === selectedParkFilterValue);
+  parkFilterInput.value = selectedOption ? selectedOption.label : "";
+}
+
+function getFilteredParkOptions(query) {
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  if (!normalizedQuery) {
+    return parkFilterOptions;
+  }
+
+  return parkFilterOptions.filter((option) => option.value === "all" || option.label.toLowerCase().includes(normalizedQuery));
+}
+
+function closeParkFilterDropdown() {
+  parkFilterList.hidden = true;
+  parkFilterInput.setAttribute("aria-expanded", "false");
+}
+
+function openParkFilterDropdown() {
+  parkFilterList.hidden = false;
+  parkFilterInput.setAttribute("aria-expanded", "true");
+}
+
+function renderParkFilterOptions(query = "") {
+  const filteredOptions = getFilteredParkOptions(query);
+  parkFilterList.innerHTML = "";
+
+  if (filteredOptions.length === 0) {
+    const emptyOption = document.createElement("li");
+    emptyOption.className = "park-combobox-option is-empty";
+    emptyOption.textContent = "No matching parks";
+    parkFilterList.appendChild(emptyOption);
+    return;
+  }
+
+  highlightedParkOptionIndex = Math.min(highlightedParkOptionIndex, filteredOptions.length - 1);
+
+  filteredOptions.forEach((option, index) => {
+    const item = document.createElement("li");
+    item.className = "park-combobox-option";
+    item.setAttribute("role", "option");
+    item.dataset.value = option.value;
+    item.textContent = option.label;
+    if (option.value === selectedParkFilterValue) {
+      item.classList.add("is-selected");
+    }
+    if (index === highlightedParkOptionIndex) {
+      item.classList.add("is-highlighted");
+    }
+    item.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      selectedParkFilterValue = option.value;
+      syncParkInputWithSelection();
+      closeParkFilterDropdown();
+      applyFilters();
+    });
+    parkFilterList.appendChild(item);
+  });
 }
 
 for (const passType of passTypes) {
@@ -386,7 +450,12 @@ for (const region of filterableRegions) {
   regionFilter.appendChild(option);
 }
 
-function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion = "all", selectedSort = "none") {
+function renderPasses(
+  selectedPark = "all",
+  selectedType = "all",
+  selectedRegion = "all",
+  selectedSort = "none"
+) {
   passGrid.innerHTML = "";
 
   let visibleOffers = passOffers
@@ -476,14 +545,7 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
 
     const node = template.content.cloneNode(true);
     const passNameEl = node.querySelector(".pass-name");
-    const passNameLink = document.createElement("a");
-    passNameLink.className = "pass-name-link";
-    passNameLink.href = getPassPurchaseUrl(offer);
-    passNameLink.target = "_blank";
-    passNameLink.rel = "noopener noreferrer";
-    passNameLink.textContent = `${offer.homePark} - ${offer.passType} Pass`;
-    passNameEl.textContent = "";
-    passNameEl.appendChild(passNameLink);
+    passNameEl.textContent = `${offer.homePark} - ${offer.passType} Pass`;
     node.querySelector(".pass-price").textContent = formatOfferPrice(offer);
     const cardEl = node.querySelector(".pass-card");
 
@@ -506,19 +568,17 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
 
     const disclaimerEl = node.querySelector(".pass-disclaimer");
     const disclaimerText = buildParkingDisclaimer(offer, offer.expandedParks);
+    disclaimerEl.hidden = false;
+    const buyLink = document.createElement("a");
+    buyLink.className = "pass-buy-link";
+    buyLink.href = getPassPurchaseUrl(offer);
+    buyLink.target = "_blank";
+    buyLink.rel = "noopener noreferrer";
+    buyLink.textContent = "Buy This Pass";
+    disclaimerEl.textContent = "";
+    disclaimerEl.appendChild(buyLink);
     if (disclaimerText) {
-      disclaimerEl.textContent = disclaimerText;
-      disclaimerEl.hidden = false;
-    } else {
-      disclaimerEl.hidden = false;
-      const buyLink = document.createElement("a");
-      buyLink.className = "pass-buy-link";
-      buyLink.href = getPassPurchaseUrl(offer);
-      buyLink.target = "_blank";
-      buyLink.rel = "noopener noreferrer";
-      buyLink.textContent = "Buy This Pass";
-      disclaimerEl.textContent = "";
-      disclaimerEl.appendChild(buyLink);
+      disclaimerEl.appendChild(document.createTextNode(` • ${disclaimerText}`));
     }
 
     passGrid.appendChild(node);
@@ -527,15 +587,88 @@ function renderPasses(selectedPark = "all", selectedType = "all", selectedRegion
 }
 
 function applyFilters() {
-  renderPasses(parkFilter.value, typeFilter.value, regionFilter.value, priceSort.value);
+  renderPasses(selectedParkFilterValue, typeFilter.value, regionFilter.value, priceSort.value);
 }
 
-parkFilter.addEventListener("change", applyFilters);
+parkFilterInput.addEventListener("focus", () => {
+  highlightedParkOptionIndex = 0;
+  renderParkFilterOptions(parkFilterInput.value);
+  openParkFilterDropdown();
+});
+
+parkFilterInput.addEventListener("click", () => {
+  renderParkFilterOptions(parkFilterInput.value);
+  openParkFilterDropdown();
+});
+
+parkFilterInput.addEventListener("input", () => {
+  highlightedParkOptionIndex = 0;
+  renderParkFilterOptions(parkFilterInput.value);
+  openParkFilterDropdown();
+  selectedParkFilterValue = "all";
+});
+
+parkFilterInput.addEventListener("keydown", (event) => {
+  const filteredOptions = getFilteredParkOptions(parkFilterInput.value);
+  if (filteredOptions.length === 0) {
+    if (event.key === "Escape") {
+      closeParkFilterDropdown();
+    }
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    highlightedParkOptionIndex = Math.min(highlightedParkOptionIndex + 1, filteredOptions.length - 1);
+    renderParkFilterOptions(parkFilterInput.value);
+    openParkFilterDropdown();
+    return;
+  }
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    highlightedParkOptionIndex = Math.max(highlightedParkOptionIndex - 1, 0);
+    renderParkFilterOptions(parkFilterInput.value);
+    openParkFilterDropdown();
+    return;
+  }
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const selectedOption = filteredOptions[highlightedParkOptionIndex] || filteredOptions[0];
+    selectedParkFilterValue = selectedOption.value;
+    syncParkInputWithSelection();
+    closeParkFilterDropdown();
+    applyFilters();
+    return;
+  }
+
+  if (event.key === "Escape") {
+    closeParkFilterDropdown();
+  }
+});
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (target instanceof Node && !parkFilterInput.contains(target) && !parkFilterList.contains(target)) {
+    closeParkFilterDropdown();
+  }
+});
+
+parkFilterInput.addEventListener("blur", () => {
+  setTimeout(() => {
+    syncParkInputWithSelection();
+    closeParkFilterDropdown();
+  }, 0);
+});
+
 typeFilter.addEventListener("change", applyFilters);
 regionFilter.addEventListener("change", applyFilters);
 priceSort.addEventListener("change", applyFilters);
 
+renderParkFilterOptions();
+syncParkInputWithSelection();
 renderPasses();
 fetchExchangeRates().then(() => {
-  renderPasses(parkFilter.value, typeFilter.value, regionFilter.value, priceSort.value);
+  applyFilters();
 });

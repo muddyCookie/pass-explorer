@@ -92,6 +92,8 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
   gap: 0.9rem;
   animation: fade-up 700ms ease both;
+  position: relative;
+  z-index: 30;
 }
 
 .control {
@@ -105,7 +107,8 @@ label {
   font-weight: 700;
 }
 
-select {
+select,
+input[type="search"] {
   width: 100%;
   padding: 0.55rem 0.7rem;
   font-size: 0.95rem;
@@ -113,6 +116,52 @@ select {
   border: 1px solid #afbea9;
   background: var(--surface-2);
   font-family: inherit;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.park-combobox {
+  position: relative;
+}
+
+.park-combobox-list {
+  position: absolute;
+  z-index: 200;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  border: 1px solid #afbea9;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(22, 37, 33, 0.16);
+  max-height: 210px;
+  overflow-y: auto;
+}
+
+.park-combobox-option {
+  padding: 0.45rem 0.55rem;
+  border-radius: 7px;
+  font-size: 0.93rem;
+  cursor: pointer;
+}
+
+.park-combobox-option.is-highlighted,
+.park-combobox-option:hover {
+  background: #eaf4e8;
+}
+
+.park-combobox-option.is-selected {
+  font-weight: 700;
+}
+
+.park-combobox-option.is-empty {
+  color: #4a5d56;
+  cursor: default;
 }
 
 .results-meta {
