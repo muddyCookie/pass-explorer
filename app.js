@@ -1,38 +1,194 @@
-const parkDirectoryByRegion = {
-  "East Region": [
-    { name: "Carowinds", website: "https://www.sixflags.com/carowinds", passPurchaseUrl: "https://www.sixflags.com/carowinds/season-passes" },
-    { name: "Dorney Park", website: "https://www.sixflags.com/dorneypark", passPurchaseUrl: "https://www.sixflags.com/dorneypark/season-passes" },
-    { name: "Kings Dominion", website: "https://www.sixflags.com/kingsdominion", passPurchaseUrl: "https://www.sixflags.com/kingsdominion/season-passes" },
-    { name: "Six Flags Great Adventure", website: "https://www.sixflags.com/greatadventure", passPurchaseUrl: "https://www.sixflags.com/greatadventure/season-passes" },
-    { name: "Six Flags Great Escape", website: "https://www.sixflags.com/greatescape", passPurchaseUrl: "https://www.sixflags.com/greatescape/season-passes" },
-    { name: "Six Flags New England", website: "https://www.sixflags.com/newengland", passPurchaseUrl: "https://www.sixflags.com/newengland/season-passes" },
-    { name: "Six Flags Over Georgia", website: "https://www.sixflags.com/overgeorgia", passPurchaseUrl: "https://www.sixflags.com/overgeorgia/season-passes" }
-  ],
-  "Midwest Region": [
-    { name: "Canada's Wonderland", website: "https://www.sixflags.com/canadaswonderland", passPurchaseUrl: "https://www.sixflags.com/canadaswonderland/season-passes" },
-    { name: "Cedar Point", website: "https://www.sixflags.com/cedarpoint", passPurchaseUrl: "https://www.sixflags.com/cedarpoint/season-passes" },
-    { name: "Kings Island", website: "https://www.sixflags.com/kingsisland", passPurchaseUrl: "https://www.sixflags.com/kingsisland/season-passes" },
-    { name: "La Ronde", website: "https://www.sixflags.com/laronde", passPurchaseUrl: "https://www.sixflags.com/laronde/passeports" },
-    { name: "Michigan's Adventure", website: "https://www.sixflags.com/miadventure", passPurchaseUrl: "https://www.sixflags.com/miadventure/season-passes" },
-    { name: "Six Flags Darien Lake", website: "https://www.sixflags.com/darienlake", passPurchaseUrl: "https://www.sixflags.com/darienlake/season-passes" },
-    { name: "Six Flags Great America", website: "https://www.sixflags.com/greatamerica", passPurchaseUrl: "https://www.sixflags.com/greatamerica/season-passes" },
-    { name: "Six Flags St. Louis", website: "https://www.sixflags.com/stlouis", passPurchaseUrl: "https://www.sixflags.com/stlouis/season-passes" },
-    { name: "Valleyfair", website: "https://www.sixflags.com/valleyfair", passPurchaseUrl: "https://www.sixflags.com/valleyfair/season-passes" },
-    { name: "Worlds of Fun", website: "https://www.sixflags.com/worldsoffun", passPurchaseUrl: "https://www.sixflags.com/worldsoffun/season-passes" }
-  ],
-  "Texas Region": [
-    { name: "Frontier City", website: "https://www.sixflags.com/frontiercity", passPurchaseUrl: "https://www.sixflags.com/frontiercity/season-passes" },
-    { name: "Six Flags Fiesta Texas", website: "https://www.sixflags.com/fiestatexas", passPurchaseUrl: "https://www.sixflags.com/fiestatexas/season-passes" },
-    { name: "Six Flags Over Texas", website: "https://www.sixflags.com/overtexas", passPurchaseUrl: "https://www.sixflags.com/overtexas/season-passes" }
-  ],
-  "West Region": [
-    { name: "California's Great America", website: "https://www.sixflags.com/cagreatamerica", passPurchaseUrl: "https://www.sixflags.com/cagreatamerica/season-passes" },
-    { name: "Knott's Berry Farm", website: "https://www.sixflags.com/knotts", passPurchaseUrl: "https://www.sixflags.com/knotts/season-passes" },
-    { name: "Six Flags Discovery Kingdom", website: "https://www.sixflags.com/discoverykingdom", passPurchaseUrl: "https://www.sixflags.com/discoverykingdom/season-passes" },
-    { name: "Six Flags Magic Mountain", website: "https://www.sixflags.com/magicmountain", passPurchaseUrl: "https://www.sixflags.com/magicmountain/season-passes" },
-    { name: "Six Flags Mexico", website: "https://www.sixflags.com/mexico", passPurchaseUrl: "https://www.sixflags.com/mexico/season-passes" }
-  ]
+const sixFlagsPassPathByParkName = {
+  "La Ronde": "passeports"
 };
+
+const regionOrder = ["East", "Midwest", "Texas", "West"];
+const passTypeOrderList = ["Silver", "Gold", "Prestige"];
+const passFieldByType = {
+  Silver: "Silver",
+  Gold: "Gold",
+  Prestige: "Prestige"
+};
+
+const parkCatalog = {
+  "Carowinds": { 
+    Region: "East", 
+    url: "carowinds", 
+    "Silver": "$89", 
+    "Gold": "$110", 
+    "Prestige": "$165" },
+  "Dorney Park": { 
+    Region: "East", 
+    url: "dorneypark", 
+    "Gold": "$105", 
+    "Prestige": "$145" },
+  "Kings Dominion": { 
+    Region: "East", 
+    url: "kingsdominion", 
+    "Silver": "$89", 
+    "Gold": "$110", 
+    "Prestige": "$199" },
+  "Six Flags Great Adventure": { 
+    Region: "East", 
+    url: "greatadventure", 
+    "Silver": "$70", 
+    "Gold": "$89", 
+    "Prestige": "$155" },
+  "Six Flags Great Escape": { 
+    Region: "East", 
+    url: "greatescape", 
+    "Gold": "$65", 
+    "Prestige": "$135" },
+  "Six Flags New England": { 
+    Region: "East", 
+    url: "newengland", 
+    "Silver": "$70", 
+    "Gold": "$89", 
+    "Prestige": "$145" },
+  "Six Flags Over Georgia": { 
+    Region: "East", 
+    url: "overgeorgia", 
+    "Silver": "$65", 
+    "Gold": "$89", 
+    "Prestige": "$145" },
+  "Canada's Wonderland": { 
+    Region: "Midwest", 
+    url: "canadaswonderland", 
+    currency: "CAD", 
+    "Silver": "$89", 
+    "Gold": "$125", 
+    "Prestige": "$210" },
+  "Cedar Point": { 
+    Region: "Midwest", 
+    url: "cedarpoint", 
+    "Silver": "$99", 
+    "Gold": "$150", 
+    "Prestige": "$250" },
+  "Kings Island": { 
+    Region: "Midwest", 
+    url: "kingsisland", 
+    "Silver": "$105", 
+    "Gold": "$145", 
+    "Prestige": "$225" },
+  "La Ronde": { 
+    Region: "Midwest", 
+    url: "laronde", 
+    currency: "CAD", 
+    "Silver": "$73", 
+    "Gold": "$95", 
+    "Prestige": "$150" },
+  "Michigan's Adventure": { 
+    Region: "Midwest", 
+    url: "miadventure", 
+    "Gold": "$110", 
+    "Prestige": "$190" },
+  "Six Flags Darien Lake": { 
+    Region: "Midwest", 
+    url: "darienlake", 
+    "Gold": "$75", 
+    "Prestige": "$135" },
+  "Six Flags Great America": { 
+    Region: "Midwest", 
+    url: "greatamerica", 
+    "Silver": "$79", 
+    "Gold": "$99", 
+    "Prestige": "$145" },
+  "Six Flags St. Louis": { 
+    Region: "Midwest", 
+    url: "stlouis", 
+    "Silver": "$59", 
+    "Gold": "$75", 
+    "Prestige": "$135" },
+  "Valleyfair": { 
+    Region: "Midwest", 
+    url: "valleyfair", 
+    "Gold": "$85", 
+    "Prestige": "$125" },
+  "Worlds of Fun": { 
+    Region: "Midwest", 
+    url: "worldsoffun", 
+    "Silver": "$65", 
+    "Gold": "$90", 
+    "Prestige": "$125" },
+  "Frontier City": { 
+    Region: "Texas", 
+    url: "frontiercity", 
+    "Silver": "$55", 
+    "Gold": "$79", 
+    "Prestige": "$125" },
+  "Six Flags Fiesta Texas": { 
+    Region: "Texas", 
+    url: "fiestatexas", 
+    "Silver": "$70", 
+    "Gold": "$99", 
+    "Prestige": "$145" },
+  "Six Flags Over Texas": { 
+    Region: "Texas", 
+    url: "overtexas", 
+    "Silver": "$70", 
+    "Gold": "$99", 
+    "Prestige": "$155" },
+  "California's Great America": { 
+    Region: "West", 
+    url: "cagreatamerica", 
+    "Gold": "$85" },
+  "Knott's Berry Farm": { 
+    Region: "West", 
+    url: "knotts", 
+    "Silver": "$110", 
+    "Gold": "$140", 
+    "Prestige": "$300" },
+  "Six Flags Discovery Kingdom": { 
+    Region: "West", 
+    url: "discoverykingdom", 
+    "Silver": "$65", 
+    "Gold": "$79", 
+    "Prestige": "$145" },
+  "Six Flags Magic Mountain": { 
+    Region: "West", 
+    url: "magicmountain", 
+    "Silver": "$90", 
+    "Gold": "$115", 
+    "Prestige": "$250" },
+  "Six Flags Mexico": { 
+    Region: "West", 
+    url: "mexico", 
+    currency: "MXN", 
+    "Silver": "$1300", 
+    "Gold": "$1500", 
+    "Prestige": "$2900" }
+};
+
+function buildParkLinks(parkName, parkConfig) {
+  if (parkConfig.url) {
+    const baseUrl = `https://www.sixflags.com/${parkConfig.url}`;
+    const passPath = sixFlagsPassPathByParkName[parkName] || "season-passes";
+    return {
+      website: baseUrl,
+      passPurchaseUrl: `${baseUrl}/${passPath}`
+    };
+  }
+
+  const website = parkConfig.website || "#";
+  return {
+    website,
+    passPurchaseUrl: parkConfig.passPurchaseUrl || website
+  };
+}
+
+const parkDirectoryByRegion = Object.fromEntries(regionOrder.map((region) => [region, []]));
+for (const [parkName, parkConfig] of Object.entries(parkCatalog)) {
+  const region = parkConfig.Region;
+  const links = buildParkLinks(parkName, parkConfig);
+  if (!parkDirectoryByRegion[region]) {
+    parkDirectoryByRegion[region] = [];
+  }
+  parkDirectoryByRegion[region].push({
+    name: parkName,
+    website: links.website,
+    passPurchaseUrl: links.passPurchaseUrl
+  });
+}
 
 const parkDirectory = Object.values(parkDirectoryByRegion).flat();
 const parkByName = Object.fromEntries(parkDirectory.map((park) => [park.name, park]));
@@ -41,82 +197,26 @@ const regionParks = Object.fromEntries(
 );
 regionParks["All Parks"] = parkDirectory.map((park) => park.name);
 
-const passCatalog = {
-  Silver: [
-    { park: "Canada's Wonderland", price: "$89", currency: "CAD" },
-    { park: "Carowinds", price: "$89" },
-    { park: "Cedar Point", price: "$99" },
-    { park: "Frontier City", price: "$55" },
-    { park: "Kings Dominion", price: "$89" },
-    { park: "Kings Island", price: "$105" },
-    { park: "Knott's Berry Farm", price: "$110" },
-    { park: "La Ronde", price: "$73", currency: "CAD" },
-    { park: "Six Flags Discovery Kingdom", price: "$65" },
-    { park: "Six Flags Fiesta Texas", price: "$70" },
-    { park: "Six Flags Great Adventure", price: "$70" },
-    { park: "Six Flags Great America", price: "$79" },
-    { park: "Six Flags Magic Mountain", price: "$90" },
-    { park: "Six Flags Mexico", price: "$1300", currency: "MXN" },
-    { park: "Six Flags New England", price: "$70" },
-    { park: "Six Flags Over Georgia", price: "$65" },
-    { park: "Six Flags Over Texas", price: "$70" },
-    { park: "Six Flags St. Louis", price: "$59" },
-    { park: "Worlds of Fun", price: "$65" }
-  ],
-  Gold: [
-    { park: "California's Great America", price: "$85" },
-    { park: "Canada's Wonderland", price: "$125", currency: "CAD" },
-    { park: "Carowinds", price: "$110" },
-    { park: "Cedar Point", price: "$150" },
-    { park: "Dorney Park", price: "$105" },
-    { park: "Frontier City", price: "$79" },
-    { park: "Kings Dominion", price: "$110" },
-    { park: "Kings Island", price: "$145" },
-    { park: "Knott's Berry Farm", price: "$140" },
-    { park: "La Ronde", price: "$95", currency: "CAD" },
-    { park: "Michigan's Adventure", price: "$110" },
-    { park: "Six Flags Darien Lake", price: "$75" },
-    { park: "Six Flags Discovery Kingdom", price: "$79" },
-    { park: "Six Flags Fiesta Texas", price: "$99" },
-    { park: "Six Flags Great Adventure", price: "$89" },
-    { park: "Six Flags Great America", price: "$99" },
-    { park: "Six Flags Great Escape", price: "$65" },
-    { park: "Six Flags Magic Mountain", price: "$115" },
-    { park: "Six Flags Mexico", price: "$1500", currency: "MXN" },
-    { park: "Six Flags New England", price: "$89" },
-    { park: "Six Flags Over Georgia", price: "$89" },
-    { park: "Six Flags Over Texas", price: "$99" },
-    { park: "Six Flags St. Louis", price: "$75" },
-    { park: "Valleyfair", price: "$85" },
-    { park: "Worlds of Fun", price: "$90" }
-  ],
-  Prestige: [
-    { park: "Canada's Wonderland", price: "$210", currency: "CAD" },
-    { park: "Carowinds", price: "$165" },
-    { park: "Cedar Point", price: "$250" },
-    { park: "Dorney Park", price: "$145" },
-    { park: "Frontier City", price: "$125" },
-    { park: "Kings Dominion", price: "$199" },
-    { park: "Kings Island", price: "$225" },
-    { park: "Knott's Berry Farm", price: "$300" },
-    { park: "La Ronde", price: "$150", currency: "CAD" },
-    { park: "Michigan's Adventure", price: "$190" },
-    { park: "Six Flags Darien Lake", price: "$135" },
-    { park: "Six Flags Discovery Kingdom", price: "$145" },
-    { park: "Six Flags Fiesta Texas", price: "$145" },
-    { park: "Six Flags Great Adventure", price: "$155" },
-    { park: "Six Flags Great America", price: "$145" },
-    { park: "Six Flags Great Escape", price: "$135" },
-    { park: "Six Flags Magic Mountain", price: "$250" },
-    { park: "Six Flags Mexico", price: "$2900", currency: "MXN" },
-    { park: "Six Flags New England", price: "$145" },
-    { park: "Six Flags Over Georgia", price: "$145" },
-    { park: "Six Flags Over Texas", price: "$155" },
-    { park: "Six Flags St. Louis", price: "$135" },
-    { park: "Valleyfair", price: "$125" },
-    { park: "Worlds of Fun", price: "$125" }
-  ]
-};
+const passCatalog = Object.fromEntries(passTypeOrderList.map((passType) => [passType, []]));
+for (const [parkName, parkConfig] of Object.entries(parkCatalog)) {
+  for (const passType of passTypeOrderList) {
+    const passField = passFieldByType[passType];
+    const configuredValue = parkConfig[passField];
+    if (!configuredValue) {
+      continue;
+    }
+
+    const offer = {
+      park: parkName,
+      price: configuredValue
+    };
+    if (parkConfig.currency && parkConfig.currency !== "USD") {
+      offer.currency = parkConfig.currency;
+    }
+
+    passCatalog[passType].push(offer);
+  }
+}
 
 function slugify(value) {
   return String(value || "")
@@ -228,7 +328,7 @@ const filterableRegions = regions.filter((region) => region !== "All Parks");
 const passTypeOrder = new Map(passTypes.map((passType, index) => [passType, index]));
 
 function parsePrice(rawPrice) {
-  const normalized = String(rawPrice).replace(/[^\d.]/g, "");
+  const normalized = String(rawPrice).replace(/[^\d.,]/g, "").replace(/,/g, "");
   return Number.parseFloat(normalized) || 0;
 }
 
@@ -289,6 +389,11 @@ async function fetchExchangeRates() {
 function formatOfferPrice(offer) {
   const code = String(offer.currency || "USD").toUpperCase();
   const rawPrice = String(offer.price || "").trim();
+  const numericPrice = parsePrice(rawPrice);
+  if (numericPrice <= 0) {
+    return rawPrice;
+  }
+
   if (code === "USD") {
     return rawPrice;
   }
@@ -297,7 +402,7 @@ function formatOfferPrice(offer) {
     return `${code} ${rawPrice}`;
   }
 
-  const usdPrice = convertToUsd(parsePrice(rawPrice), code);
+  const usdPrice = convertToUsd(numericPrice, code);
   if (Number.isFinite(usdPrice)) {
     return `~${formatUsd(usdPrice)}`;
   }
@@ -450,7 +555,7 @@ for (const passType of passTypes) {
 for (const region of filterableRegions) {
   const option = document.createElement("option");
   option.value = region;
-  option.textContent = region;
+  option.textContent = `${region} Region`;
   regionFilter.appendChild(option);
 }
 
@@ -706,6 +811,6 @@ priceSort.addEventListener("change", applyFilters);
 renderParkFilterOptions();
 syncParkInputWithSelection();
 renderPasses();
-fetchExchangeRates().then(() => {
+fetchExchangeRates().finally(() => {
   applyFilters();
 });
