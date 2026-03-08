@@ -24,7 +24,7 @@
 
     <section class="controls" aria-label="Filter passes">
       <div class="control">
-        <label for="companyFilterInput">Company</label>
+        <label for="companyFilterInput">Filter by Company</label>
         <div class="park-combobox">
           <input
             id="companyFilterInput"
@@ -59,12 +59,6 @@
           <option value="all">All Tiers</option>
         </select>
       </div>
-      <div id="regionControl" class="control">
-        <label for="regionFilter">Filter by Region</label>
-        <select id="regionFilter">
-          <option value="all">All Regions</option>
-        </select>
-      </div>
       <div class="control">
         <label for="priceSort">Sort by Price</label>
         <select id="priceSort">
@@ -97,6 +91,10 @@
     </article>
   </template>
 
+  <script src="parks-data.js"></script>
+  <script src="app-data.js"></script>
+  <script src="pass-catalog.js"></script>
+  <script src="pricing.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
