@@ -2,57 +2,77 @@ const sixFlagsPassPathByParkName = {
   "La Ronde": "passeports"
 };
 
+const defaultCompany = "Six Flags";
+const companyOrder = [defaultCompany];
 const regionOrder = ["East", "Midwest", "Texas", "West"];
-const passTypeOrderList = ["Silver", "Gold", "Prestige"];
-const passFieldByType = {
-  Silver: "Silver",
-  Gold: "Gold",
-  Prestige: "Prestige"
+const companyConfig = {
+  [defaultCompany]: {
+    usesRegionFilter: true,
+    tierOrder: ["Silver", "Gold", "Prestige"],
+    passFieldByType: {
+      Silver: "Silver",
+      Gold: "Gold",
+      Prestige: "Prestige"
+    },
+    defaultAccessibleByTier: {
+      Silver: (homePark) => [homePark],
+      Gold: (homePark) => [parkRegionByName[homePark] || homePark],
+      Prestige: () => ["All Parks"]
+    }
+  }
 };
 
 const parkCatalog = {
   "Carowinds": { 
     Region: "East", 
+    company: "Six Flags", 
     url: "carowinds", 
     "Silver": "$89", 
     "Gold": "$110", 
     "Prestige": "$165" },
   "Dorney Park": { 
     Region: "East", 
+    company: "Six Flags", 
     url: "dorneypark", 
     "Gold": "$105", 
     "Prestige": "$145" },
   "Kings Dominion": { 
     Region: "East", 
+    company: "Six Flags", 
     url: "kingsdominion", 
     "Silver": "$89", 
     "Gold": "$110", 
     "Prestige": "$199" },
   "Six Flags Great Adventure": { 
     Region: "East", 
+    company: "Six Flags", 
     url: "greatadventure", 
     "Silver": "$70", 
     "Gold": "$89", 
     "Prestige": "$155" },
   "Six Flags Great Escape": { 
     Region: "East", 
+    company: "Six Flags", 
     url: "greatescape", 
     "Gold": "$65", 
     "Prestige": "$135" },
   "Six Flags New England": { 
     Region: "East", 
+    company: "Six Flags", 
     url: "newengland", 
     "Silver": "$70", 
     "Gold": "$89", 
     "Prestige": "$145" },
   "Six Flags Over Georgia": { 
     Region: "East", 
+    company: "Six Flags", 
     url: "overgeorgia", 
     "Silver": "$65", 
     "Gold": "$89", 
     "Prestige": "$145" },
   "Canada's Wonderland": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "canadaswonderland", 
     currency: "CAD", 
     "Silver": "$89", 
@@ -60,18 +80,21 @@ const parkCatalog = {
     "Prestige": "$210" },
   "Cedar Point": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "cedarpoint", 
     "Silver": "$99", 
     "Gold": "$150", 
     "Prestige": "$250" },
   "Kings Island": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "kingsisland", 
     "Silver": "$105", 
     "Gold": "$145", 
     "Prestige": "$225" },
   "La Ronde": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "laronde", 
     currency: "CAD", 
     "Silver": "$73", 
@@ -79,79 +102,93 @@ const parkCatalog = {
     "Prestige": "$150" },
   "Michigan's Adventure": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "miadventure", 
     "Gold": "$110", 
     "Prestige": "$190" },
   "Six Flags Darien Lake": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "darienlake", 
     "Gold": "$75", 
     "Prestige": "$135" },
   "Six Flags Great America": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "greatamerica", 
     "Silver": "$79", 
     "Gold": "$99", 
     "Prestige": "$145" },
   "Six Flags St. Louis": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "stlouis", 
     "Silver": "$59", 
     "Gold": "$75", 
     "Prestige": "$135" },
   "Valleyfair": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "valleyfair", 
     "Gold": "$85", 
     "Prestige": "$125" },
   "Worlds of Fun": { 
     Region: "Midwest", 
+    company: "Six Flags", 
     url: "worldsoffun", 
     "Silver": "$65", 
     "Gold": "$90", 
     "Prestige": "$125" },
   "Frontier City": { 
     Region: "Texas", 
+    company: "Six Flags", 
     url: "frontiercity", 
     "Silver": "$55", 
     "Gold": "$79", 
     "Prestige": "$125" },
   "Six Flags Fiesta Texas": { 
     Region: "Texas", 
+    company: "Six Flags", 
     url: "fiestatexas", 
     "Silver": "$70", 
     "Gold": "$99", 
     "Prestige": "$145" },
   "Six Flags Over Texas": { 
     Region: "Texas", 
+    company: "Six Flags", 
     url: "overtexas", 
     "Silver": "$70", 
     "Gold": "$99", 
     "Prestige": "$155" },
   "California's Great America": { 
     Region: "West", 
+    company: "Six Flags", 
     url: "cagreatamerica", 
     "Gold": "$85" },
   "Knott's Berry Farm": { 
     Region: "West", 
+    company: "Six Flags", 
     url: "knotts", 
     "Silver": "$110", 
     "Gold": "$140", 
     "Prestige": "$300" },
   "Six Flags Discovery Kingdom": { 
     Region: "West", 
+    company: "Six Flags", 
     url: "discoverykingdom", 
     "Silver": "$65", 
     "Gold": "$79", 
     "Prestige": "$145" },
   "Six Flags Magic Mountain": { 
     Region: "West", 
+    company: "Six Flags", 
     url: "magicmountain", 
     "Silver": "$90", 
     "Gold": "$115", 
     "Prestige": "$250" },
   "Six Flags Mexico": { 
     Region: "West", 
+    company: "Six Flags", 
     url: "mexico", 
     currency: "MXN", 
     "Silver": "$1300", 
@@ -159,8 +196,19 @@ const parkCatalog = {
     "Prestige": "$2900" }
 };
 
-function buildParkLinks(parkName, parkConfig) {
-  if (parkConfig.url) {
+function getParkPassTiers(parkConfig, companyName) {
+  if (parkConfig.passTiers && typeof parkConfig.passTiers === "object") {
+    return Object.entries(parkConfig.passTiers).filter(([, value]) => Boolean(value));
+  }
+
+  const fieldMap = companyConfig[companyName]?.passFieldByType || {};
+  return Object.entries(fieldMap)
+    .map(([tierName, fieldName]) => [tierName, parkConfig[fieldName]])
+    .filter(([, value]) => Boolean(value));
+}
+
+function buildParkLinks(parkName, parkConfig, companyName) {
+  if (companyName === defaultCompany && parkConfig.url) {
     const baseUrl = `https://www.sixflags.com/${parkConfig.url}`;
     const passPath = sixFlagsPassPathByParkName[parkName] || "season-passes";
     return {
@@ -176,47 +224,32 @@ function buildParkLinks(parkName, parkConfig) {
   };
 }
 
+const parkDirectory = [];
 const parkDirectoryByRegion = Object.fromEntries(regionOrder.map((region) => [region, []]));
 for (const [parkName, parkConfig] of Object.entries(parkCatalog)) {
+  const company = parkConfig.company || defaultCompany;
   const region = parkConfig.Region;
-  const links = buildParkLinks(parkName, parkConfig);
-  if (!parkDirectoryByRegion[region]) {
-    parkDirectoryByRegion[region] = [];
-  }
-  parkDirectoryByRegion[region].push({
+  const links = buildParkLinks(parkName, parkConfig, company);
+  const parkEntry = {
     name: parkName,
+    company,
     website: links.website,
     passPurchaseUrl: links.passPurchaseUrl
-  });
+  };
+  parkDirectory.push(parkEntry);
+  if (region && !parkDirectoryByRegion[region]) {
+    parkDirectoryByRegion[region] = [];
+  }
+  if (region) {
+    parkDirectoryByRegion[region].push(parkEntry);
+  }
 }
 
-const parkDirectory = Object.values(parkDirectoryByRegion).flat();
 const parkByName = Object.fromEntries(parkDirectory.map((park) => [park.name, park]));
 const regionParks = Object.fromEntries(
   Object.entries(parkDirectoryByRegion).map(([region, parks]) => [region, parks.map((park) => park.name)])
 );
 regionParks["All Parks"] = parkDirectory.map((park) => park.name);
-
-const passCatalog = Object.fromEntries(passTypeOrderList.map((passType) => [passType, []]));
-for (const [parkName, parkConfig] of Object.entries(parkCatalog)) {
-  for (const passType of passTypeOrderList) {
-    const passField = passFieldByType[passType];
-    const configuredValue = parkConfig[passField];
-    if (!configuredValue) {
-      continue;
-    }
-
-    const offer = {
-      park: parkName,
-      price: configuredValue
-    };
-    if (parkConfig.currency && parkConfig.currency !== "USD") {
-      offer.currency = parkConfig.currency;
-    }
-
-    passCatalog[passType].push(offer);
-  }
-}
 
 function slugify(value) {
   return String(value || "")
@@ -243,14 +276,14 @@ for (const [region, parks] of Object.entries(regionParks)) {
   }
 }
 
-function getDefaultAccessibleParks(passType, homePark) {
-  if (passType === "Silver") {
-    return [homePark];
+function getDefaultAccessibleParks(passType, homePark, companyName) {
+  const companyDefaults = companyConfig[companyName]?.defaultAccessibleByTier || {};
+  const accessBuilder = companyDefaults[passType];
+  if (typeof accessBuilder === "function") {
+    return accessBuilder(homePark);
   }
-  if (passType === "Gold") {
-    return [parkRegionByName[homePark] || homePark];
-  }
-  return ["All Parks"];
+
+  return [homePark];
 }
 
 const homePrestigeOnlyParkingParks = new Set(["Canada's Wonderland", "La Ronde"]);
@@ -298,23 +331,71 @@ function buildParkingDisclaimer(offer, expandedParks) {
   return `Parking is not included at ${formatParkList(excludedParks)}`;
 }
 
-const passOffers = Object.entries(passCatalog).flatMap(([passType, offers]) =>
-  offers.map((offer) => ({
-    id: `${slugify(offer.park)}-${slugify(passType)}`,
-    homePark: offer.park,
-    passType,
-    price: offer.price,
-    currency: offer.currency || "USD",
-    disclaimer: offer.disclaimer || "",
-    accessibleParks: offer.accessibleParks || getDefaultAccessibleParks(passType, offer.park)
-  }))
-);
+const passOffers = [];
+for (const [parkName, parkConfig] of Object.entries(parkCatalog)) {
+  const company = parkConfig.company || defaultCompany;
+  const tierOffers = getParkPassTiers(parkConfig, company);
+  for (const [passType, price] of tierOffers) {
+    passOffers.push({
+      id: `${slugify(parkName)}-${slugify(passType)}-${slugify(company)}`,
+      homePark: parkName,
+      company,
+      passType,
+      price,
+      currency: parkConfig.currency || "USD",
+      disclaimer: parkConfig.disclaimer || "",
+      accessibleParks: parkConfig.accessibleParks || getDefaultAccessibleParks(passType, parkName, company)
+    });
+  }
+}
 const supportedCurrencies = Array.from(
   new Set(passOffers.map((offer) => String(offer.currency || "USD").toUpperCase()))
 );
 
+function ensureCompanyFilterCombobox() {
+  let companyFilterInput = document.getElementById("companyFilterInput");
+  let companyFilterList = document.getElementById("companyFilterList");
+  if (companyFilterInput && companyFilterList) {
+    return { companyFilterInput, companyFilterList };
+  }
+
+  const controls = document.querySelector(".controls");
+  if (!controls) {
+    return { companyFilterInput: null, companyFilterList: null };
+  }
+
+  let companyControl = document.getElementById("companyFilter")?.closest(".control")
+    || document.getElementById("companyFilterInput")?.closest(".control");
+  if (!companyControl) {
+    companyControl = document.createElement("div");
+    companyControl.className = "control";
+    controls.insertBefore(companyControl, controls.firstElementChild);
+  }
+
+  companyControl.innerHTML = `
+    <label for="companyFilterInput">Company</label>
+    <div class="park-combobox">
+      <input
+        id="companyFilterInput"
+        type="search"
+        placeholder="Search companies"
+        autocomplete="off"
+        aria-haspopup="listbox"
+        aria-expanded="false"
+        aria-controls="companyFilterList"
+      >
+      <ul id="companyFilterList" class="park-combobox-list" role="listbox" hidden></ul>
+    </div>
+  `;
+
+  companyFilterInput = document.getElementById("companyFilterInput");
+  companyFilterList = document.getElementById("companyFilterList");
+  return { companyFilterInput, companyFilterList };
+}
+
 const parkFilterInput = document.getElementById("parkFilterInput");
 const parkFilterList = document.getElementById("parkFilterList");
+const { companyFilterInput, companyFilterList } = ensureCompanyFilterCombobox();
 const typeFilter = document.getElementById("typeFilter");
 const regionFilter = document.getElementById("regionFilter");
 const priceSort = document.getElementById("priceSort");
@@ -322,10 +403,34 @@ const passGrid = document.getElementById("passGrid");
 const resultsMeta = document.getElementById("resultsMeta");
 const template = document.getElementById("passCardTemplate");
 
-const passTypes = Object.keys(passCatalog);
+function ensureRegionControlContainer() {
+  let control = document.getElementById("regionControl");
+  if (!control && regionFilter) {
+    const parentControl = regionFilter.closest(".control");
+    if (parentControl) {
+      parentControl.id = "regionControl";
+      control = parentControl;
+    }
+  }
+  return control;
+}
+
+const regionControl = ensureRegionControlContainer();
+
+const companies = Array.from(new Set(passOffers.map((offer) => offer.company))).sort((a, b) => {
+  const aIndex = companyOrder.indexOf(a);
+  const bIndex = companyOrder.indexOf(b);
+  if (aIndex !== -1 || bIndex !== -1) {
+    return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex)
+      - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
+  }
+  return a.localeCompare(b);
+});
+const tierSetByCompany = Object.fromEntries(
+  companies.map((company) => [company, new Set(passOffers.filter((offer) => offer.company === company).map((offer) => offer.passType))])
+);
 const regions = Object.keys(regionParks);
 const filterableRegions = regions.filter((region) => region !== "All Parks");
-const passTypeOrder = new Map(passTypes.map((passType, index) => [passType, index]));
 
 function parsePrice(rawPrice) {
   const normalized = String(rawPrice).replace(/[^\d.,]/g, "").replace(/,/g, "");
@@ -471,9 +576,206 @@ const allParks = Array.from(
   new Set(passOffers.flatMap((offer) => expandAccessibleParks(offer.accessibleParks)))
 ).sort((a, b) => a.localeCompare(b));
 
-const parkFilterOptions = [{ value: "all", label: "All Parks" }, ...allParks.map((park) => ({ value: park, label: park }))];
+function getParkOptionLabel(parkName) {
+  const companyName = parkByName[parkName]?.company || defaultCompany;
+  return `${parkName} (${companyName})`;
+}
+
+const allParkFilterOptions = [
+  { value: "all", label: "All Parks" },
+  ...allParks.map((park) => ({ value: park, label: getParkOptionLabel(park) }))
+];
+const companyFilterOptions = [
+  { value: "all", label: "All Companies" },
+  ...companies.map((company) => ({ value: company, label: company }))
+];
 let selectedParkFilterValue = "all";
 let highlightedParkOptionIndex = 0;
+let selectedCompanyFilterValue = "all";
+let highlightedCompanyOptionIndex = 0;
+
+function getCompanyTierOptions(companyName) {
+  if (companyName === "all") {
+    const orderedTiers = [];
+    const seen = new Set();
+    for (const company of companies) {
+      const configuredTierOrder = companyConfig[company]?.tierOrder || [];
+      for (const tierName of configuredTierOrder) {
+        if (tierSetByCompany[company]?.has(tierName) && !seen.has(tierName)) {
+          seen.add(tierName);
+          orderedTiers.push(tierName);
+        }
+      }
+    }
+
+    for (const company of companies) {
+      for (const tierName of tierSetByCompany[company] || []) {
+        if (!seen.has(tierName)) {
+          seen.add(tierName);
+          orderedTiers.push(tierName);
+        }
+      }
+    }
+    return orderedTiers;
+  }
+
+  const configuredTierOrder = companyConfig[companyName]?.tierOrder || [];
+  const companyTierSet = tierSetByCompany[companyName] || new Set();
+  const orderedTiers = configuredTierOrder.filter((tierName) => companyTierSet.has(tierName));
+  const unorderedTiers = Array.from(companyTierSet).filter((tierName) => !configuredTierOrder.includes(tierName));
+  return [...orderedTiers, ...unorderedTiers];
+}
+
+function getPassTypeOrderMap(selectedCompany) {
+  return new Map(getCompanyTierOptions(selectedCompany).map((tierName, index) => [tierName, index]));
+}
+
+function renderTypeFilterOptions(selectedCompany) {
+  const availableTiers = getCompanyTierOptions(selectedCompany);
+  const currentSelection = typeFilter.value;
+  typeFilter.innerHTML = "";
+
+  const allOption = document.createElement("option");
+  allOption.value = "all";
+  allOption.textContent = "All Tiers";
+  typeFilter.appendChild(allOption);
+
+  for (const tierName of availableTiers) {
+    const option = document.createElement("option");
+    option.value = tierName;
+    option.textContent = tierName;
+    typeFilter.appendChild(option);
+  }
+
+  const isSelectionStillValid = currentSelection === "all"
+    || availableTiers.includes(currentSelection);
+  typeFilter.value = isSelectionStillValid ? currentSelection : "all";
+}
+
+function isRegionFilterVisible(selectedCompany) {
+  if (selectedCompany === "all") {
+    return true;
+  }
+  return Boolean(companyConfig[selectedCompany]?.usesRegionFilter);
+}
+
+function syncRegionFilterVisibility(selectedCompany) {
+  const showRegionFilter = isRegionFilterVisible(selectedCompany);
+  if (regionControl) {
+    regionControl.hidden = !showRegionFilter;
+  }
+  if (!showRegionFilter) {
+    regionFilter.value = "all";
+  }
+}
+
+function syncCompanyInputWithSelection() {
+  if (!companyFilterInput) {
+    return;
+  }
+  if (selectedCompanyFilterValue === "all") {
+    companyFilterInput.value = "";
+    return;
+  }
+
+  const selectedOption = companyFilterOptions.find((option) => option.value === selectedCompanyFilterValue);
+  companyFilterInput.value = selectedOption ? selectedOption.label : "";
+}
+
+function getFilteredCompanyOptions(query) {
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  if (!normalizedQuery) {
+    return companyFilterOptions;
+  }
+
+  const matchingOptions = companyFilterOptions.filter(
+    (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
+  );
+  const allCompaniesOption = companyFilterOptions.find((option) => option.value === "all");
+  return allCompaniesOption ? [...matchingOptions, allCompaniesOption] : matchingOptions;
+}
+
+function closeCompanyFilterDropdown() {
+  if (!companyFilterList || !companyFilterInput) {
+    return;
+  }
+  companyFilterList.hidden = true;
+  companyFilterInput.setAttribute("aria-expanded", "false");
+}
+
+function openCompanyFilterDropdown() {
+  if (!companyFilterList || !companyFilterInput) {
+    return;
+  }
+  companyFilterList.hidden = false;
+  companyFilterInput.setAttribute("aria-expanded", "true");
+}
+
+function renderCompanyFilterOptions(query = "") {
+  if (!companyFilterList) {
+    return;
+  }
+  const filteredOptions = getFilteredCompanyOptions(query);
+  companyFilterList.innerHTML = "";
+
+  if (filteredOptions.length === 0) {
+    const emptyOption = document.createElement("li");
+    emptyOption.className = "park-combobox-option is-empty";
+    emptyOption.textContent = "No matching companies";
+    companyFilterList.appendChild(emptyOption);
+    return;
+  }
+
+  highlightedCompanyOptionIndex = Math.min(highlightedCompanyOptionIndex, filteredOptions.length - 1);
+
+  filteredOptions.forEach((option, index) => {
+    const item = document.createElement("li");
+    item.className = "park-combobox-option";
+    item.setAttribute("role", "option");
+    item.dataset.value = option.value;
+    item.textContent = option.label;
+    if (option.value === selectedCompanyFilterValue) {
+      item.classList.add("is-selected");
+    }
+    if (index === highlightedCompanyOptionIndex) {
+      item.classList.add("is-highlighted");
+    }
+    item.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      selectedCompanyFilterValue = option.value;
+      syncCompanyInputWithSelection();
+      closeCompanyFilterDropdown();
+      handleCompanyFilterChange();
+      applyFilters();
+    });
+    companyFilterList.appendChild(item);
+  });
+}
+
+function getScopedParkOptions() {
+  const selectedCompany = selectedCompanyFilterValue;
+  if (selectedCompany === "all") {
+    return allParkFilterOptions;
+  }
+
+  const parksForCompany = new Set(
+    passOffers
+      .filter((offer) => offer.company === selectedCompany)
+      .flatMap((offer) => expandAccessibleParks(offer.accessibleParks))
+  );
+  return allParkFilterOptions.filter((option) => option.value === "all" || parksForCompany.has(option.value));
+}
+
+function ensureParkSelectionIsVisible() {
+  if (selectedParkFilterValue === "all") {
+    return;
+  }
+  const scopedOptions = getScopedParkOptions();
+  const selectionExists = scopedOptions.some((option) => option.value === selectedParkFilterValue);
+  if (!selectionExists) {
+    selectedParkFilterValue = "all";
+  }
+}
 
 function syncParkInputWithSelection() {
   if (selectedParkFilterValue === "all") {
@@ -481,20 +783,21 @@ function syncParkInputWithSelection() {
     return;
   }
 
-  const selectedOption = parkFilterOptions.find((option) => option.value === selectedParkFilterValue);
+  const selectedOption = getScopedParkOptions().find((option) => option.value === selectedParkFilterValue);
   parkFilterInput.value = selectedOption ? selectedOption.label : "";
 }
 
 function getFilteredParkOptions(query) {
+  const scopedParkOptions = getScopedParkOptions();
   const normalizedQuery = String(query || "").trim().toLowerCase();
   if (!normalizedQuery) {
-    return parkFilterOptions;
+    return scopedParkOptions;
   }
 
-  const matchingParkOptions = parkFilterOptions.filter(
+  const matchingParkOptions = scopedParkOptions.filter(
     (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
   );
-  const allParksOption = parkFilterOptions.find((option) => option.value === "all");
+  const allParksOption = scopedParkOptions.find((option) => option.value === "all");
   return allParksOption ? [...matchingParkOptions, allParksOption] : matchingParkOptions;
 }
 
@@ -545,13 +848,6 @@ function renderParkFilterOptions(query = "") {
   });
 }
 
-for (const passType of passTypes) {
-  const option = document.createElement("option");
-  option.value = passType;
-  option.textContent = passType;
-  typeFilter.appendChild(option);
-}
-
 for (const region of filterableRegions) {
   const option = document.createElement("option");
   option.value = region;
@@ -560,6 +856,7 @@ for (const region of filterableRegions) {
 }
 
 function renderPasses(
+  selectedCompany = "all",
   selectedPark = "all",
   selectedType = "all",
   selectedRegion = "all",
@@ -577,13 +874,16 @@ function renderPasses(
         : parsePrice(offer.price)
     }))
     .filter((offer) => {
+      const matchesCompany = selectedCompany === "all" || offer.company === selectedCompany;
       const matchesPark = selectedPark === "all" || offer.expandedParks.includes(selectedPark);
       const matchesType = selectedType === "all" || offer.passType === selectedType;
+      const companySupportsRegions = Boolean(companyConfig[offer.company]?.usesRegionFilter);
       const matchesRegion = selectedRegion === "all"
-        || offer.expandedParks.some((park) => regionParks[selectedRegion].includes(park));
-      return matchesPark && matchesType && matchesRegion;
+        || (companySupportsRegions && offer.expandedParks.some((park) => regionParks[selectedRegion]?.includes(park)));
+      return matchesCompany && matchesPark && matchesType && matchesRegion;
     });
 
+  const passTypeOrder = getPassTypeOrderMap(selectedCompany);
   const compareBySelectedSort = (a, b) => {
     if (selectedSort === "low-high") {
       return a.numericPrice - b.numericPrice;
@@ -660,7 +960,7 @@ function renderPasses(
 
     const parksToDisplay = selectedRegion === "all"
       ? offer.expandedParks
-      : offer.expandedParks.filter((park) => regionParks[selectedRegion].includes(park));
+      : offer.expandedParks.filter((park) => regionParks[selectedRegion]?.includes(park));
 
     const parkList = node.querySelector(".park-list");
     for (const parkName of parksToDisplay) {
@@ -696,8 +996,110 @@ function renderPasses(
 }
 
 function applyFilters() {
-  renderPasses(selectedParkFilterValue, typeFilter.value, regionFilter.value, priceSort.value);
+  renderPasses(selectedCompanyFilterValue, selectedParkFilterValue, typeFilter.value, regionFilter.value, priceSort.value);
 }
+
+function handleCompanyFilterChange() {
+  renderTypeFilterOptions(selectedCompanyFilterValue);
+  syncRegionFilterVisibility(selectedCompanyFilterValue);
+  ensureParkSelectionIsVisible();
+  syncParkInputWithSelection();
+  renderParkFilterOptions(parkFilterInput.value);
+}
+
+companyFilterInput?.addEventListener("focus", () => {
+  highlightedCompanyOptionIndex = 0;
+  renderCompanyFilterOptions(companyFilterInput.value);
+  openCompanyFilterDropdown();
+});
+
+companyFilterInput?.addEventListener("click", () => {
+  renderCompanyFilterOptions(companyFilterInput.value);
+  openCompanyFilterDropdown();
+});
+
+companyFilterInput?.addEventListener("input", () => {
+  const query = companyFilterInput.value;
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  highlightedCompanyOptionIndex = 0;
+  renderCompanyFilterOptions(query);
+  openCompanyFilterDropdown();
+
+  if (!normalizedQuery) {
+    selectedCompanyFilterValue = "all";
+    handleCompanyFilterChange();
+    applyFilters();
+    return;
+  }
+
+  const matchingCompanies = companyFilterOptions.filter(
+    (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
+  );
+  const exactMatch = matchingCompanies.find((option) => option.label.toLowerCase() === normalizedQuery);
+  const autoSelectedOption = exactMatch || (matchingCompanies.length === 1 ? matchingCompanies[0] : null);
+
+  if (!autoSelectedOption) {
+    return;
+  }
+
+  selectedCompanyFilterValue = autoSelectedOption.value;
+  handleCompanyFilterChange();
+  applyFilters();
+});
+
+companyFilterInput?.addEventListener("keydown", (event) => {
+  const filteredOptions = getFilteredCompanyOptions(companyFilterInput.value);
+  if (filteredOptions.length === 0) {
+    if (event.key === "Escape") {
+      closeCompanyFilterDropdown();
+    }
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    highlightedCompanyOptionIndex = Math.min(highlightedCompanyOptionIndex + 1, filteredOptions.length - 1);
+    renderCompanyFilterOptions(companyFilterInput.value);
+    openCompanyFilterDropdown();
+    return;
+  }
+
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    highlightedCompanyOptionIndex = Math.max(highlightedCompanyOptionIndex - 1, 0);
+    renderCompanyFilterOptions(companyFilterInput.value);
+    openCompanyFilterDropdown();
+    return;
+  }
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const normalizedQuery = String(companyFilterInput.value || "").trim().toLowerCase();
+    if (!normalizedQuery) {
+      selectedCompanyFilterValue = "all";
+    } else {
+      const companyOnlyOptions = filteredOptions.filter((option) => option.value !== "all");
+      const exactMatch = companyOnlyOptions.find((option) => option.label.toLowerCase() === normalizedQuery);
+      const highlightedOption = filteredOptions[highlightedCompanyOptionIndex];
+      const fallbackOption = companyOnlyOptions[0];
+      const selectedOption = exactMatch
+        || (highlightedOption && highlightedOption.value !== "all" ? highlightedOption : null)
+        || fallbackOption;
+
+      selectedCompanyFilterValue = selectedOption ? selectedOption.value : "all";
+    }
+
+    syncCompanyInputWithSelection();
+    closeCompanyFilterDropdown();
+    handleCompanyFilterChange();
+    applyFilters();
+    return;
+  }
+
+  if (event.key === "Escape") {
+    closeCompanyFilterDropdown();
+  }
+});
 
 parkFilterInput.addEventListener("focus", () => {
   highlightedParkOptionIndex = 0;
@@ -723,7 +1125,7 @@ parkFilterInput.addEventListener("input", () => {
     return;
   }
 
-  const matchingParks = parkFilterOptions.filter(
+  const matchingParks = getScopedParkOptions().filter(
     (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
   );
   const exactMatch = matchingParks.find((option) => option.label.toLowerCase() === normalizedQuery);
@@ -792,9 +1194,23 @@ parkFilterInput.addEventListener("keydown", (event) => {
 
 document.addEventListener("click", (event) => {
   const target = event.target;
-  if (target instanceof Node && !parkFilterInput.contains(target) && !parkFilterList.contains(target)) {
+  if (
+    target instanceof Node
+    && !parkFilterInput.contains(target)
+    && !parkFilterList.contains(target)
+    && !companyFilterInput?.contains(target)
+    && !companyFilterList?.contains(target)
+  ) {
     closeParkFilterDropdown();
+    closeCompanyFilterDropdown();
   }
+});
+
+companyFilterInput?.addEventListener("blur", () => {
+  setTimeout(() => {
+    syncCompanyInputWithSelection();
+    closeCompanyFilterDropdown();
+  }, 0);
 });
 
 parkFilterInput.addEventListener("blur", () => {
@@ -808,9 +1224,13 @@ typeFilter.addEventListener("change", applyFilters);
 regionFilter.addEventListener("change", applyFilters);
 priceSort.addEventListener("change", applyFilters);
 
+renderTypeFilterOptions("all");
+syncRegionFilterVisibility("all");
+renderCompanyFilterOptions();
+syncCompanyInputWithSelection();
 renderParkFilterOptions();
 syncParkInputWithSelection();
-renderPasses();
+renderPasses("all");
 fetchExchangeRates().finally(() => {
   applyFilters();
 });

@@ -24,6 +24,21 @@
 
     <section class="controls" aria-label="Filter passes">
       <div class="control">
+        <label for="companyFilterInput">Company</label>
+        <div class="park-combobox">
+          <input
+            id="companyFilterInput"
+            type="search"
+            placeholder="Search companies"
+            autocomplete="off"
+            aria-haspopup="listbox"
+            aria-expanded="false"
+            aria-controls="companyFilterList"
+          >
+          <ul id="companyFilterList" class="park-combobox-list" role="listbox" hidden></ul>
+        </div>
+      </div>
+      <div class="control">
         <label for="parkFilterInput">Filter by Park Access</label>
         <div class="park-combobox">
           <input
@@ -44,7 +59,7 @@
           <option value="all">All Tiers</option>
         </select>
       </div>
-      <div class="control">
+      <div id="regionControl" class="control">
         <label for="regionFilter">Filter by Region</label>
         <select id="regionFilter">
           <option value="all">All Regions</option>
