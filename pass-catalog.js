@@ -1,53 +1,3 @@
-function getParkPassTiers(parkConfig, companyName) {
-  if (parkConfig.passTiers && typeof parkConfig.passTiers === "object") {
-    return Object.entries(parkConfig.passTiers).filter(([, value]) => Boolean(value));
-  }
-
-  const fieldMap = companyConfig[companyName]?.passFieldByType;
-  if (fieldMap && Object.keys(fieldMap).length > 0) {
-    return Object.entries(fieldMap)
-      .map(([tierName, fieldName]) => [tierName, parkConfig[fieldName]])
-      .filter(([, value]) => Boolean(value));
-  }
-
-  const metadataFields = new Set([
-    "Region",
-    "company",
-    "url",
-    "website",
-    "passPurchaseUrl",
-    "buyPassUrl",
-    "passPurchaseUrlByTier",
-    "buyPassUrlByTier",
-    "currency",
-    "disclaimer",
-    "accessibleParks",
-    "passTiers"
-  ]);
-  return Object.entries(parkConfig)
-    .filter(([key, value]) => !metadataFields.has(key) && Boolean(value))
-    .map(([tierName, value]) => [tierName, value]);
-}
-
-function buildParkLinks(parkName, parkConfig, companyName) {
-  if (companyName === defaultCompany && parkConfig.url) {
-    const baseUrl = `https://www.sixflags.com/${parkConfig.url}`;
-    const passPath = sixFlagsPassPathByParkName[parkName] || "season-passes";
-    return {
-      website: baseUrl,
-      passPurchaseUrl: `${baseUrl}/${passPath}`
-    };
-  }
-
-  const configuredUrl = String(parkConfig.website || parkConfig.url || "").trim();
-  const hasAbsoluteUrl = /^https?:\/\//i.test(configuredUrl);
-  const website = hasAbsoluteUrl ? configuredUrl : "#";
-  return {
-    website,
-    passPurchaseUrl: parkConfig.passPurchaseUrl || website
-  };
-}
-
 function slugify(value) {
   return String(value || "")
     .toLowerCase()
@@ -55,19 +5,37 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
+function normalizeRegionName(regionValue) {
+  const raw = String(regionValue || "").trim();
+  if (!raw) {
+    return "";
+  }
+
+  const match = regionOrder.find((region) => region.toLowerCase() === raw.toLowerCase());
+  return match || raw;
+}
+
+// Builds a normalized park directory from `parks.js`.
 const parkDirectory = [];
 const parkDirectoryByRegion = Object.fromEntries(regionOrder.map((region) => [region, []]));
-for (const [parkName, parkConfig] of Object.entries(parkCatalog)) {
-  const company = parkConfig.company || defaultCompany;
-  const region = parkConfig.Region;
-  const links = buildParkLinks(parkName, parkConfig, company);
+for (const parkConfig of parkCatalog) {
+  const parkName = String(parkConfig.park || "").trim();
+  const company = String(parkConfig.company || "").trim();
+  if (!parkName || !company) {
+    continue;
+  }
+
+  const region = normalizeRegionName(parkConfig.region);
+  const links = buildParkLinksForCompany(company, parkConfig);
   const parkEntry = {
     name: parkName,
     company,
     website: links.website,
     passPurchaseUrl: links.passPurchaseUrl
   };
+
   parkDirectory.push(parkEntry);
+
   const companyUsesRegions = Boolean(companyConfig[company]?.usesRegionFilter);
   if (region && companyUsesRegions && !parkDirectoryByRegion[region]) {
     parkDirectoryByRegion[region] = [];
@@ -85,7 +53,7 @@ const regionParks = Object.fromEntries(
   ])
 );
 regionParks["All Parks"] = parkDirectory
-  .filter((park) => park.company === defaultCompany)
+  .filter((park) => park.company === "Six Flags")
   .map((park) => park.name)
   .sort((a, b) => a.localeCompare(b));
 
@@ -191,11 +159,17 @@ function expandAccessibleParks(accessEntries) {
 }
 
 const passOffers = [];
-for (const [parkName, parkConfig] of Object.entries(parkCatalog)) {
-  const company = parkConfig.company || defaultCompany;
-  const tierOffers = getParkPassTiers(parkConfig, company);
+for (const parkConfig of parkCatalog) {
+  const parkName = String(parkConfig.park || "").trim();
+  const company = String(parkConfig.company || "").trim();
+  if (!parkName || !company) {
+    continue;
+  }
+
+  const links = buildParkLinksForCompany(company, parkConfig);
+  const tierOffers = Object.entries(parkConfig.passes || {}).filter(([, price]) => Boolean(price));
   const passUrlByTier = parkConfig.passPurchaseUrlByTier || parkConfig.buyPassUrlByTier || {};
-  const fallbackPassUrl = parkConfig.passPurchaseUrl || parkConfig.buyPassUrl || null;
+  const fallbackPassUrl = links.passPurchaseUrl || parkConfig.passPurchaseUrl || parkConfig.buyPassUrl || null;
   for (const [passType, price] of tierOffers) {
     passOffers.push({
       id: `${slugify(parkName)}-${slugify(passType)}-${slugify(company)}`,
@@ -203,7 +177,7 @@ for (const [parkName, parkConfig] of Object.entries(parkCatalog)) {
       company,
       passType,
       price,
-      currency: parkConfig.currency || "USD",
+      currency: parkConfig.currency || getCompanyDefaultCurrency(company),
       disclaimer: parkConfig.disclaimer || "",
       passPurchaseUrl: passUrlByTier[passType] || fallbackPassUrl,
       accessibleParks: parkConfig.accessibleParks || getDefaultAccessibleParks(passType, parkName, company)
@@ -229,20 +203,13 @@ const tierSetByCompany = Object.fromEntries(
   companies.map((company) => [company, new Set(passOffers.filter((offer) => offer.company === company).map((offer) => offer.passType))])
 );
 
-const regions = Object.keys(regionParks);
-const filterableRegions = regions.filter((region) => region !== "All Parks");
-
 const allParks = Array.from(
   new Set(passOffers.flatMap((offer) => expandAccessibleParks(offer.accessibleParks)))
 ).sort((a, b) => a.localeCompare(b));
 
-function getParkOptionLabel(parkName) {
-  return parkName;
-}
-
 const allParkFilterOptions = [
   { value: "all", label: "All Parks" },
-  ...allParks.map((park) => ({ value: park, label: getParkOptionLabel(park) }))
+  ...allParks.map((park) => ({ value: park, label: park }))
 ];
 
 const companyFilterOptions = [
