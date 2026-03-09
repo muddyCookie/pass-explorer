@@ -9,7 +9,7 @@ const regionOrder = ["East", "Midwest", "Texas", "West"];
 const companyConfig = {
   [defaultCompany]: {
     usesRegionFilter: true,
-    tierOrder: ["Bronze", "Silver", "Gold", "Platinum", "Prestige"],
+    tierOrder: ["Silver", "Gold", "Prestige"],
     passFieldByType: {
       Silver: "Silver",
       Gold: "Gold",
@@ -23,11 +23,13 @@ const companyConfig = {
   },
   Herschend: {
     usesRegionFilter: false,
-    tierOrder: ["Bronze", "Silver", "Gold", "Platinum", "Prestige"],
+    tierOrder: ["Summer", "Bronze", "Silver", "Gold", "Diamond", "Platinum"],
     passFieldByType: {
+      Summer: "Summer",
       Bronze: "Bronze",
       Silver: "Silver",
       Gold: "Gold",
+      Diamond: "Diamond",
       Platinum: "Platinum"
     },
     defaultAccessibleByTier: {

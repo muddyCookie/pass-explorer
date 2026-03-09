@@ -242,20 +242,43 @@ const parkCatalog = {
   "Kentucky Kingdom": {
     company: "Herschend",
     url: "https://www.kentuckykingdom.com",
-    passPurchaseUrl: "https://www.kentuckykingdom.com/buy-tickets/season-passes/"
+    passPurchaseUrl: "https://www.kentuckykingdom.com/tickets/season-passes/",
+    "Silver": "$80",
+    "Gold": "$100",
+    "Diamond": "$150"
   },
   "Lake Compounce": {
     company: "Herschend",
     url: "https://www.lakecompounce.com",
-    passPurchaseUrl: "https://www.lakecompounce.com/buy-tickets/season-passes/"
+    passPurchaseUrl: "https://www.lakecompounce.com/buy-tickets/season-passes/",
+    "Silver": "$140",
+    "Gold": "$170",
+    "Platinum": "$210"
   },
   "Silver Dollar City": {
     company: "Herschend",
+    url: "https://www.silverdollarcity.com",
+    passPurchaseUrl: "https://www.silverdollarcity.com/tickets/season-passes/",
+    "Silver": "$159",
+    "Gold": "$329",
+    "Diamond": "$279"
   },
   "Story Land": {
     company: "Herschend",
+    url: "https://www.storylandnh.com/",
+    passPurchaseUrl: "https://www.storylandnh.com/buy-tickets/season-passes/",
+    "Bronze": "$90",
+    "Silver": "$100",
+    "Gold": "$100",
+    "Platinum": "$180"
+
   },
   "Wild Adventures": {
     company: "Herschend",
+    url: "https://www.wildadventures.com",
+    passPurchaseUrl: "https://www.wildadventures.com/buy-tickets/season-passes/",
+    "Silver": "$107",
+    "Gold": "$140",
+    "Diamond": "$170"
   }
 };
