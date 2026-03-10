@@ -5,19 +5,19 @@ function slugify(value) {
     .replace(/^-+|-+$/g, "");
 }
 
-function normalizeRegionName(regionValue) {
-  const raw = String(regionValue || "").trim();
+function normalizeGroupName(groupValue) {
+  const raw = String(groupValue || "").trim();
   if (!raw) {
     return "";
   }
 
-  const match = regionOrder.find((region) => region.toLowerCase() === raw.toLowerCase());
+  const match = groupOrder.find((group) => group.toLowerCase() === raw.toLowerCase());
   return match || raw;
 }
 
 // Builds a normalized park directory from `parks.js`.
 const parkDirectory = [];
-const parkDirectoryByRegion = Object.fromEntries(regionOrder.map((region) => [region, []]));
+const parkDirectoryByGroup = Object.fromEntries(groupOrder.map((group) => [group, []]));
 for (const parkConfig of parkCatalog) {
   const parkName = String(parkConfig.park || "").trim();
   const company = String(parkConfig.company || "").trim();
@@ -25,7 +25,7 @@ for (const parkConfig of parkCatalog) {
     continue;
   }
 
-  const region = normalizeRegionName(parkConfig.region);
+  const parkGroup = normalizeGroupName(parkConfig.group);
   const links = buildParkLinksForCompany(company, parkConfig);
   const parkEntry = {
     name: parkName,
@@ -36,36 +36,48 @@ for (const parkConfig of parkCatalog) {
 
   parkDirectory.push(parkEntry);
 
-  const companyUsesRegions = Boolean(companyConfig[company]?.usesRegionFilter);
-  if (region && companyUsesRegions && !parkDirectoryByRegion[region]) {
-    parkDirectoryByRegion[region] = [];
+  if (parkGroup && !parkDirectoryByGroup[parkGroup]) {
+    parkDirectoryByGroup[parkGroup] = [];
   }
-  if (region && companyUsesRegions) {
-    parkDirectoryByRegion[region].push(parkEntry);
+  if (parkGroup) {
+    parkDirectoryByGroup[parkGroup].push(parkEntry);
   }
 }
 
 const parkByName = Object.fromEntries(parkDirectory.map((park) => [park.name, park]));
-const regionParks = Object.fromEntries(
-  Object.entries(parkDirectoryByRegion).map(([region, parks]) => [
-    region,
+const groupParks = Object.fromEntries(
+  Object.entries(parkDirectoryByGroup).map(([group, parks]) => [
+    group,
     parks.map((park) => park.name).sort((a, b) => a.localeCompare(b))
   ])
 );
-regionParks["All Parks"] = parkDirectory
-  .filter((park) => park.company === "Six Flags")
-  .map((park) => park.name)
-  .sort((a, b) => a.localeCompare(b));
 
-const parkRegionByName = {};
-for (const [region, parks] of Object.entries(regionParks)) {
-  if (region === "All Parks") {
-    continue;
-  }
+const parkGroupByName = {};
+for (const [group, parks] of Object.entries(groupParks)) {
   for (const park of parks) {
-    parkRegionByName[park] = region;
+    parkGroupByName[park] = group;
   }
 }
+
+const parkAccessGroups = Object.fromEntries(
+  Object.entries(companyConfig).flatMap(([, config]) =>
+    Object.entries(config.parkAccessGroups || {}).map(([groupName, groupBuilder]) => {
+      const resolvedGroup = typeof groupBuilder === "function" ? groupBuilder() : groupBuilder;
+      const parks = Array.isArray(resolvedGroup)
+        ? resolvedGroup
+          .map((parkName) => String(parkName || "").trim())
+          .filter(Boolean)
+          .sort((a, b) => a.localeCompare(b))
+        : [];
+      return [groupName, parks];
+    })
+  )
+);
+
+const parkCollectionsByName = {
+  ...groupParks,
+  ...parkAccessGroups
+};
 
 function getParkWebsiteUrl(parkName) {
   return parkByName[parkName]?.website || "#";
@@ -87,7 +99,54 @@ function getDefaultAccessibleParks(passType, homePark, companyName) {
   return [homePark];
 }
 
+function getAccessibleParksForOffer(parkConfig, passType, homePark, companyName) {
+  const tierAccessGroups = parkConfig.accessGroupsByTier?.[passType];
+  if (Array.isArray(tierAccessGroups)) {
+    return tierAccessGroups;
+  }
+
+  if (Array.isArray(parkConfig.accessibleParks)) {
+    return parkConfig.accessibleParks;
+  }
+
+  return getDefaultAccessibleParks(passType, homePark, companyName);
+}
+
+function expandParkingParks(entries, homePark, includeHomePark = false) {
+  const expanded = [];
+  const seen = new Set();
+
+  if (includeHomePark && homePark) {
+    seen.add(homePark);
+    expanded.push(homePark);
+  }
+
+  for (const rawEntry of entries || []) {
+    const entry = String(rawEntry || "").trim();
+    if (!entry) {
+      continue;
+    }
+
+    const parks = parkCollectionsByName[entry] ?? [entry];
+
+    for (const rawPark of parks) {
+      const park = String(rawPark || "").trim();
+      if (!park || seen.has(park)) {
+        continue;
+      }
+      seen.add(park);
+      expanded.push(park);
+    }
+  }
+
+  return expanded;
+}
+
 function hasIncludedParking(offer, parkName) {
+  if (Array.isArray(offer.explicitParkingIncludedParks)) {
+    return offer.explicitParkingIncludedParks.includes(parkName);
+  }
+
   const companyParkingRules = parkingRulesByCompany[offer.company];
   if (!companyParkingRules) {
     return true;
@@ -144,7 +203,7 @@ function expandAccessibleParks(accessEntries) {
       continue;
     }
 
-    const parks = regionParks[entry] ?? [entry];
+    const parks = parkCollectionsByName[entry] ?? [entry];
     for (const rawPark of parks) {
       const park = String(rawPark || "").trim();
       if (!park || seen.has(park)) {
@@ -171,6 +230,12 @@ for (const parkConfig of parkCatalog) {
   const passUrlByTier = parkConfig.passPurchaseUrlByTier || parkConfig.buyPassUrlByTier || {};
   const fallbackPassUrl = links.passPurchaseUrl || parkConfig.passPurchaseUrl || parkConfig.buyPassUrl || null;
   for (const [passType, price] of tierOffers) {
+    const accessibleParks = getAccessibleParksForOffer(parkConfig, passType, parkName, company);
+    const hasExplicitParkingConfig = Array.isArray(parkConfig.parking)
+      || Boolean(parkConfig.extraParking);
+    const hasHomeParkParking = Array.isArray(parkConfig.parking)
+      && parkConfig.parking.includes(passType);
+    const extraParkingEntries = parkConfig.extraParking?.[passType] || [];
     passOffers.push({
       id: `${slugify(parkName)}-${slugify(passType)}-${slugify(company)}`,
       homePark: parkName,
@@ -180,7 +245,10 @@ for (const parkConfig of parkCatalog) {
       currency: parkConfig.currency || getCompanyDefaultCurrency(company),
       disclaimer: parkConfig.disclaimer || "",
       passPurchaseUrl: passUrlByTier[passType] || fallbackPassUrl,
-      accessibleParks: parkConfig.accessibleParks || getDefaultAccessibleParks(passType, parkName, company)
+      accessibleParks,
+      explicitParkingIncludedParks: hasExplicitParkingConfig
+        ? expandParkingParks(extraParkingEntries, parkName, hasHomeParkParking)
+        : null
     });
   }
 }

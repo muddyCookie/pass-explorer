@@ -93,32 +93,32 @@
 
     let otherPassesDividerIndex = -1;
     if (selectedPark !== "all") {
-      const selectedParkRegion = parkRegionByName[selectedPark] || "";
+      const selectedParkGroup = parkGroupByName[selectedPark] || "";
       const homeParkOffers = [];
-      const sameRegionOffers = [];
+      const sameGroupOffers = [];
       const otherOffers = [];
 
       for (const offer of visibleOffers) {
         if (offer.homePark === selectedPark) {
           homeParkOffers.push(offer);
         } else if (
-          selectedParkRegion
-          && parkRegionByName[offer.homePark] === selectedParkRegion
+          selectedParkGroup
+          && parkGroupByName[offer.homePark] === selectedParkGroup
         ) {
-          sameRegionOffers.push(offer);
+          sameGroupOffers.push(offer);
         } else {
           otherOffers.push(offer);
         }
       }
 
       homeParkOffers.sort(compareByPassTypeThenOriginal);
-      sameRegionOffers.sort(compareBySelectedSort);
+      sameGroupOffers.sort(compareBySelectedSort);
       otherOffers.sort(compareBySelectedSort);
 
-      otherPassesDividerIndex = homeParkOffers.length > 0 && (sameRegionOffers.length + otherOffers.length) > 0
+      otherPassesDividerIndex = homeParkOffers.length > 0 && (sameGroupOffers.length + otherOffers.length) > 0
         ? homeParkOffers.length
         : -1;
-      visibleOffers = [...homeParkOffers, ...sameRegionOffers, ...otherOffers];
+      visibleOffers = [...homeParkOffers, ...sameGroupOffers, ...otherOffers];
     } else {
       visibleOffers.sort(compareBySelectedSort);
     }

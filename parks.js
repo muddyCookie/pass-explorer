@@ -1,11 +1,14 @@
 // Park records. Add new parks here using the same shape.
+// Optional per-tier overrides:
+// - accessGroupsByTier: { TierName: ["Group Name", "Park Name"] }
+// - parking: ["Tier Name"]
+// - extraParking: { TierName: ["Group Name", "Park Name"] }
 const parkCatalog = [
   {
     "park": "Carowinds",
     "company": "Six Flags",
     "url": "carowinds",
-    "region": "East",
-    "currency": "USD",
+    "group": "East",
     "passes": {
       "Silver": "$89",
       "Gold": "$110",
@@ -16,8 +19,7 @@ const parkCatalog = [
     "park": "Dorney Park",
     "company": "Six Flags",
     "url": "dorneypark",
-    "region": "East",
-    "currency": "USD",
+    "group": "East",
     "passes": {
       "Gold": "$105",
       "Prestige": "$145"
@@ -27,8 +29,7 @@ const parkCatalog = [
     "park": "Kings Dominion",
     "company": "Six Flags",
     "url": "kingsdominion",
-    "region": "East",
-    "currency": "USD",
+    "group": "East",
     "passes": {
       "Silver": "$89",
       "Gold": "$110",
@@ -39,8 +40,7 @@ const parkCatalog = [
     "park": "Six Flags Great Adventure",
     "company": "Six Flags",
     "url": "greatadventure",
-    "region": "East",
-    "currency": "USD",
+    "group": "East",
     "passes": {
       "Silver": "$70",
       "Gold": "$89",
@@ -51,8 +51,7 @@ const parkCatalog = [
     "park": "Six Flags Great Escape",
     "company": "Six Flags",
     "url": "greatescape",
-    "region": "East",
-    "currency": "USD",
+    "group": "East",
     "passes": {
       "Gold": "$65",
       "Prestige": "$135"
@@ -62,8 +61,7 @@ const parkCatalog = [
     "park": "Six Flags New England",
     "company": "Six Flags",
     "url": "newengland",
-    "region": "East",
-    "currency": "USD",
+    "group": "East",
     "passes": {
       "Silver": "$70",
       "Gold": "$89",
@@ -74,8 +72,7 @@ const parkCatalog = [
     "park": "Six Flags Over Georgia",
     "company": "Six Flags",
     "url": "overgeorgia",
-    "region": "East",
-    "currency": "USD",
+    "group": "East",
     "passes": {
       "Silver": "$65",
       "Gold": "$89",
@@ -86,7 +83,7 @@ const parkCatalog = [
     "park": "Canada's Wonderland",
     "company": "Six Flags",
     "url": "canadaswonderland",
-    "region": "Midwest",
+    "group": "Midwest",
     "currency": "CAD",
     "passes": {
       "Silver": "$89",
@@ -98,8 +95,7 @@ const parkCatalog = [
     "park": "Cedar Point",
     "company": "Six Flags",
     "url": "cedarpoint",
-    "region": "Midwest",
-    "currency": "USD",
+    "group": "Midwest",
     "passes": {
       "Silver": "$99",
       "Gold": "$150",
@@ -110,8 +106,7 @@ const parkCatalog = [
     "park": "Kings Island",
     "company": "Six Flags",
     "url": "kingsisland",
-    "region": "Midwest",
-    "currency": "USD",
+    "group": "Midwest",
     "passes": {
       "Silver": "$105",
       "Gold": "$145",
@@ -123,7 +118,7 @@ const parkCatalog = [
     "company": "Six Flags",
     "url": "laronde",
     "urlPass": "passeports",
-    "region": "Midwest",
+    "group": "Midwest",
     "currency": "CAD",
     "passes": {
       "Silver": "$73",
@@ -135,8 +130,7 @@ const parkCatalog = [
     "park": "Michigan's Adventure",
     "company": "Six Flags",
     "url": "miadventure",
-    "region": "Midwest",
-    "currency": "USD",
+    "group": "Midwest",
     "passes": {
       "Gold": "$110",
       "Prestige": "$190"
@@ -146,8 +140,7 @@ const parkCatalog = [
     "park": "Six Flags Darien Lake",
     "company": "Six Flags",
     "url": "darienlake",
-    "region": "Midwest",
-    "currency": "USD",
+    "group": "Midwest",
     "passes": {
       "Gold": "$75",
       "Prestige": "$135"
@@ -157,8 +150,7 @@ const parkCatalog = [
     "park": "Six Flags Great America",
     "company": "Six Flags",
     "url": "greatamerica",
-    "region": "Midwest",
-    "currency": "USD",
+    "group": "Midwest",
     "passes": {
       "Silver": "$79",
       "Gold": "$99",
@@ -169,8 +161,7 @@ const parkCatalog = [
     "park": "Six Flags St. Louis",
     "company": "Six Flags",
     "url": "stlouis",
-    "region": "Midwest",
-    "currency": "USD",
+    "group": "Midwest",
     "passes": {
       "Silver": "$59",
       "Gold": "$75",
@@ -181,8 +172,7 @@ const parkCatalog = [
     "park": "Valleyfair",
     "company": "Six Flags",
     "url": "valleyfair",
-    "region": "Midwest",
-    "currency": "USD",
+    "group": "Midwest",
     "passes": {
       "Gold": "$85",
       "Prestige": "$125"
@@ -192,8 +182,7 @@ const parkCatalog = [
     "park": "Worlds of Fun",
     "company": "Six Flags",
     "url": "worldsoffun",
-    "region": "Midwest",
-    "currency": "USD",
+    "group": "Midwest",
     "passes": {
       "Silver": "$65",
       "Gold": "$90",
@@ -204,8 +193,7 @@ const parkCatalog = [
     "park": "Frontier City",
     "company": "Six Flags",
     "url": "frontiercity",
-    "region": "Texas",
-    "currency": "USD",
+    "group": "Texas",
     "passes": {
       "Silver": "$55",
       "Gold": "$79",
@@ -216,8 +204,7 @@ const parkCatalog = [
     "park": "Six Flags Fiesta Texas",
     "company": "Six Flags",
     "url": "fiestatexas",
-    "region": "Texas",
-    "currency": "USD",
+    "group": "Texas",
     "passes": {
       "Silver": "$70",
       "Gold": "$99",
@@ -228,8 +215,7 @@ const parkCatalog = [
     "park": "Six Flags Over Texas",
     "company": "Six Flags",
     "url": "overtexas",
-    "region": "Texas",
-    "currency": "USD",
+    "group": "Texas",
     "passes": {
       "Silver": "$70",
       "Gold": "$99",
@@ -240,8 +226,7 @@ const parkCatalog = [
     "park": "California's Great America",
     "company": "Six Flags",
     "url": "cagreatamerica",
-    "region": "West",
-    "currency": "USD",
+    "group": "West",
     "passes": {
       "Gold": "$85"
     }
@@ -250,11 +235,10 @@ const parkCatalog = [
     "park": "Knott's Berry Farm",
     "company": "Six Flags",
     "url": "knotts",
-    "region": "West",
-    "currency": "USD",
-    "passes": {
-      "Silver": "$110",
-      "Gold": "$140",
+    "group": "West",
+      "passes": {
+      "Silver": "$120",
+      "Gold": "$145",
       "Prestige": "$300"
     }
   },
@@ -262,8 +246,7 @@ const parkCatalog = [
     "park": "Six Flags Discovery Kingdom",
     "company": "Six Flags",
     "url": "discoverykingdom",
-    "region": "West",
-    "currency": "USD",
+    "group": "West",
     "passes": {
       "Silver": "$65",
       "Gold": "$79",
@@ -274,8 +257,7 @@ const parkCatalog = [
     "park": "Six Flags Magic Mountain",
     "company": "Six Flags",
     "url": "magicmountain",
-    "region": "West",
-    "currency": "USD",
+    "group": "West",
     "passes": {
       "Silver": "$90",
       "Gold": "$115",
@@ -286,147 +268,154 @@ const parkCatalog = [
     "park": "Six Flags Mexico",
     "company": "Six Flags",
     "url": "mexico",
-    "region": "West",
+    "group": "West",
     "currency": "MXN",
     "passes": {
-      "Silver": "$1300",
+      "Silver": "$1100",
       "Gold": "$1500",
-      "Prestige": "$2900"
+      "Prestige": "$1999"
     }
   },
   {
     "park": "Adventureland",
     "company": "Herschend",
-    "url": "https://www.adventurelandpark.com",
-    "region": "",
-    "currency": "USD",
+    "url": "adventurelandpark",
+    "group": "Platinum",
     "passes": {
       "Bronze": "$110",
       "Silver": "$160",
       "Gold": "$210",
       "Platinum": "$250"
     },
-    "urlPass": "buy-tickets/season-passes/"
+    "parking": ["Gold", "Platinum"],
+    "extraParking": {
+      "Platinum": ["Idlewild", "Kennywood", "Story Land"]
+    }
   },
   {
     "park": "Dollywood",
     "company": "Herschend",
-    "url": "https://www.dollywood.com",
-    "region": "",
-    "currency": "USD",
+    "url": "dollywood",
+    "urlPass": "tickets",
     "passes": {
       "Summer": "$135",
       "Silver": "$170",
-      "Gold": "$244"
+      "Gold": "$245"
     },
-    "urlPass": "tickets/season-passes/"
+    "parking": ["Gold"]
   },
   {
     "park": "Dutch Wonderland",
     "company": "Herschend",
-    "url": "https://www.dutchwonderland.com",
-    "region": "",
-    "currency": "USD",
+    "url": "dutchwonderland",
+    "group": "Platinum",
     "passes": {
       "Bronze": "$110",
       "Silver": "$130",
       "Gold": "$170",
       "Platinum": "$250"
     },
-    "urlPass": "buy-tickets/season-passes/"
+    "parking": ["Gold", "Platinum"],
+    "extraParking": {
+      "Platinum": ["Idlewild", "Kennywood", "Story Land"]
+    }
   },
   {
     "park": "Idlewild",
     "company": "Herschend",
-    "url": "https://www.idlewild.com",
-    "region": "",
-    "currency": "USD",
+    "url": "idlewild",
+    "group": "Platinum",
     "passes": {
       "Bronze": "$100",
       "Silver": "$110",
       "Gold": "$139",
       "Platinum": "$250"
     },
-    "urlPass": "buy-tickets/season-passes/"
+    "parking": ["Bronze", "Silver", "Gold", "Platinum"],
+    "extraParking": {
+      "Platinum": ["Dutch Wonderland", "Kennywood", "Story Land"]
+    }
   },
   {
     "park": "Kennywood",
     "company": "Herschend",
-    "url": "https://www.kennywood.com",
-    "region": "",
-    "currency": "USD",
+    "url": "kennywood",
+    "group": "Platinum",
     "passes": {
       "Bronze": "$110",
       "Silver": "$130",
       "Gold": "$170",
       "Platinum": "$250"
     },
-    "urlPass": "buy-tickets/season-passes/"
+    "parking": ["Bronze", "Silver", "Gold", "Platinum"],
+    "extraParking": {
+      "Platinum": ["Dutch Wonderland", "Idlewild", "Kennywood", "Story Land"]
+    }
   },
   {
     "park": "Kentucky Kingdom",
     "company": "Herschend",
-    "url": "https://www.kentuckykingdom.com",
-    "region": "",
-    "currency": "USD",
+    "url": "kentuckykingdom",
+    "urlPass": "tickets",
     "passes": {
       "Silver": "$80",
       "Gold": "$100",
       "Diamond": "$150"
     },
-    "urlPass": "tickets/season-passes/"
+    "parking": ["Silver", "Gold", "Diamond"]
   },
   {
     "park": "Lake Compounce",
     "company": "Herschend",
-    "url": "https://www.lakecompounce.com",
-    "region": "",
-    "currency": "USD",
+    "url": "lakecompounce",
+    "group": "Platinum",
     "passes": {
       "Silver": "$140",
       "Gold": "$170",
       "Platinum": "$210"
     },
-    "urlPass": "buy-tickets/season-passes/"
+    "parking": ["Gold", "Platinum"],
+    "extraParking": {
+      "Platinum": ["Idlewild", "Kennywood", "Story Land"]
+    }
   },
   {
     "park": "Silver Dollar City",
     "company": "Herschend",
-    "url": "https://www.silverdollarcity.com",
-    "region": "",
-    "currency": "USD",
+    "url": "silverdollarcity",
+    "urlPass": "tickets",
     "passes": {
       "Silver": "$159",
-      "Gold": "$329",
+      "Gold": "$219",
       "Diamond": "$279"
     },
-    "urlPass": "tickets/season-passes/"
+    "parking": ["Silver", "Gold", "Diamond"]
   },
   {
     "park": "Story Land",
     "company": "Herschend",
-    "url": "https://www.storylandnh.com/",
-    "region": "",
-    "currency": "USD",
+    "url": "storylandnh",
+    "group": "Platinum",
     "passes": {
-      "Bronze": "$90",
-      "Silver": "$100",
-      "Gold": "$100",
-      "Platinum": "$180"
+      "Bronze": "$110",
+      "Silver": "$120",
+      "Gold": "$140",
+      "Platinum": "$210"
     },
-    "urlPass": "buy-tickets/season-passes/"
+    "parking": ["Bronze", "Silver", "Gold", "Platinum"],
+    "extraParking": {
+      "Platinum": ["Idlewild", "Kennywood"]
+    }
   },
   {
     "park": "Wild Adventures",
     "company": "Herschend",
-    "url": "https://www.wildadventures.com",
-    "region": "",
-    "currency": "USD",
+    "url": "wildadventures",
     "passes": {
-      "Silver": "$107",
-      "Gold": "$140",
-      "Diamond": "$170"
+      "Silver": "$120",
+      "Gold": "$170",
+      "Diamond": "$190"
     },
-    "urlPass": "buy-tickets/season-passes/"
+    "parking": ["Gold", "Diamond"]
   }
 ];

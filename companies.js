@@ -4,19 +4,34 @@ const companyCatalog = [
   {
     name: "Six Flags",
     defaultCurrency: "USD",
-    usesRegionFilter: true,
+    usesGroupFilter: true,
     tierOrder: ["Silver", "Gold", "Prestige"],
     urlRules: {
       // `url` in parks.js becomes https://www.sixflags.com/{url}
-      parkTemplate: "https://www.sixflags.com/{url}",
+      parkTemplate: "https://www.sixflags.com/{url}/",
       // Buy URL defaults to https://www.sixflags.com/{url}/season-passes
-      passTemplate: "https://www.sixflags.com/{url}/{urlPass}",
+      passTemplate: "https://www.sixflags.com/{url}/{urlPass}/",
       defaultUrlPass: "season-passes"
+    },
+    parkAccessGroups: {
+      // Explicit company-wide group so parks without published passes are not
+      // automatically treated as included by all-park tiers.
+      "AllSixFlagsParks": () => parkCatalog
+        .filter((park) => {
+          if (park.company !== "Six Flags") {
+            return false;
+          }
+
+          return Object.values(park.passes || {}).some(Boolean);
+        })
+        .map((park) => String(park.park || "").trim())
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b))
     },
     defaultAccessibleByTier: {
       Silver: (homePark) => [homePark],
-      Gold: (homePark) => [parkRegionByName[homePark] || homePark],
-      Prestige: () => ["All Parks"]
+      Gold: (homePark) => [parkGroupByName[homePark] || homePark],
+      Prestige: () => ["AllSixFlagsParks"]
     },
     parkingRules: {
       homePrestigeOnlyParkingParks: ["Canada's Wonderland", "La Ronde"],
@@ -27,20 +42,22 @@ const companyCatalog = [
   {
     name: "Herschend",
     defaultCurrency: "USD",
-    usesRegionFilter: false,
+    usesGroupFilter: true,
     tierOrder: ["Summer", "Bronze", "Silver", "Gold", "Diamond", "Platinum"],
     urlRules: {
       // For Herschend, parks.js uses full URLs in `url`.
-      parkTemplate: "{url}",
+      parkTemplate: "https://{url}.com",
       // `urlPass` can now replace explicit passPurchaseUrl, e.g. "buy-tickets/season-passes/".
-      passTemplate: "{url}/{urlPass}",
-      defaultUrlPass: ""
+      passTemplate: "https://{url}.com/{urlPass}/season-passes/",
+      defaultUrlPass: "buy-tickets"
     },
     defaultAccessibleByTier: {
+      Summer: (homePark) => [homePark],
       Bronze: (homePark) => [homePark],
       Silver: (homePark) => [homePark],
       Gold: (homePark) => [homePark],
-      Platinum: (homePark) => [homePark]
+      Diamond: (homePark) => [homePark],
+      Platinum: (homePark) => [parkGroupByName[homePark] || homePark]
     },
     parkingRules: {
       homePrestigeOnlyParkingParks: [],
@@ -50,7 +67,7 @@ const companyCatalog = [
   }
 ];
 
-const regionOrder = ["East", "Midwest", "Texas", "West"];
+const groupOrder = ["East", "Midwest", "Texas", "West", "Platinum"];
 const companyOrder = companyCatalog.map((company) => company.name);
 
 function trimSlashes(value) {
@@ -130,9 +147,10 @@ const companyConfig = Object.fromEntries(
     company.name,
     {
       defaultCurrency: company.defaultCurrency || "USD",
-      usesRegionFilter: Boolean(company.usesRegionFilter),
+      usesGroupFilter: Boolean(company.usesGroupFilter),
       tierOrder: company.tierOrder || [],
       urlRules: company.urlRules || {},
+      parkAccessGroups: company.parkAccessGroups || {},
       defaultAccessibleByTier: company.defaultAccessibleByTier || {}
     }
   ])
