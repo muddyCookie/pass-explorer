@@ -548,14 +548,40 @@ const parkCatalog = [
       Platinum: ["United"]
     }
   },
-  // {
-  //   park: "Disney California Adventure",
-  //   company: "Walt Disney",
-  // },
-  // {
-  //   park: "Disneyland",
-  //   company: "Walt Disney",
-  // },
+  {
+    park: "Disney California Adventure",
+    company: "Walt Disney",
+    url: "disneyland",
+    urlPass: "magic-key",
+    slug: "california-adventure",
+    group: "Disneyland",
+    passes: {
+      "Explore Key": "$999",
+      "Believe Key": "$1,474",
+      "Inspire Key": "$1,899"
+    },
+    parking: ["Inspire Key"],
+    extraParking: {
+      "Inspire Key": ["Disneyland"]
+    }
+  },
+  {
+    park: "Disneyland",
+    company: "Walt Disney",
+    url: "disneyland",
+    urlPass: "magic-key",
+    slug: "disneyland",
+    group: "Disneyland",
+    passes: {
+      "Explore Key": "$999",
+      "Believe Key": "$1,474",
+      "Inspire Key": "$1,899"
+    },
+    parking: ["Inspire Key"],
+    extraParking: {
+      "Inspire Key": ["Disneyland"]
+    }
+  },
   {
     park: "Disney's Animal Kingdom",
     company: "Walt Disney",
@@ -568,7 +594,9 @@ const parkCatalog = [
     parkAccess: {
       "Incredi-Pass": ["DisneyWorld"]
     },
-    parking: ["DisneyWorld"]
+    extraParking: {
+      "Incredi-Pass": ["DisneyWorld"]
+    }
   },
   {
     park: "Disney's Hollywood Studios",
@@ -582,7 +610,9 @@ const parkCatalog = [
     parkAccess: {
       "Incredi-Pass": ["DisneyWorld"]
     },
-    parking: ["DisneyWorld"]
+    extraParking: {
+      "Incredi-Pass": ["DisneyWorld"]
+    }
   },
   {
     park: "Epcot",
@@ -596,7 +626,9 @@ const parkCatalog = [
     parkAccess: {
       "Incredi-Pass": ["DisneyWorld"]
     },
-    parking: ["DisneyWorld"]
+    extraParking: {
+      "Incredi-Pass": ["DisneyWorld"]
+    }
   },
   {
     park: "Magic Kingdom",
@@ -610,7 +642,9 @@ const parkCatalog = [
     parkAccess: {
       "Incredi-Pass": ["DisneyWorld"]
     },
-    parking: ["DisneyWorld"]
+    extraParking: {
+      "Incredi-Pass": ["DisneyWorld"]
+    } ["DisneyWorld"]
   }
   // Miral Experiences
   // {
