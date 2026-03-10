@@ -547,6 +547,70 @@ const parkCatalog = [
     extraParking: {
       Platinum: ["United"]
     }
+  },
+  // {
+  //   park: "Disney California Adventure",
+  //   company: "Walt Disney",
+  // },
+  // {
+  //   park: "Disneyland",
+  //   company: "Walt Disney",
+  // },
+  {
+    park: "Disney's Animal Kingdom",
+    company: "Walt Disney",
+    url: "disneyworld",
+    slug: "animal-kingdom",
+    group: "DisneyWorld",
+    passes: {
+      "Incredi-Pass": "$1,629",
+    },
+    parkAccess: {
+      "Incredi-Pass": ["DisneyWorld"]
+    },
+    parking: ["DisneyWorld"]
+  },
+  {
+    park: "Disney's Hollywood Studios",
+    company: "Walt Disney",
+    url: "disneyworld",
+    slug: "hollywood-studios",
+    group: "DisneyWorld",
+    passes: {
+      "Incredi-Pass": "$1,629",
+    },
+    parkAccess: {
+      "Incredi-Pass": ["DisneyWorld"]
+    },
+    parking: ["DisneyWorld"]
+  },
+  {
+    park: "Epcot",
+    company: "Walt Disney",
+    url: "disneyworld",
+    slug: "epcot",
+    group: "DisneyWorld",
+    passes: {
+      "Incredi-Pass": "$1,629",
+    },
+    parkAccess: {
+      "Incredi-Pass": ["DisneyWorld"]
+    },
+    parking: ["DisneyWorld"]
+  },
+  {
+    park: "Magic Kingdom",
+    company: "Walt Disney",
+    url: "disneyworld",
+    slug: "magic-kingdom",
+    group: "DisneyWorld",
+    passes: {
+      "Incredi-Pass": "$1,629",
+    },
+    parkAccess: {
+      "Incredi-Pass": ["DisneyWorld"]
+    },
+    parking: ["DisneyWorld"]
   }
   // Miral Experiences
   // {

@@ -86,10 +86,32 @@ const companyCatalog = [
       Gold: (homePark) => [homePark],
       Platinum: (homePark) => [parkGroupByName[homePark] || homePark]
     }
+  },
+  {
+    name: "Walt Disney",
+    defaultCurrency: "USD",
+    usesGroupFilter: true,
+    tierOrder: ["Explore Key", "Believe Key", "Insire Key", "Incredi-Pass"],
+    passDisplayRules: {
+      omitPassSuffixForTypes: ["Explore Key", "Believe Key", "Insire Key", "Incredi-Pass"]
+    },
+    urlRules: {
+      // URL format: https://{url}.com/{slug}
+      parkTemplate: "https://{url}.disney.go.com/destinations/{slug}",
+      // Default pass URL format: https://{url}.com/{slug}/{urlPass}/
+      passTemplate: "https://{url}.disney.go.com/{urlPass}/",
+      defaultUrlPass: "passes"
+    },
+    defaultAccessibleByTier: {
+      "Explore Key": (homePark) => [parkGroupByName[homePark] || homePark],
+      "Believe Key": (homePark) => [parkGroupByName[homePark] || homePark],
+      "Insire Key": (homePark) => [parkGroupByName[homePark] || homePark],
+      "Incredi-Pass": (homePark) => [parkGroupByName[homePark] || homePark]
+    }
   }
 ];
 
-const groupOrder = ["East", "Midwest", "Texas", "West", "HerschendFree", "Herschend", "United"];
+const groupOrder = ["East", "Midwest", "Texas", "West", "HerschendFree", "Herschend", "United", "Disneyland", "DisneyWorld"];
 
 function trimSlashes(value) {
   return String(value || "").replace(/^\/+|\/+$/g, "");
