@@ -51,7 +51,7 @@
   }
 
   function getCompanyTierOptions(companyName) {
-    const preferredTierOrder = ["Summer", "Bronze", "Silver", "Gold", "Diamond", "Platinum", "Prestige"];
+    const preferredTierOrder = ["Fun Card", "Summer", "Bronze", "Silver", "Gold", "Diamond", "Platinum", "Prestige"];
     if (companyName === "all") {
       const availableTierSet = new Set();
       for (const company of companies) {

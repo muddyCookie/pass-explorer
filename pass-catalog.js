@@ -100,7 +100,8 @@ function getDefaultAccessibleParks(passType, homePark, companyName) {
 }
 
 function getAccessibleParksForOffer(parkConfig, passType, homePark, companyName) {
-  const tierAccessGroups = parkConfig.accessGroupsByTier?.[passType];
+  const tierAccessGroups = parkConfig.parkAccess?.[passType]
+    ?? parkConfig.accessGroupsByTier?.[passType];
   if (Array.isArray(tierAccessGroups)) {
     return tierAccessGroups;
   }
@@ -236,6 +237,20 @@ for (const parkConfig of parkCatalog) {
     const hasHomeParkParking = Array.isArray(parkConfig.parking)
       && parkConfig.parking.includes(passType);
     const extraParkingEntries = parkConfig.extraParking?.[passType] || [];
+    const funCardOverride = passType === "Fun Card"
+      ? String(parkConfig.urlFunCard || "").trim()
+      : "";
+    const rawTierUrl = funCardOverride || passUrlByTier[passType] || null;
+    const tierUrl = rawTierUrl
+      ? String(rawTierUrl || "").trim()
+      : "";
+    const resolvedTierPassUrl = tierUrl
+      ? (
+        /^https?:\/\//i.test(tierUrl)
+          ? tierUrl
+          : (/^https?:\/\//i.test(links.website) ? joinUrl(links.website, trimSlashes(tierUrl)) : tierUrl)
+      )
+      : null;
     passOffers.push({
       id: `${slugify(parkName)}-${slugify(passType)}-${slugify(company)}`,
       homePark: parkName,
@@ -244,7 +259,7 @@ for (const parkConfig of parkCatalog) {
       price,
       currency: parkConfig.currency || getCompanyDefaultCurrency(company),
       disclaimer: parkConfig.disclaimer || "",
-      passPurchaseUrl: passUrlByTier[passType] || fallbackPassUrl,
+      passPurchaseUrl: resolvedTierPassUrl || fallbackPassUrl,
       accessibleParks,
       explicitParkingIncludedParks: hasExplicitParkingConfig
         ? expandParkingParks(extraParkingEntries, parkName, hasHomeParkParking)
@@ -257,15 +272,7 @@ const supportedCurrencies = Array.from(
   new Set(passOffers.map((offer) => String(offer.currency || "USD").toUpperCase()))
 );
 
-const companies = Array.from(new Set(passOffers.map((offer) => offer.company))).sort((a, b) => {
-  const aIndex = companyOrder.indexOf(a);
-  const bIndex = companyOrder.indexOf(b);
-  if (aIndex !== -1 || bIndex !== -1) {
-    return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex)
-      - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
-  }
-  return a.localeCompare(b);
-});
+const companies = Array.from(new Set(passOffers.map((offer) => offer.company))).sort((a, b) => a.localeCompare(b));
 
 const tierSetByCompany = Object.fromEntries(
   companies.map((company) => [company, new Set(passOffers.filter((offer) => offer.company === company).map((offer) => offer.passType))])

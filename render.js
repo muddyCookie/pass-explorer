@@ -1,6 +1,37 @@
 (function initRenderModule() {
   const pe = window.PassExplorer = window.PassExplorer || {};
 
+  function shouldOmitPassSuffix(companyName, passType) {
+    if (!passType) {
+      return true;
+    }
+
+    if (/pass$/i.test(passType)) {
+      return true;
+    }
+
+    const rules = typeof getCompanyConfig === "function"
+      ? getCompanyConfig(companyName)?.passDisplayRules
+      : null;
+    const omitList = rules?.omitPassSuffixForTypes || [];
+    return Array.isArray(omitList) && omitList.includes(passType);
+  }
+
+  function formatPassCardTitle(offer) {
+    const passType = String(offer?.passType || "").trim();
+    const homePark = String(offer?.homePark || "").trim();
+    if (!homePark) {
+      return passType;
+    }
+    if (!passType) {
+      return homePark;
+    }
+
+    return shouldOmitPassSuffix(offer.company, passType)
+      ? `${homePark} - ${passType}`
+      : `${homePark} - ${passType} Pass`;
+  }
+
   function setupParkToggle(cardEl) {
     const parkList = cardEl.querySelector(".park-list");
     const parkToggle = cardEl.querySelector(".park-toggle");
@@ -143,7 +174,7 @@
 
       const node = template.content.cloneNode(true);
       const passNameEl = node.querySelector(".pass-name");
-      passNameEl.textContent = `${offer.homePark} - ${offer.passType} Pass`;
+      passNameEl.textContent = formatPassCardTitle(offer);
       node.querySelector(".pass-price").textContent = formatOfferPrice(offer);
       const cardEl = node.querySelector(".pass-card");
 
