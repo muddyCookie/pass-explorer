@@ -43,7 +43,7 @@ const companyCatalog = [
     name: "Herschend",
     defaultCurrency: "USD",
     usesGroupFilter: true,
-    tierOrder: ["Summer", "Bronze", "Silver", "Gold", "Diamond", "Platinum"],
+    tierOrder: ["Summer", "Regular","Bronze", "Silver", "Gold", "Diamond", "Platinum"],
     urlRules: {
       // For Herschend, parks.js uses full URLs in `url`.
       parkTemplate: "https://{url}.com",

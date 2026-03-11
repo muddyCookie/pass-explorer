@@ -416,6 +416,16 @@ const parkCatalog = [
     parking: ["Gold", "Diamond"]
   },
   {
+    park: "Silverwood",
+    company: "Herschend",
+    url: "silverwoodthemepark",
+    urlPass: "tickets/tickets.php?Pass=YES",
+    passes: {
+      Regular: "$259",
+      Gold: "$745"
+    }
+  },
+  {
     park: "SeaWorld Orlando",
     company: "United Parks",
     url: "seaworld",
