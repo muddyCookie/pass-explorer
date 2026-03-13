@@ -1,117 +1,45 @@
-// Company definitions live here. Add operators (Disney, Universal, etc.) in this file.
-// This file also owns URL rules and default currency behavior per company.
+// Example company record with all optional fields.
+//
+//const companyCatalog = [
+//  {
+//    name: "United Parks",
+//    defaultCurrency: "USD",
+//    tierOrder: ["Season", "Platinum"],
+//    defaultUrl: "",
+//    defaultUrlPass: "annual-pass",
+//    passDisplayRules: { omitPassSuffixForTypes: ["Fun Card"] },
+//    parkAccessGroups: { UnitedSanDiego: ["SeaWorld San Diego", "Sesame Place San Diego"] },
+//    defaultAccessibleByTier: {
+//      Season: (homePark) => [homePark],
+//      Platinum: (homePark) => [parkGroupByName[homePark] || homePark]
+//    }
+//  }
+//];
+const urlRules = {
+  // Generic URL rules used for all companies. Companies can override defaults by setting:
+  // - `defaultUrl`: base host/path used to build park websites (e.g. "www.sixflags", "{parkUrl}.disney.go.com/destinations")
+  // - `defaultUrlPass`: default pass path (e.g. "season-passes") or absolute URL template.
+  //
+  // When a company has `defaultUrl` and a park omits `slug`, the park's `url` becomes the `{slug}`.
+  parkTemplate: "https://{url}/{slug}",
+  passTemplate: "https://{url}/{slug}/{urlPass}"
+};
+const groupOrder = [
+  "Six Flags East",
+  "Six Flags Midwest",
+  "Six Flags Texas", 
+  "Six Flags West"
+];
+
 const companyCatalog = [
   {
     name: "Six Flags",
     defaultCurrency: "USD",
-    usesGroupFilter: true,
-    tierOrder: ["Silver", "Gold", "Prestige"],
-    urlRules: {
-      // `url` in parks.js becomes https://www.sixflags.com/{url}
-      parkTemplate: "https://www.sixflags.com/{url}",
-      // Buy URL defaults to https://www.sixflags.com/{url}/season-passes
-      passTemplate: "https://www.sixflags.com/{url}/{urlPass}",
-      defaultUrlPass: "season-passes"
-    },
-    parkAccessGroups: {
-      // Explicit company-wide group so parks without published passes are not
-      // automatically treated as included by all-park tiers.
-      AllSixFlagsParks: () => parkCatalog
-        .filter((park) => {
-          if (park.company !== "Six Flags") {
-            return false;
-          }
-
-          return Object.values(park.passes || {}).some(Boolean);
-        })
-        .map((park) => String(park.park || "").trim())
-        .filter(Boolean)
-        .sort((a, b) => a.localeCompare(b))
-    },
-    defaultAccessibleByTier: {
-      Silver: (homePark) => [homePark],
-      Gold: (homePark) => [parkGroupByName[homePark] || homePark],
-      Prestige: () => ["AllSixFlagsParks"]
-    },
-    parkingRules: {
-      homePrestigeOnlyParkingParks: ["Canada's Wonderland", "La Ronde"],
-      prestigeOnlyParkingParks: ["Knott's Berry Farm"],
-      homeOnlyPassTypes: ["Silver"]
-    }
-  },
-  {
-    name: "Herschend",
-    defaultCurrency: "USD",
-    usesGroupFilter: true,
-    tierOrder: ["Summer", "Regular","Bronze", "Silver", "Gold", "Diamond", "Platinum"],
-    urlRules: {
-      // For Herschend, parks.js uses full URLs in `url`.
-      parkTemplate: "https://{url}.com",
-      // `urlPass` can now replace explicit passPurchaseUrl, e.g. "buy-tickets/season-passes/".
-      passTemplate: "https://{url}.com/{urlPass}/season-passes",
-      defaultUrlPass: "buy-tickets"
-    },
-    defaultAccessibleByTier: {
-      Summer: (homePark) => [homePark],
-      Bronze: (homePark) => [homePark],
-      Silver: (homePark) => [homePark],
-      Gold: (homePark) => [homePark],
-      Diamond: (homePark) => [homePark],
-      Platinum: (homePark) => [parkGroupByName[homePark] || homePark]
-    }
-  },
-  {
-    name: "United Parks",
-    defaultCurrency: "USD",
-    usesGroupFilter: true,
-    tierOrder: ["Fun Card", "Basic", "Season", "Bronze", "Unlimited", "Silver", "Premier", "Gold", "Platinum"],
-    passDisplayRules: {
-      omitPassSuffixForTypes: ["Fun Card"]
-    },
-    urlRules: {
-      // URL format: https://{url}.com/{slug}
-      parkTemplate: "https://{url}.com/{slug}",
-      // Default pass URL format: https://{url}.com/{slug}/{urlPass}/
-      passTemplate: "https://{url}.com/{slug}/{urlPass}/",
-      defaultUrlPass: "annual-pass"
-    },
-    defaultAccessibleByTier: {
-      "Fun Card": (homePark) => [homePark],
-      Basic: (homePark) => [homePark],
-      Season: (homePark) => [homePark],
-      Bronze: (homePark) => [homePark],
-      Unlimited: (homePark) => [homePark],
-      Silver: (homePark) => [homePark],
-      Premier: (homePark) => [homePark],
-      Gold: (homePark) => [homePark],
-      Platinum: (homePark) => [parkGroupByName[homePark] || homePark]
-    }
-  },
-  {
-    name: "Walt Disney",
-    defaultCurrency: "USD",
-    usesGroupFilter: true,
-    tierOrder: ["Explore Key", "Believe Key", "Insire Key", "Incredi-Pass"],
-    passDisplayRules: {
-      omitPassSuffixForTypes: ["Explore Key", "Believe Key", "Insire Key", "Incredi-Pass"]
-    },
-    urlRules: {
-      // URL format: https://{url}.com/{slug}
-      parkTemplate: "https://{url}.disney.go.com/destinations/{slug}",
-      // Default pass URL format: https://{url}.com/{slug}/{urlPass}/
-      passTemplate: "https://{url}.disney.go.com/{urlPass}/",
-      defaultUrlPass: "passes"
-    },
-    defaultAccessibleByTier: {
-      "Explore Key": (homePark) => [parkGroupByName[homePark] || homePark],
-      "Believe Key": (homePark) => [parkGroupByName[homePark] || homePark],
-      "Insire Key": (homePark) => [parkGroupByName[homePark] || homePark],
-      "Incredi-Pass": (homePark) => [parkGroupByName[homePark] || homePark]
-    }
+    tierOrder: ["Gold", "Prestige"],
+    defaultUrl: "sixflags",
+    defaultUrlPass: "season-passes"
   }
 ];
-
-const groupOrder = ["East", "Midwest", "Texas", "West", "HerschendFree", "Herschend", "United", "Disneyland", "DisneyWorld"];
 
 function trimSlashes(value) {
   return String(value || "").replace(/^\/+|\/+$/g, "");
@@ -147,10 +75,44 @@ function buildParkLinksForCompany(companyName, parkConfig) {
   const company = getCompanyConfig(companyName);
   const urlRules = company?.urlRules || {};
 
-  const parkUrlValue = String(parkConfig.url || parkConfig.website || "").trim();
+  const originalParkUrlValue = String(parkConfig.url || parkConfig.website || "").trim();
+  let parkUrlValue = originalParkUrlValue;
   const hasAbsoluteParkUrl = /^https?:\/\//i.test(parkUrlValue);
-  const rawSlug = String(parkConfig.slug || "").trim();
+  let rawSlug = String(parkConfig.slug || "").trim();
   const slugMode = String(parkConfig.slugMode || "").trim().toLowerCase();
+
+  const companyDefaultUrl = String(company?.defaultUrl || "").trim();
+  const baseUrlTemplateOrValue = companyDefaultUrl || parkUrlValue;
+
+  // If a company defines a `defaultUrl`, treat `parks.js:url` as the slug/path segment
+  // when no explicit `parks.js:slug` is provided.
+  if (!hasAbsoluteParkUrl && companyDefaultUrl && parkUrlValue && !rawSlug) {
+    rawSlug = parkUrlValue;
+    parkUrlValue = companyDefaultUrl;
+  }
+
+  const expandUrlTemplate = (value, templateValues) => {
+    const text = String(value || "").trim();
+    if (!text) {
+      return "";
+    }
+    return /\{\w+\}/.test(text) ? applyUrlTemplate(text, templateValues) : text;
+  };
+
+  const normalizeHostPath = (value) => {
+    const text = trimSlashes(String(value || "").trim());
+    if (!text) {
+      return "";
+    }
+    if (/^https?:\/\//i.test(text)) {
+      return text.replace(/^https?:\/\//i, "");
+    }
+    if (/[./]/.test(text)) {
+      return text;
+    }
+    return `${text}.com`;
+  };
+
   const resolvedUrlValue = slugMode === "suffix" && rawSlug
     ? `${parkUrlValue}${rawSlug}`
     : parkUrlValue;
@@ -158,42 +120,64 @@ function buildParkLinksForCompany(companyName, parkConfig) {
     ? ""
     : rawSlug;
   const templateValues = {
-    url: resolvedUrlValue,
+    url: normalizeHostPath(expandUrlTemplate(baseUrlTemplateOrValue, { url: resolvedUrlValue, parkUrl: originalParkUrlValue, slug: rawSlug })),
+    urlRoot: "",
     slug: resolvedSlugValue,
-    urlPass: String(parkConfig.urlPass || "").trim()
+    urlPass: String(parkConfig.urlPass || "").trim(),
+    parkUrl: originalParkUrlValue
   };
+  templateValues.urlRoot = String(templateValues.url || "").split("/")[0] || "";
 
   let website = "#";
-  if (parkUrlValue) {
-    if (hasAbsoluteParkUrl) {
-      website = parkUrlValue;
-    } else if (urlRules.parkTemplate) {
-      const templatedUrl = normalizeUrlSlashes(applyUrlTemplate(urlRules.parkTemplate, templateValues)).trim();
-      website = templatedUrl || (hasAbsoluteParkUrl ? parkUrlValue : "#");
-    } else {
-      website = hasAbsoluteParkUrl ? parkUrlValue : "#";
-    }
+  if (hasAbsoluteParkUrl) {
+    website = originalParkUrlValue;
+  } else if (templateValues.url && urlRules.parkTemplate) {
+    const templatedUrl = normalizeUrlSlashes(applyUrlTemplate(urlRules.parkTemplate, templateValues)).trim();
+    website = templatedUrl || (templateValues.url ? `https://${templateValues.url}` : "#");
+  } else if (templateValues.url) {
+    website = `https://${templateValues.url}`;
   }
 
   const defaultUrlPass = String(urlRules.defaultUrlPass || "").trim();
   const parkUrlPass = String(parkConfig.urlPass || "").trim();
-  const resolvedUrlPass = parkUrlPass || defaultUrlPass;
+
+  let resolvedUrlPass = "";
+  if (parkUrlPass && /^https?:\/\//i.test(parkUrlPass)) {
+    resolvedUrlPass = parkUrlPass;
+  } else if (parkUrlPass && /^https?:\/\//i.test(defaultUrlPass) && /\{urlPass\}/.test(defaultUrlPass)) {
+    resolvedUrlPass = applyUrlTemplate(defaultUrlPass, { ...templateValues, urlPass: parkUrlPass });
+  } else if (parkUrlPass && /\{\w+\}/.test(defaultUrlPass) && /\{urlPass\}/.test(defaultUrlPass)) {
+    resolvedUrlPass = applyUrlTemplate(defaultUrlPass, { ...templateValues, urlPass: parkUrlPass });
+  } else {
+    resolvedUrlPass = parkUrlPass || defaultUrlPass;
+  }
 
   if (resolvedUrlPass && /^https?:\/\//i.test(resolvedUrlPass)) {
-    return { website, passPurchaseUrl: resolvedUrlPass };
+    const templatedAbsolute = normalizeUrlSlashes(applyUrlTemplate(resolvedUrlPass, {
+      ...templateValues,
+      urlPass: parkUrlPass || defaultUrlPass
+    })).trim();
+    return { website, passPurchaseUrl: templatedAbsolute || resolvedUrlPass };
   }
 
   if (resolvedUrlPass && hasAbsoluteParkUrl && /^https?:\/\//i.test(website)) {
     return { website, passPurchaseUrl: joinUrl(website, trimSlashes(resolvedUrlPass)) };
   }
 
-  if (resolvedUrlPass && urlRules.passTemplate) {
-    const templatedPassUrl = normalizeUrlSlashes(applyUrlTemplate(urlRules.passTemplate, {
-      ...templateValues,
-      urlPass: resolvedUrlPass
-    })).trim();
-    if (templatedPassUrl) {
-      return { website, passPurchaseUrl: templatedPassUrl };
+  if (resolvedUrlPass) {
+    // Park-level `urlPass` should attach to the park website (which already includes the slug).
+    if (parkUrlPass && !/\{urlPass\}/.test(defaultUrlPass) && /^https?:\/\//i.test(website)) {
+      return { website, passPurchaseUrl: joinUrl(website, trimSlashes(resolvedUrlPass)) };
+    }
+
+    if (urlRules.passTemplate) {
+      const templatedPassUrl = normalizeUrlSlashes(applyUrlTemplate(urlRules.passTemplate, {
+        ...templateValues,
+        urlPass: String(resolvedUrlPass || "").trim()
+      })).trim();
+      if (templatedPassUrl) {
+        return { website, passPurchaseUrl: templatedPassUrl };
+      }
     }
   }
 
@@ -209,10 +193,14 @@ const companyConfig = Object.fromEntries(
     company.name,
     {
       defaultCurrency: company.defaultCurrency || "USD",
-      usesGroupFilter: Boolean(company.usesGroupFilter),
       tierOrder: company.tierOrder || [],
       passDisplayRules: company.passDisplayRules || {},
-      urlRules: company.urlRules || {},
+      defaultUrl: String(company.defaultUrl || "").trim(),
+      urlRules: {
+        ...urlRules,
+        ...(company.urlRules || {}),
+        defaultUrlPass: String(company.defaultUrlPass || "").trim()
+      },
       parkAccessGroups: company.parkAccessGroups || {},
       defaultAccessibleByTier: company.defaultAccessibleByTier || {}
     }

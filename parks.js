@@ -1,672 +1,475 @@
-// Park records. Add new parks here using the same shape.
-// Optional per-tier overrides:
-// - parkAccess: { TierName: ["Group Name", "Park Name"] }
-// - passPurchaseUrlByTier: { TierName: "absolute-or-relative-url" } (legacy)
-// - urlFunCard: "absolute-or-relative-url" (Fun Card override)
-// - parking: ["Tier Name"]
-// - extraParking: { TierName: ["Group Name", "Park Name"] } (groups like "West", "United", or "AllSixFlagsParks" work)
+// Example park record with all optional fields.
+//
+//const examplePark = [
+//  {
+//    park: "California's Great America",
+//    company: "Six Flags",
+//    slug: "cagreatamerica",
+//    group: "Six Flags West",
+//    passes: {
+//      Gold: { 
+//        price: "$85", 
+//        access: GoldWestAccess, 
+//        parking: "Six Flags West"
+//      }
+//    }
+//  },
+//];
+
+// Six Flags Parking and Access
+const PrestigeParking = ["Six Flags East", "Knott's Berry Farm", "Six Flags Midwest", "Six Flags Texas", "Six Flags West"];
+const CanadasWonderlandParking = [ PrestigeParking, "Canada's Wonderland" ];
+const LaRondeParking = [ PrestigeParking, "La Ronde" ];
+const GoldMidwestAccess = [ "Six Flags Midwest", "Canada's Wonderland", "La Ronde" ];
+const GoldWestAccess = [ "Six Flags West", "Knott's Berry Farm" ];
+const PrestigeAccess = [ PrestigeParking, "Canada's Wonderland", "La Ronde" ];
+
+
 const parkCatalog = [
   {
-    park: "Carowinds",
+    park: "California's Great America",
     company: "Six Flags",
-    url: "carowinds",
-    group: "East",
+    slug: "cagreatamerica",
+    group: "Six Flags West",
     passes: {
-      Silver: "$89",
-      Gold: "$110",
-      Prestige: "$165"
-    }
-  },
-  {
-    park: "Dorney Park",
-    company: "Six Flags",
-    url: "dorneypark",
-    group: "East",
-    passes: {
-      Gold: "$105",
-      Prestige: "$145"
-    }
-  },
-  {
-    park: "Kings Dominion",
-    company: "Six Flags",
-    url: "kingsdominion",
-    group: "East",
-    passes: {
-      Silver: "$89",
-      Gold: "$110",
-      Prestige: "$199"
-    }
-  },
-  {
-    park: "Six Flags Great Adventure",
-    company: "Six Flags",
-    url: "greatadventure",
-    group: "East",
-    passes: {
-      Silver: "$70",
-      Gold: "$89",
-      Prestige: "$155"
-    }
-  },
-  {
-    park: "Six Flags Great Escape",
-    company: "Six Flags",
-    url: "greatescape",
-    group: "East",
-    passes: {
-      Gold: "$65",
-      Prestige: "$135"
-    }
-  },
-  {
-    park: "Six Flags New England",
-    company: "Six Flags",
-    url: "newengland",
-    group: "East",
-    passes: {
-      Silver: "$70",
-      Gold: "$89",
-      Prestige: "$145"
-    }
-  },
-  {
-    park: "Six Flags Over Georgia",
-    company: "Six Flags",
-    url: "overgeorgia",
-    group: "East",
-    passes: {
-      Silver: "$65",
-      Gold: "$89",
-      Prestige: "$145"
+      Gold: { 
+        price: "$85", 
+        access: GoldWestAccess, 
+        parking: "Six Flags West"
+      }
     }
   },
   {
     park: "Canada's Wonderland",
     company: "Six Flags",
-    url: "canadaswonderland",
-    group: "Midwest",
+    slug: "canadaswonderland",
     currency: "CAD",
     passes: {
-      Silver: "$89",
-      Gold: "$125",
-      Prestige: "$210"
+      Gold: { 
+        price: "$89", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$210",
+        access: PrestigeAccess,
+        parking: CanadasWonderlandParking
+      }
+    }
+  },
+  {
+    park: "Carowinds",
+    company: "Six Flags",
+    slug: "carowinds",
+    group: "Six Flags East",
+    passes: {
+      Gold: { 
+        price: "$110", 
+        access: "Six Flags East", 
+        parking: "Six Flags East"
+      },
+      Prestige: {
+        price: "$225",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
     park: "Cedar Point",
     company: "Six Flags",
-    url: "cedarpoint",
-    group: "Midwest",
+    slug: "cedarpoint",
+    group: "Six Flags Midwest",
     passes: {
-      Silver: "$99",
-      Gold: "$150",
-      Prestige: "$250"
+      Gold: { 
+        price: "$195", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$299",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
-    park: "Kings Island",
+    park: "Dorney Park",
     company: "Six Flags",
-    url: "kingsisland",
-    group: "Midwest",
+    slug: "dorneypark",
+    group: "Six Flags East",
     passes: {
-      Silver: "$105",
-      Gold: "$145",
-      Prestige: "$225"
-    }
-  },
-  {
-    park: "La Ronde",
-    company: "Six Flags",
-    url: "laronde",
-    urlPass: "passeports",
-    group: "Midwest",
-    currency: "CAD",
-    passes: {
-      Silver: "$73",
-      Gold: "$95",
-      Prestige: "$150"
-    }
-  },
-  {
-    park: "Michigan's Adventure",
-    company: "Six Flags",
-    url: "miadventure",
-    group: "Midwest",
-    passes: {
-      Gold: "$110",
-      Prestige: "$190"
-    }
-  },
-  {
-    park: "Six Flags Darien Lake",
-    company: "Six Flags",
-    url: "darienlake",
-    group: "Midwest",
-    passes: {
-      Gold: "$75",
-      Prestige: "$135"
-    }
-  },
-  {
-    park: "Six Flags Great America",
-    company: "Six Flags",
-    url: "greatamerica",
-    group: "Midwest",
-    passes: {
-      Silver: "$79",
-      Gold: "$99",
-      Prestige: "$145"
-    }
-  },
-  {
-    park: "Six Flags St. Louis",
-    company: "Six Flags",
-    url: "stlouis",
-    group: "Midwest",
-    passes: {
-      Silver: "$59",
-      Gold: "$75",
-      Prestige: "$135"
-    }
-  },
-  {
-    park: "Valleyfair",
-    company: "Six Flags",
-    url: "valleyfair",
-    group: "Midwest",
-    passes: {
-      Gold: "$85",
-      Prestige: "$125"
-    }
-  },
-  {
-    park: "Worlds of Fun",
-    company: "Six Flags",
-    url: "worldsoffun",
-    group: "Midwest",
-    passes: {
-      Silver: "$65",
-      Gold: "$90",
-      Prestige: "$125"
+      Gold: { 
+        price: "$160", 
+        access: "Six Flags East", 
+        parking: "Six Flags East"
+      },
+      Prestige: {
+        price: "$180",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
     park: "Frontier City",
     company: "Six Flags",
-    url: "frontiercity",
-    group: "Texas",
+    slug: "frontiercity",
+    group: "Six Flags Texas",
     passes: {
-      Silver: "$55",
-      Gold: "$79",
-      Prestige: "$125"
+      Gold: { 
+        price: "$79", 
+        access: "Six Flags Texas", 
+        parking: "Six Flags Texas"
+      },
+      Prestige: {
+        price: "$125",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
-    park: "Six Flags Fiesta Texas",
+    park: "Kings Dominion",
     company: "Six Flags",
-    url: "fiestatexas",
-    group: "Texas",
+    slug: "kingsdominion",
+    group: "Six Flags East",
     passes: {
-      Silver: "$70",
-      Gold: "$99",
-      Prestige: "$145"
+      Gold: { 
+        price: "$110", 
+        access: "Six Flags East", 
+        parking: "Six Flags East"
+      },
+      Prestige: {
+        price: "$225",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
-    park: "Six Flags Over Texas",
+    park: "Kings Island",
     company: "Six Flags",
-    url: "overtexas",
-    group: "Texas",
+    slug: "kingsisland",
+    group: "Six Flags Midwest",
     passes: {
-      Silver: "$70",
-      Gold: "$99",
-      Prestige: "$155"
-    }
-  },
-  {
-    park: "California's Great America",
-    company: "Six Flags",
-    url: "cagreatamerica",
-    group: "West",
-    passes: {
-      Gold: "$85"
+      Gold: { 
+        price: "$180", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$299",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
     park: "Knott's Berry Farm",
     company: "Six Flags",
-    url: "knotts",
-    group: "West",
+    slug: "knotts",
     passes: {
-      Silver: "$120",
-      Gold: "$145",
-      Prestige: "$300"
+      Gold: { 
+        price: "$240", 
+        access: GoldWestAccess, 
+        parking: "Six Flags West"
+      },
+      Prestige: {
+        price: "$125",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
+    }
+  },
+  {
+    park: "La Ronde",
+    company: "Six Flags",
+    slug: "laronde",
+    urlPass: "passeports",
+    currency: "CAD",
+    passes: {
+      Gold: { 
+        price: "$95", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$150",
+        access: PrestigeAccess,
+        parking: LaRondeParking
+      }
+    }
+  },
+  {
+    park: "Michigan's Adventure",
+    company: "Six Flags",
+    slug: "miadventure",
+    group: "Six Flags Midwest",
+    passes: {
+      Gold: { 
+        price: "$140", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$190",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
+    }
+  },
+  {
+    park: "Six Flags Darien Lake",
+    company: "Six Flags",
+    slug: "darienlake",
+    group: "Six Flags Midwest",
+    passes: {
+      Gold: { 
+        price: "$95", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
     park: "Six Flags Discovery Kingdom",
     company: "Six Flags",
-    url: "discoverykingdom",
-    group: "West",
+    slug: "discoverykingdom",
+    group: "Six Flags West",
     passes: {
-      Silver: "$65",
-      Gold: "$79",
-      Prestige: "$145"
+      Gold: { 
+        price: "$79", 
+        access: GoldWestAccess, 
+        parking: "Six Flags West"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
+    }
+  },
+  {
+    park: "Six Flags Fiesta Texas",
+    company: "Six Flags",
+    slug: "fiestatexas",
+    group: "Six Flags Texas",
+    passes: {
+      Gold: { 
+        price: "$99", 
+        access: "Six Flags Texas", 
+        parking: "Six Flags Texas"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
+    }
+  },
+  {
+    park: "Six Flags Great Adventure",
+    company: "Six Flags",
+    slug: "greatadventure",
+    group: "Six Flags East",
+    passes: {
+      Gold: { 
+        price: "$89",
+        access: "Six Flags East", 
+        parking: "Six Flags East"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
+    }
+  },
+  {
+    park: "Six Flags Great America",
+    company: "Six Flags",
+    slug: "greatamerica",
+    group: "Six Flags Midwest",
+    passes: {
+      Gold: { 
+        price: "$99", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
+    }
+  },
+  {
+    park: "Six Flags Great Escape",
+    company: "Six Flags",
+    slug: "greatescape",
+    group: "Six Flags East",
+    passes: {
+      Gold: { 
+        price: "$79", 
+        access: "Six Flags East", 
+        parking: "Six Flags East"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
     park: "Six Flags Magic Mountain",
     company: "Six Flags",
-    url: "magicmountain",
-    group: "West",
+    slug: "magicmountain",
+    group: "Six Flags West",
     passes: {
-      Silver: "$90",
-      Gold: "$115",
-      Prestige: "$250"
+      Gold: { 
+        price: "$115", 
+        access: GoldWestAccess, 
+        parking: "Six Flags West"
+      },
+      Prestige: {
+        price: "$275",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
     park: "Six Flags Mexico",
     company: "Six Flags",
-    url: "mexico",
-    group: "West",
+    slug: "mexico",
+    group: "Six Flags West",
     currency: "MXN",
     passes: {
-      Silver: "$1100",
-      Gold: "$1500",
-      Prestige: "$1999"
+      Gold: { 
+        price: "$1500", 
+        access: GoldWestAccess, 
+        parking: "Six Flags West"
+      },
+      Prestige: {
+        price: "$2999",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
-    park: "Adventureland",
-    company: "Herschend",
-    url: "adventurelandpark",
-    group: "Herschend",
+    park: "Six Flags New England",
+    company: "Six Flags",
+    slug: "newengland",
+    group: "Six Flags East",
     passes: {
-      Bronze: "$110",
-      Silver: "$160",
-      Gold: "$210",
-      Platinum: "$250"
-    },
-    parking: ["Gold", "Platinum"],
-    extraParking: {
-      Platinum: ["HerschendFree"]
+      Gold: { 
+        price: "$89", 
+        access: "Six Flags East", 
+        parking: "Six Flags East"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
-    park: "Dollywood",
-    company: "Herschend",
-    url: "dollywood",
-    urlPass: "tickets",
+    park: "Six Flags Over Georgia",
+    company: "Six Flags",
+    slug: "overgeorgia",
+    group: "Six Flags East",
     passes: {
-      Summer: "$135",
-      Silver: "$170",
-      Gold: "$245"
-    },
-    parking: ["Gold"]
-  },
-  {
-    park: "Dutch Wonderland",
-    company: "Herschend",
-    url: "dutchwonderland",
-    group: "Herschend",
-    passes: {
-      Bronze: "$110",
-      Silver: "$130",
-      Gold: "$170",
-      Platinum: "$250"
-    },
-    parking: ["Gold", "Platinum"],
-    extraParking: {
-      Platinum: ["HerschendFree"]
+      Gold: { 
+        price: "$89", 
+        access: "Six Flags East", 
+        parking: "Six Flags East"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
-    park: "Idlewild",
-    company: "Herschend",
-    url: "idlewild",
-    group: "HerschendFree",
+    park: "Six Flags Over Texas",
+    company: "Six Flags",
+    slug: "overtexas",
+    group: "Six Flags Texas",
     passes: {
-      Bronze: "$100",
-      Silver: "$110",
-      Gold: "$139",
-      Platinum: "$250"
-    },
-    extraParking: {
-      Platinum: ["Dutch Wonderland", "HerschendFree"]
+      Gold: { 
+        price: "$99", 
+        access: "Six Flags Texas", 
+        parking: "Six Flags Texas"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
-    park: "Kennywood",
-    company: "Herschend",
-    url: "kennywood",
-    group: "HerschendFree",
+    park: "Six Flags St. Louis",
+    company: "Six Flags",
+    slug: "stlouis",
+    group: "Six Flags Midwest",
     passes: {
-      Bronze: "$110",
-      Silver: "$130",
-      Gold: "$170",
-      Platinum: "$250"
-    },
-    extraParking: {
-      Platinum: ["Dutch Wonderland", "HerschendFree"]
+      Gold: { 
+        price: "$75", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$200",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
-    park: "Kentucky Kingdom",
-    company: "Herschend",
-    url: "kentuckykingdom",
-    urlPass: "tickets",
+    park: "Valleyfair",
+    company: "Six Flags",
+    slug: "valleyfair",
+    group: "Six Flags Midwest",
     passes: {
-      Silver: "$80",
-      Gold: "$100",
-      Diamond: "$150"
-    },
-  },
-  {
-    park: "Lake Compounce",
-    company: "Herschend",
-    url: "lakecompounce",
-    group: "Herschend",
-    passes: {
-      Silver: "$140",
-      Gold: "$170",
-      Platinum: "$210"
-    },
-    parking: ["Gold", "Platinum"],
-    extraParking: {
-      Platinum: ["HerschendFree"]
+      Gold: { 
+        price: "$140", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$180",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
   },
   {
-    park: "Silver Dollar City",
-    company: "Herschend",
-    url: "silverdollarcity",
-    urlPass: "tickets",
+    park: "Worlds of Fun",
+    company: "Six Flags",
+    slug: "worldsoffun",
+    group: "Six Flags Midwest",
     passes: {
-      Silver: "$159",
-      Gold: "$219",
-      Diamond: "$279"
-    },
-  },
-  {
-    park: "Story Land",
-    company: "Herschend",
-    url: "storylandnh",
-    group: "HerschendFree",
-    passes: {
-      Bronze: "$110",
-      Silver: "$120",
-      Gold: "$140",
-      Platinum: "$210"
-    },
-    extraParking: {
-      Platinum: ["HerschendFree"]
+      Gold: { 
+        price: "$90", 
+        access: GoldMidwestAccess, 
+        parking: "Six Flags Midwest"
+      },
+      Prestige: {
+        price: "$180",
+        access: PrestigeAccess,
+        parking: PrestigeParking
+      }
     }
-  },
-  {
-    park: "Wild Adventures",
-    company: "Herschend",
-    url: "wildadventures",
-    passes: {
-      Silver: "$120",
-      Gold: "$170",
-      Diamond: "$190"
-    },
-    parking: ["Gold", "Diamond"]
-  },
-  {
-    park: "Silverwood",
-    company: "Herschend",
-    url: "silverwoodthemepark",
-    urlPass: "tickets/tickets.php?Pass=YES",
-    passes: {
-      Regular: "$259",
-      Gold: "$745"
-    }
-  },
-  {
-    park: "SeaWorld Orlando",
-    company: "United Parks",
-    url: "seaworld",
-    urlFunCard: "tickets/fun-card",
-    slug: "orlando",
-    group: "United",
-    passes: {
-      "Fun Card": "$148",
-      Bronze: "$198",
-      Silver: "$279",
-      Gold: "$315",
-      Platinum: "$549"
-    },
-    parking: ["Silver", "Gold", "Platinum"],
-    extraParking: {
-      Platinum: ["United"]
-    }
-  },
-  {
-    park: "SeaWorld San Antonio",
-    company: "United Parks",
-    url: "seaworld",
-    slug: "san-antonio",
-    group: "United",
-    passes: {
-      Season: "$126",
-      Silver: "$143",
-      Gold: "$165",
-      Platinum: "$265"
-    },
-    extraParking: {
-      Platinum: ["United"]
-    }
-  },
-  {
-    park: "SeaWorld San Diego",
-    company: "United Parks",
-    url: "seaworld",
-    urlFunCard: "tickets/fun-card",
-    slug: "san-diego",
-    group: "United",
-    passes: {
-      "Fun Card": "$127",
-      Season: "$229",
-      Silver: "$210",
-      Gold: "$246",
-      Platinum: "$375"
-    },
-    parkAccess: {
-      Season: ["SeaWorld San Diego", "Sesame Place San Diego"]
-    },
-    parking: ["Silver", "Gold", "Platinum"],
-    extraParking: {
-      Platinum: ["United"]
-    }
-  },
-  {
-    park: "Busch Gardens Tampa Bay",
-    company: "United Parks",
-    url: "buschgardens",
-    urlFunCard: "tickets/fun-card",
-    slug: "tampa",
-    group: "United",
-    passes: {
-      "Fun Card": "$148",
-      Bronze: "$192",
-      Silver: "$279",
-      Gold: "$315",
-      Platinum: "$549"
-    },
-    parking: ["Silver", "Gold", "Platinum"],
-    extraParking: {
-      Platinum: ["United"]
-    }
-  },
-  {
-    park: "Busch Gardens Williamsburg",
-    company: "United Parks",
-    url: "buschgardens",
-    slug: "williamsburg",
-    group: "United",
-    passes: {
-      "Fun Card": "$146",
-      Basic: "$243",
-      Unlimited: "$324",
-      Premier: "$408",
-      Platinum: "$537"
-    },
-    parking: ["Unlimited", "Premier", "Platinum"],
-    extraParking: {
-      Platinum: ["United"]
-    }
-  },
-  {
-    park: "Sesame Place Philadelphia",
-    company: "United Parks",
-    url: "sesameplace",
-    urlPass: "season-pass",
-    slug: "philadelphia",
-    group: "United",
-    passes: {
-      Bronze: "$171",
-      Silver: "$230",
-      Gold: "$293",
-      Platinum: "$374"
-    },
-    parking: ["Silver", "Gold", "Platinum"],
-    extraParking: {
-      Platinum: ["United"]
-    }
-  },
-  {
-    park: "Sesame Place San Diego",
-    company: "United Parks",
-    url: "sesameplace",
-    urlPass: "season-pass",
-    slug: "san-diego",
-    group: "United",
-    passes: {
-      Season: "$229",
-      Silver: "$210",
-      Gold: "$246",
-      Platinum: "$375"
-    },
-    parkAccess: {
-      Season: ["SeaWorld San Diego", "Sesame Place San Diego"]
-    },
-    parking: ["Silver", "Gold", "Platinum"],
-    extraParking: {
-      Platinum: ["United"]
-    }
-  },
-  {
-    park: "Disney California Adventure",
-    company: "Walt Disney",
-    url: "disneyland",
-    urlPass: "magic-key",
-    slug: "california-adventure",
-    group: "Disneyland",
-    passes: {
-      "Explore Key": "$999",
-      "Believe Key": "$1,474",
-      "Inspire Key": "$1,899"
-    },
-    parking: ["Inspire Key"],
-    extraParking: {
-      "Inspire Key": ["Disneyland"]
-    }
-  },
-  {
-    park: "Disneyland",
-    company: "Walt Disney",
-    url: "disneyland",
-    urlPass: "magic-key",
-    slug: "disneyland",
-    group: "Disneyland",
-    passes: {
-      "Explore Key": "$999",
-      "Believe Key": "$1,474",
-      "Inspire Key": "$1,899"
-    },
-    parking: ["Inspire Key"],
-    extraParking: {
-      "Inspire Key": ["Disneyland"]
-    }
-  },
-  {
-    park: "Disney's Animal Kingdom",
-    company: "Walt Disney",
-    url: "disneyworld",
-    slug: "animal-kingdom",
-    group: "DisneyWorld",
-    passes: {
-      "Incredi-Pass": "$1,629",
-    },
-    parkAccess: {
-      "Incredi-Pass": ["DisneyWorld"]
-    },
-    extraParking: {
-      "Incredi-Pass": ["DisneyWorld"]
-    }
-  },
-  {
-    park: "Disney's Hollywood Studios",
-    company: "Walt Disney",
-    url: "disneyworld",
-    slug: "hollywood-studios",
-    group: "DisneyWorld",
-    passes: {
-      "Incredi-Pass": "$1,629",
-    },
-    parkAccess: {
-      "Incredi-Pass": ["DisneyWorld"]
-    },
-    extraParking: {
-      "Incredi-Pass": ["DisneyWorld"]
-    }
-  },
-  {
-    park: "Epcot",
-    company: "Walt Disney",
-    url: "disneyworld",
-    slug: "epcot",
-    group: "DisneyWorld",
-    passes: {
-      "Incredi-Pass": "$1,629",
-    },
-    parkAccess: {
-      "Incredi-Pass": ["DisneyWorld"]
-    },
-    extraParking: {
-      "Incredi-Pass": ["DisneyWorld"]
-    }
-  },
-  {
-    park: "Magic Kingdom",
-    company: "Walt Disney",
-    url: "disneyworld",
-    slug: "magic-kingdom",
-    group: "DisneyWorld",
-    passes: {
-      "Incredi-Pass": "$1,629",
-    },
-    parkAccess: {
-      "Incredi-Pass": ["DisneyWorld"]
-    },
-    extraParking: {
-      "Incredi-Pass": ["DisneyWorld"]
-    } ["DisneyWorld"]
   }
-  // Miral Experiences
-  // {
-  //   park: "Ferrari World Abu Dhabi",
-  // },
-  // {
-  //   park: "SeaWorld Abu Dhabi",
-  // },
-  // {
-  //   park: "Warner Bros. World Abu Dhabi",
-  // },
-  // {
-  //   park: "Yas Waterworld Abu Dhabi",
-  // }
 ];

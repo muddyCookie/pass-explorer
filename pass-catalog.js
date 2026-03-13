@@ -99,18 +99,105 @@ function getDefaultAccessibleParks(passType, homePark, companyName) {
   return [homePark];
 }
 
-function getAccessibleParksForOffer(parkConfig, passType, homePark, companyName) {
-  const tierAccessGroups = parkConfig.parkAccess?.[passType]
-    ?? parkConfig.accessGroupsByTier?.[passType];
-  if (Array.isArray(tierAccessGroups)) {
-    return tierAccessGroups;
+function normalizePassDefinition(rawPassDefinition) {
+  if (rawPassDefinition == null) {
+    return null;
   }
 
-  if (Array.isArray(parkConfig.accessibleParks)) {
-    return parkConfig.accessibleParks;
+  if (typeof rawPassDefinition === "string" || typeof rawPassDefinition === "number") {
+    return { price: String(rawPassDefinition).trim() };
+  }
+
+  if (typeof rawPassDefinition === "object" && !Array.isArray(rawPassDefinition)) {
+    const price = rawPassDefinition.price ?? rawPassDefinition.cost ?? rawPassDefinition.value ?? "";
+    const rawAccess = rawPassDefinition.access ?? rawPassDefinition.accessibleParks ?? rawPassDefinition.parkAccess ?? null;
+    const access = Array.isArray(rawAccess)
+      ? rawAccess
+      : (typeof rawAccess === "string" && rawAccess.trim() ? [rawAccess.trim()] : null);
+    return {
+      price: String(price || "").trim(),
+      access,
+      parking: rawPassDefinition.parking ?? null,
+      disclaimer: rawPassDefinition.disclaimer ?? ""
+    };
+  }
+
+  return null;
+}
+
+function normalizeParkingConfig(rawParking) {
+  if (rawParking == null) {
+    return null;
+  }
+
+  if (typeof rawParking === "string") {
+    const entry = rawParking.trim();
+    return entry ? { includeHomePark: false, entries: [entry] } : null;
+  }
+
+  if (rawParking === true) {
+    return { includeHomePark: true, entries: [] };
+  }
+
+  if (rawParking === false) {
+    return { includeHomePark: false, entries: [] };
+  }
+
+  if (Array.isArray(rawParking)) {
+    return { includeHomePark: false, entries: rawParking };
+  }
+
+  if (typeof rawParking === "object") {
+    const includeHomePark = Boolean(
+      rawParking.includeHomePark
+      ?? rawParking.includesHomePark
+      ?? rawParking.home
+      ?? rawParking.homePark
+      ?? false
+    );
+    const entries = rawParking.entries
+      ?? rawParking.extra
+      ?? rawParking.include
+      ?? rawParking.includedAt
+      ?? rawParking.parks
+      ?? [];
+    return {
+      includeHomePark,
+      entries: Array.isArray(entries) ? entries : []
+    };
+  }
+
+  return null;
+}
+
+function getAccessibleParksForOffer(parkConfig, passType, homePark, companyName) {
+  const passDefinition = normalizePassDefinition(parkConfig.passes?.[passType]);
+  const passAccessGroups = passDefinition?.access;
+  if (Array.isArray(passAccessGroups)) {
+    return passAccessGroups;
   }
 
   return getDefaultAccessibleParks(passType, homePark, companyName);
+}
+
+function flattenEntryList(values) {
+  const flattened = [];
+  const stack = Array.isArray(values) ? [...values] : [];
+
+  while (stack.length > 0) {
+    const next = stack.shift();
+    if (Array.isArray(next)) {
+      stack.unshift(...next);
+      continue;
+    }
+
+    const text = String(next || "").trim();
+    if (text) {
+      flattened.push(text);
+    }
+  }
+
+  return flattened;
 }
 
 function expandParkingParks(entries, homePark, includeHomePark = false) {
@@ -122,12 +209,7 @@ function expandParkingParks(entries, homePark, includeHomePark = false) {
     expanded.push(homePark);
   }
 
-  for (const rawEntry of entries || []) {
-    const entry = String(rawEntry || "").trim();
-    if (!entry) {
-      continue;
-    }
-
+  for (const entry of flattenEntryList(entries || [])) {
     const parks = parkCollectionsByName[entry] ?? [entry];
 
     for (const rawPark of parks) {
@@ -198,12 +280,7 @@ function expandAccessibleParks(accessEntries) {
   const expanded = [];
   const seen = new Set();
 
-  for (const rawEntry of accessEntries) {
-    const entry = String(rawEntry || "").trim();
-    if (!entry) {
-      continue;
-    }
-
+  for (const entry of flattenEntryList(accessEntries || [])) {
     const parks = parkCollectionsByName[entry] ?? [entry];
     for (const rawPark of parks) {
       const park = String(rawPark || "").trim();
@@ -219,6 +296,7 @@ function expandAccessibleParks(accessEntries) {
 }
 
 const passOffers = [];
+const OMIT_HOME_ONLY_PASSES = true;
 for (const parkConfig of parkCatalog) {
   const parkName = String(parkConfig.park || "").trim();
   const company = String(parkConfig.company || "").trim();
@@ -227,16 +305,28 @@ for (const parkConfig of parkCatalog) {
   }
 
   const links = buildParkLinksForCompany(company, parkConfig);
-  const tierOffers = Object.entries(parkConfig.passes || {}).filter(([, price]) => Boolean(price));
+  const tierOffers = Object.entries(parkConfig.passes || {})
+    .map(([passType, rawPassDefinition]) => [passType, normalizePassDefinition(rawPassDefinition)])
+    .filter(([, passDefinition]) => Boolean(passDefinition?.price));
   const passUrlByTier = parkConfig.passPurchaseUrlByTier || parkConfig.buyPassUrlByTier || {};
   const fallbackPassUrl = links.passPurchaseUrl || parkConfig.passPurchaseUrl || parkConfig.buyPassUrl || null;
-  for (const [passType, price] of tierOffers) {
+  for (const [passType, passDefinition] of tierOffers) {
+    const price = passDefinition.price;
     const accessibleParks = getAccessibleParksForOffer(parkConfig, passType, parkName, company);
-    const hasExplicitParkingConfig = Array.isArray(parkConfig.parking)
-      || Boolean(parkConfig.extraParking);
-    const hasHomeParkParking = Array.isArray(parkConfig.parking)
-      && parkConfig.parking.includes(passType);
-    const extraParkingEntries = parkConfig.extraParking?.[passType] || [];
+
+    const expandedAccessibleParks = expandAccessibleParks(accessibleParks);
+    if (
+      OMIT_HOME_ONLY_PASSES
+      && expandedAccessibleParks.length === 1
+      && expandedAccessibleParks[0] === parkName
+    ) {
+      continue;
+    }
+
+    const passParkingConfig = normalizeParkingConfig(passDefinition.parking);
+    const hasExplicitParkingConfig = Boolean(passParkingConfig);
+    const resolvedParkingEntries = passParkingConfig?.entries || [];
+    const resolvedIncludeHomePark = Boolean(passParkingConfig?.includeHomePark);
     const funCardOverride = passType === "Fun Card"
       ? String(parkConfig.urlFunCard || "").trim()
       : "";
@@ -258,11 +348,11 @@ for (const parkConfig of parkCatalog) {
       passType,
       price,
       currency: parkConfig.currency || getCompanyDefaultCurrency(company),
-      disclaimer: parkConfig.disclaimer || "",
+      disclaimer: String(passDefinition.disclaimer || parkConfig.disclaimer || "").trim(),
       passPurchaseUrl: resolvedTierPassUrl || fallbackPassUrl,
       accessibleParks,
       explicitParkingIncludedParks: hasExplicitParkingConfig
-        ? expandParkingParks(extraParkingEntries, parkName, hasHomeParkParking)
+        ? expandParkingParks(resolvedParkingEntries, parkName, resolvedIncludeHomePark)
         : null
     });
   }
