@@ -19,8 +19,6 @@ const urlRules = {
   // Generic URL rules used for all companies. Companies can override defaults by setting:
   // - `defaultUrl`: base host/path used to build park websites (e.g. "www.sixflags", "{parkUrl}.disney.go.com/destinations")
   // - `defaultUrlPass`: default pass path (e.g. "season-passes") or absolute URL template.
-  //
-  // When a company has `defaultUrl` and a park omits `slug`, the park's `url` becomes the `{slug}`.
   parkTemplate: "https://{url}/{slug}",
   passTemplate: "https://{url}/{slug}/{urlPass}"
 };
@@ -28,7 +26,9 @@ const groupOrder = [
   "Six Flags East",
   "Six Flags Midwest",
   "Six Flags Texas", 
-  "Six Flags West"
+  "Six Flags West",
+  "Herschend",
+  "Fun Spot America"
 ];
 
 const companyCatalog = [
@@ -45,7 +45,14 @@ const companyCatalog = [
     tierOrder: ["Platinum"],
     defaultSlug: "buy-tickets",
     defaultUrlPass: "season-passes"
-   }
+  },
+  {
+  name: "Fun Spot America",
+  defaultCurrency: "USD",
+  tierOrder: ["Season", "Ultimate"],
+  defaultUrl: "fun-spot",
+  defaultUrlPass: "buy-tickets"
+  }
   // {
   //   name: "Merlin",
   //     Legoland Florida
@@ -118,14 +125,9 @@ function buildParkLinksForCompany(companyName, parkConfig) {
   const slugMode = String(parkConfig.slugMode || "").trim().toLowerCase();
 
   const companyDefaultUrl = String(company?.defaultUrl || "").trim();
-  const baseUrlTemplateOrValue = companyDefaultUrl || parkUrlValue;
-
-  // If a company defines a `defaultUrl`, treat `parks.js:url` as the slug/path segment
-  // when no explicit `parks.js:slug` is provided.
-  if (!hasAbsoluteParkUrl && companyDefaultUrl && parkUrlValue && !rawSlug) {
-    rawSlug = parkUrlValue;
-    parkUrlValue = companyDefaultUrl;
-  }
+  // Prefer park-level `url` as the `{url}` value; fall back to company `defaultUrl`.
+  // `slug` is always used as `{slug}`; it is never inferred from `url`.
+  const baseUrlTemplateOrValue = parkUrlValue || companyDefaultUrl;
 
   const expandUrlTemplate = (value, templateValues) => {
     const text = String(value || "").trim();

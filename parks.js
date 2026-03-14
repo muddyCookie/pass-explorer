@@ -25,7 +25,6 @@ const GoldWestAccess = [ "Six Flags West", "Knott's Berry Farm" ];
 const PrestigeAccess = [ PrestigeParking, "Canada's Wonderland", "La Ronde" ];
 const FreeParkingHerschend = [ "Idlewild", "Kennywood", "Story Land" ];
 
-
 const parkCatalog = [
   {
     park: "California's Great America",
@@ -551,5 +550,39 @@ const parkCatalog = [
         parking: FreeParkingHerschend
       }
     }
-  }
+  },
+  {
+    park: "Fun Spot America Orlando", // Free Parking
+    company: "Fun Spot America",
+    slug: "orlando",
+    group: "Fun Spot America"
+  },
+  {
+    park: "Fun Spot America Kissimmee", // Free Parking
+    company: "Fun Spot America",
+    slug: "kissimmee",
+    group: "Fun Spot America"
+  },
+  {
+    park: "Fun Spot America Atlanta", // Free Parking
+    company: "Fun Spot America",
+    url: "funspotamericaatlanta",
+    group: "Fun Spot America"
+  },
+  {
+    park: "Fun Spot America", // Orlando, Kissimmee, Atlanta Combined due to shared season pass website
+    company: "Fun Spot America",
+    passes: {
+      Season: {
+        price: "$120",
+        access: "Fun Spot America",
+        parking: "Fun Spot America"
+      },
+      Ultimate: {
+        price: "$290",
+        access: "Fun Spot America",
+        parking: "Fun Spot America"
+      }
+    }
+   }
 ];
