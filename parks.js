@@ -476,7 +476,7 @@ const parkCatalog = [
   {
     park: "Adventureland",
     company: "Herschend",
-    url: "adventureland",
+    url: "adventurelandpark",
     group: "Herschend",
     passes: {
       Platinum: {
