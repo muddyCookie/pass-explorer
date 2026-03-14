@@ -45,7 +45,35 @@ const companyCatalog = [
     tierOrder: ["Platinum"],
     defaultSlug: "buy-tickets",
     defaultUrlPass: "season-passes"
-  }
+   }
+  // {
+  //   name: "Merlin",
+  //     Legoland Florida
+  //     Legoland New York
+  //     Legoland California
+  //     Peppa Pig Florida
+  // },
+  // {
+  //   name: "United Parks",
+  //     Busch Gardens Tampa Bay
+  //     Busch Gardens Williamsburg
+  //     SeaWorld Orlando
+  //     SeaWorld San Antonio
+  //     SeaWorld San Diego
+  //     Sesame Place Philadelphia
+  //     Sesame Place San Diego
+  // },
+  // {
+  //   name: "Universal",
+  //     ???
+  // },
+  // {
+  //   name: "Fun Spot America",
+  //     Orlando, Atlanta, Kissimmee
+  // }
+  // {
+  //   name: "Walt Disney",
+  // }
 ];
 
 function trimSlashes(value) {
