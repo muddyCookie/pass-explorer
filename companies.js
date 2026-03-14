@@ -38,6 +38,13 @@ const companyCatalog = [
     tierOrder: ["Gold", "Prestige"],
     defaultUrl: "sixflags",
     defaultUrlPass: "season-passes"
+  },
+  {
+    name: "Herschend",
+    defaultCurrency: "USD",
+    tierOrder: ["Platinum"],
+    defaultSlug: "buy-tickets",
+    defaultUrlPass: "season-passes"
   }
 ];
 
@@ -74,6 +81,7 @@ function getCompanyDefaultCurrency(companyName) {
 function buildParkLinksForCompany(companyName, parkConfig) {
   const company = getCompanyConfig(companyName);
   const urlRules = company?.urlRules || {};
+  const companyDefaultSlug = String(company?.defaultSlug || "").trim();
 
   const originalParkUrlValue = String(parkConfig.url || parkConfig.website || "").trim();
   let parkUrlValue = originalParkUrlValue;
@@ -116,26 +124,30 @@ function buildParkLinksForCompany(companyName, parkConfig) {
   const resolvedUrlValue = slugMode === "suffix" && rawSlug
     ? `${parkUrlValue}${rawSlug}`
     : parkUrlValue;
-  const resolvedSlugValue = slugMode === "suffix"
+  const resolvedWebsiteSlugValue = slugMode === "suffix"
     ? ""
     : rawSlug;
-  const templateValues = {
+  const resolvedPassSlugValue = slugMode === "suffix"
+    ? ""
+    : (rawSlug || companyDefaultSlug);
+  const templateValuesBase = {
     url: normalizeHostPath(expandUrlTemplate(baseUrlTemplateOrValue, { url: resolvedUrlValue, parkUrl: originalParkUrlValue, slug: rawSlug })),
     urlRoot: "",
-    slug: resolvedSlugValue,
     urlPass: String(parkConfig.urlPass || "").trim(),
     parkUrl: originalParkUrlValue
   };
-  templateValues.urlRoot = String(templateValues.url || "").split("/")[0] || "";
+  templateValuesBase.urlRoot = String(templateValuesBase.url || "").split("/")[0] || "";
+  const websiteTemplateValues = { ...templateValuesBase, slug: resolvedWebsiteSlugValue };
+  const passTemplateValues = { ...templateValuesBase, slug: resolvedPassSlugValue };
 
   let website = "#";
   if (hasAbsoluteParkUrl) {
     website = originalParkUrlValue;
-  } else if (templateValues.url && urlRules.parkTemplate) {
-    const templatedUrl = normalizeUrlSlashes(applyUrlTemplate(urlRules.parkTemplate, templateValues)).trim();
-    website = templatedUrl || (templateValues.url ? `https://${templateValues.url}` : "#");
-  } else if (templateValues.url) {
-    website = `https://${templateValues.url}`;
+  } else if (websiteTemplateValues.url && urlRules.parkTemplate) {
+    const templatedUrl = normalizeUrlSlashes(applyUrlTemplate(urlRules.parkTemplate, websiteTemplateValues)).trim();
+    website = templatedUrl || (websiteTemplateValues.url ? `https://${websiteTemplateValues.url}` : "#");
+  } else if (websiteTemplateValues.url) {
+    website = `https://${websiteTemplateValues.url}`;
   }
 
   const defaultUrlPass = String(urlRules.defaultUrlPass || "").trim();
@@ -145,16 +157,16 @@ function buildParkLinksForCompany(companyName, parkConfig) {
   if (parkUrlPass && /^https?:\/\//i.test(parkUrlPass)) {
     resolvedUrlPass = parkUrlPass;
   } else if (parkUrlPass && /^https?:\/\//i.test(defaultUrlPass) && /\{urlPass\}/.test(defaultUrlPass)) {
-    resolvedUrlPass = applyUrlTemplate(defaultUrlPass, { ...templateValues, urlPass: parkUrlPass });
+    resolvedUrlPass = applyUrlTemplate(defaultUrlPass, { ...passTemplateValues, urlPass: parkUrlPass });
   } else if (parkUrlPass && /\{\w+\}/.test(defaultUrlPass) && /\{urlPass\}/.test(defaultUrlPass)) {
-    resolvedUrlPass = applyUrlTemplate(defaultUrlPass, { ...templateValues, urlPass: parkUrlPass });
+    resolvedUrlPass = applyUrlTemplate(defaultUrlPass, { ...passTemplateValues, urlPass: parkUrlPass });
   } else {
     resolvedUrlPass = parkUrlPass || defaultUrlPass;
   }
 
   if (resolvedUrlPass && /^https?:\/\//i.test(resolvedUrlPass)) {
     const templatedAbsolute = normalizeUrlSlashes(applyUrlTemplate(resolvedUrlPass, {
-      ...templateValues,
+      ...passTemplateValues,
       urlPass: parkUrlPass || defaultUrlPass
     })).trim();
     return { website, passPurchaseUrl: templatedAbsolute || resolvedUrlPass };
@@ -172,7 +184,7 @@ function buildParkLinksForCompany(companyName, parkConfig) {
 
     if (urlRules.passTemplate) {
       const templatedPassUrl = normalizeUrlSlashes(applyUrlTemplate(urlRules.passTemplate, {
-        ...templateValues,
+        ...passTemplateValues,
         urlPass: String(resolvedUrlPass || "").trim()
       })).trim();
       if (templatedPassUrl) {
@@ -195,6 +207,7 @@ const companyConfig = Object.fromEntries(
       defaultCurrency: company.defaultCurrency || "USD",
       tierOrder: company.tierOrder || [],
       passDisplayRules: company.passDisplayRules || {},
+      defaultSlug: String(company.defaultSlug || "").trim(),
       defaultUrl: String(company.defaultUrl || "").trim(),
       urlRules: {
         ...urlRules,

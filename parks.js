@@ -23,6 +23,7 @@ const LaRondeParking = [ PrestigeParking, "La Ronde" ];
 const GoldMidwestAccess = [ "Six Flags Midwest", "Canada's Wonderland", "La Ronde" ];
 const GoldWestAccess = [ "Six Flags West", "Knott's Berry Farm" ];
 const PrestigeAccess = [ PrestigeParking, "Canada's Wonderland", "La Ronde" ];
+const FreeParkingHerschend = [ "Idlewild", "Kennywood", "Story Land" ];
 
 
 const parkCatalog = [
@@ -469,6 +470,85 @@ const parkCatalog = [
         price: "$180",
         access: PrestigeAccess,
         parking: PrestigeParking
+      }
+    }
+  },
+  {
+    park: "Adventureland",
+    company: "Herschend",
+    url: "adventureland",
+    group: "Herschend",
+    passes: {
+      Platinum: {
+        price: "$260",
+        access: "Herschend",
+        parking: ["Adventureland", FreeParkingHerschend]
+      }
+    }
+  },
+  {
+    park: "Dutch Wonderland",
+    company: "Herschend",
+    url: "dutchwonderland",
+    group: "Herschend",
+    passes: {
+      Platinum: {
+        price: "$250",
+        access: "Herschend",
+        parking: ["Dutch Wonderland", FreeParkingHerschend]
+      }
+    }
+  },
+  {
+    park: "Idlewild", // Free Parking
+    company: "Herschend",
+    url: "idlewild",
+    group: "Herschend",
+    passes: {
+      Platinum: {
+        price: "$250",
+        access: "Herschend",
+        parking: ["Dutch Wonderland", FreeParkingHerschend]
+      }
+    }
+
+  },
+  {
+    park: "Kennywood", // Free Parking
+    company: "Herschend",
+    url: "kennywood",
+    group: "Herschend",
+    passes: {
+      Platinum: {
+        price: "$250",
+        access: "Herschend",
+        parking: ["Dutch Wonderland", FreeParkingHerschend]
+      }
+    }
+  },
+  {
+    park: "Lake Compounce",
+    company: "Herschend",
+    url: "lakecompounce",
+    group: "Herschend",
+    passes: {
+      Platinum: {
+        price: "$210",
+        access: "Herschend",
+        parking: ["Lake Compounce", FreeParkingHerschend]
+      }
+    }
+  },
+  {
+    park: "Story Land", // Free Parking
+    company: "Herschend",
+    url: "storylandnh",
+    group: "Herschend",
+    passes: {
+      Platinum: {
+        price: "$210",
+        access: "Herschend",
+        parking: FreeParkingHerschend
       }
     }
   }
