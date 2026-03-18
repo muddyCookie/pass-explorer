@@ -21,7 +21,7 @@
   pe.bindFilterEvents();
 
   // Start in an unscoped state: no single company is selected by default.
-  pe.renderTypeFilterOptions("all");
+  pe.renderTypeFilterOptions("all", "all");
   pe.renderCompanyFilterOptions();
   pe.syncCompanyInputWithSelection();
   pe.renderParkFilterOptions();

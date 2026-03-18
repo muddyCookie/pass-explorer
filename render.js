@@ -91,7 +91,7 @@
         return matchesCompany && matchesPark && matchesType;
       });
 
-    const passTypeOrder = pe.getPassTypeOrderMap(selectedCompany);
+    const passTypeOrder = pe.getPassTypeOrderMap(selectedCompany, selectedPark);
     const compareByNameThenTierThenOriginal = (a, b) => {
       const parkNameDiff = a.homePark.localeCompare(b.homePark);
       if (parkNameDiff !== 0) {
@@ -124,32 +124,28 @@
 
     let otherPassesDividerIndex = -1;
     if (selectedPark !== "all") {
-      const selectedParkGroup = parkGroupByName[selectedPark] || "";
       const homeParkOffers = [];
-      const sameGroupOffers = [];
-      const otherOffers = [];
+      const otherMatchingOffers = [];
 
       for (const offer of visibleOffers) {
         if (offer.homePark === selectedPark) {
           homeParkOffers.push(offer);
-        } else if (
-          selectedParkGroup
-          && parkGroupByName[offer.homePark] === selectedParkGroup
-        ) {
-          sameGroupOffers.push(offer);
         } else {
-          otherOffers.push(offer);
+          otherMatchingOffers.push(offer);
         }
       }
 
-      homeParkOffers.sort(compareByPassTypeThenOriginal);
-      sameGroupOffers.sort(compareBySelectedSort);
-      otherOffers.sort(compareBySelectedSort);
+      if (selectedSort === "none") {
+        homeParkOffers.sort(compareByPassTypeThenOriginal);
+      } else {
+        homeParkOffers.sort(compareBySelectedSort);
+      }
+      otherMatchingOffers.sort(compareBySelectedSort);
 
-      otherPassesDividerIndex = homeParkOffers.length > 0 && (sameGroupOffers.length + otherOffers.length) > 0
+      otherPassesDividerIndex = homeParkOffers.length > 0 && otherMatchingOffers.length > 0
         ? homeParkOffers.length
         : -1;
-      visibleOffers = [...homeParkOffers, ...sameGroupOffers, ...otherOffers];
+      visibleOffers = [...homeParkOffers, ...otherMatchingOffers];
     } else {
       visibleOffers.sort(compareBySelectedSort);
     }

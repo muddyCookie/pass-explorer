@@ -50,24 +50,19 @@
     return { companyFilterInput, companyFilterList };
   }
 
-  function getCompanyTierOptions(companyName) {
+  function getVisibleOffersForFilters(companyName = "all", parkName = "all") {
+    return passOffers.filter((offer) => {
+      const matchesCompany = companyName === "all" || offer.company === companyName;
+      const matchesPark = parkName === "all" || expandAccessibleParks(offer.accessibleParks).includes(parkName);
+      return matchesCompany && matchesPark;
+    });
+  }
+
+  function getCompanyTierOptions(companyName, parkName = "all") {
     const preferredTierOrder = ["Gold", "Prestige"];
-    if (companyName === "all") {
-      const availableTierSet = new Set();
-      for (const company of companies) {
-        for (const tierName of tierSetByCompany[company] || []) {
-          availableTierSet.add(tierName);
-        }
-      }
-
-      const orderedPreferredTiers = preferredTierOrder.filter((tierName) => availableTierSet.has(tierName));
-      const unorderedTiers = Array.from(availableTierSet)
-        .filter((tierName) => !preferredTierOrder.includes(tierName))
-        .sort((a, b) => a.localeCompare(b));
-      return [...orderedPreferredTiers, ...unorderedTiers];
-    }
-
-    const companyTierSet = tierSetByCompany[companyName] || new Set();
+    const companyTierSet = new Set(
+      getVisibleOffersForFilters(companyName, parkName).map((offer) => offer.passType)
+    );
     const orderedTiers = preferredTierOrder.filter((tierName) => companyTierSet.has(tierName));
     const unorderedTiers = Array.from(companyTierSet)
       .filter((tierName) => !preferredTierOrder.includes(tierName))
@@ -75,13 +70,13 @@
     return [...orderedTiers, ...unorderedTiers];
   }
 
-  function getPassTypeOrderMap(selectedCompany) {
-    return new Map(getCompanyTierOptions(selectedCompany).map((tierName, index) => [tierName, index]));
+  function getPassTypeOrderMap(selectedCompany, selectedPark = "all") {
+    return new Map(getCompanyTierOptions(selectedCompany, selectedPark).map((tierName, index) => [tierName, index]));
   }
 
-  function renderTypeFilterOptions(selectedCompany) {
+  function renderTypeFilterOptions(selectedCompany, selectedPark = "all") {
     const { typeFilter } = pe.dom;
-    const availableTiers = getCompanyTierOptions(selectedCompany);
+    const availableTiers = getCompanyTierOptions(selectedCompany, selectedPark);
     const currentSelection = typeFilter.value;
     typeFilter.innerHTML = "";
 
@@ -308,10 +303,14 @@
   }
 
   function handleCompanyFilterChange() {
-    renderTypeFilterOptions(pe.state.selectedCompanyFilterValue);
+    renderTypeFilterOptions(pe.state.selectedCompanyFilterValue, pe.state.selectedParkFilterValue);
     ensureParkSelectionIsVisible();
     syncParkInputWithSelection();
     renderParkFilterOptions(pe.dom.parkFilterInput.value);
+  }
+
+  function handleParkFilterChange() {
+    renderTypeFilterOptions(pe.state.selectedCompanyFilterValue, pe.state.selectedParkFilterValue);
   }
 
   function bindFilterEvents() {
@@ -441,6 +440,7 @@
 
       if (!normalizedQuery) {
         pe.state.selectedParkFilterValue = "all";
+        handleParkFilterChange();
         applyFilters();
         return;
       }
@@ -456,6 +456,7 @@
       }
 
       pe.state.selectedParkFilterValue = autoSelectedOption.value;
+      handleParkFilterChange();
       applyFilters();
     });
 
@@ -503,6 +504,7 @@
 
         syncParkInputWithSelection();
         closeParkFilterDropdown();
+        handleParkFilterChange();
         applyFilters();
         return;
       }
@@ -553,5 +555,6 @@
   pe.renderParkFilterOptions = renderParkFilterOptions;
   pe.applyFilters = applyFilters;
   pe.handleCompanyFilterChange = handleCompanyFilterChange;
+  pe.handleParkFilterChange = handleParkFilterChange;
   pe.bindFilterEvents = bindFilterEvents;
 })();

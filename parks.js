@@ -9,21 +9,15 @@
 //    passes: {
 //      Gold: { 
 //        price: "$85", 
-//        access: GoldWestAccess, 
-//        parking: "Six Flags West"
+//        access: "Six Flags West", 
+//        noParking: "Knott's Berry Farm"
 //      }
 //    }
 //  },
 //];
 
 // Six Flags Parking and Access
-const PrestigeParking = ["Six Flags East", "Knott's Berry Farm", "Six Flags Midwest", "Six Flags Texas", "Six Flags West"];
-const CanadasWonderlandParking = [ PrestigeParking, "Canada's Wonderland" ];
-const LaRondeParking = [ PrestigeParking, "La Ronde" ];
-const GoldMidwestAccess = [ "Six Flags Midwest", "Canada's Wonderland", "La Ronde" ];
-const GoldWestAccess = [ "Six Flags West", "Knott's Berry Farm" ];
-const PrestigeAccess = [ PrestigeParking, "Canada's Wonderland", "La Ronde" ];
-const FreeParkingHerschend = [ "Idlewild", "Kennywood", "Story Land" ];
+const SixFlagsPrestigeAccess = ["Six Flags East", "Six Flags Midwest", "Six Flags Texas", "Six Flags West"];
 
 const parkCatalog = [
   {
@@ -34,8 +28,8 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$85", 
-        access: GoldWestAccess, 
-        parking: "Six Flags West"
+        access: "Six Flags West", 
+        noParking: "Knott's Berry Farm"
       }
     }
   },
@@ -44,16 +38,17 @@ const parkCatalog = [
     company: "Six Flags",
     slug: "canadaswonderland",
     currency: "CAD",
+    group: "Six Flags Midwest",
     passes: {
       Gold: { 
         price: "$89", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$210",
-        access: PrestigeAccess,
-        parking: CanadasWonderlandParking
+        access: SixFlagsPrestigeAccess,
+        noParking: "La Ronde"
       }
     }
   },
@@ -65,13 +60,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$110", 
-        access: "Six Flags East", 
-        parking: "Six Flags East"
+        access: "Six Flags East"
       },
       Prestige: {
         price: "$225",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -83,13 +77,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$195", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$299",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -101,13 +95,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$160", 
-        access: "Six Flags East", 
-        parking: "Six Flags East"
+        access: "Six Flags East"
       },
       Prestige: {
         price: "$180",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -119,13 +112,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$79", 
-        access: "Six Flags Texas", 
-        parking: "Six Flags Texas"
+        access: "Six Flags Texas"
       },
       Prestige: {
         price: "$125",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -137,13 +129,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$110", 
-        access: "Six Flags East", 
-        parking: "Six Flags East"
+        access: "Six Flags East"
       },
       Prestige: {
         price: "$225",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -155,13 +146,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$180", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$299",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -169,16 +160,17 @@ const parkCatalog = [
     park: "Knott's Berry Farm",
     company: "Six Flags",
     slug: "knotts",
+    group: "Six Flags West",
     passes: {
       Gold: { 
         price: "$240", 
-        access: GoldWestAccess, 
-        parking: "Six Flags West"
+        access: "Six Flags West", 
+        noParking: "Knott's Berry Farm"
       },
       Prestige: {
         price: "$125",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -188,16 +180,17 @@ const parkCatalog = [
     slug: "laronde",
     urlPass: "passeports",
     currency: "CAD",
+    group: "Six Flags Midwest",
     passes: {
       Gold: { 
         price: "$95", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$150",
-        access: PrestigeAccess,
-        parking: LaRondeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: "Canada's Wonderland"
       }
     }
   },
@@ -209,13 +202,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$140", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$190",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -227,13 +220,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$95", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -245,13 +238,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$79", 
-        access: GoldWestAccess, 
-        parking: "Six Flags West"
+        access: "Six Flags West", 
+        noParking: "Knott's Berry Farm"
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -263,13 +256,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$99", 
-        access: "Six Flags Texas", 
-        parking: "Six Flags Texas"
+        access: "Six Flags Texas"
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -281,13 +273,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$89",
-        access: "Six Flags East", 
-        parking: "Six Flags East"
+        access: "Six Flags East"
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -299,13 +290,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$99", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -317,13 +308,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$79", 
-        access: "Six Flags East", 
-        parking: "Six Flags East"
+        access: "Six Flags East"
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -335,13 +325,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$115", 
-        access: GoldWestAccess, 
-        parking: "Six Flags West"
+        access: "Six Flags West", 
+        noParking: "Knott's Berry Farm"
       },
       Prestige: {
         price: "$275",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -354,13 +344,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$1500", 
-        access: GoldWestAccess, 
-        parking: "Six Flags West"
+        access: "Six Flags West", 
+        noParking: "Knott's Berry Farm"
       },
       Prestige: {
         price: "$2999",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -372,13 +362,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$89", 
-        access: "Six Flags East", 
-        parking: "Six Flags East"
+        access: "Six Flags East"
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -390,13 +379,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$89", 
-        access: "Six Flags East", 
-        parking: "Six Flags East"
+        access: "Six Flags East"
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -408,13 +396,12 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$99", 
-        access: "Six Flags Texas", 
-        parking: "Six Flags Texas"
+        access: "Six Flags Texas"
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -426,13 +413,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$75", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$200",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -444,13 +431,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$140", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$180",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -462,13 +449,13 @@ const parkCatalog = [
     passes: {
       Gold: { 
         price: "$90", 
-        access: GoldMidwestAccess, 
-        parking: "Six Flags Midwest"
+        access: "Six Flags Midwest", 
+        noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
         price: "$180",
-        access: PrestigeAccess,
-        parking: PrestigeParking
+        access: SixFlagsPrestigeAccess,
+        noParking: ["Canada's Wonderland", "La Ronde"]
       }
     }
   },
@@ -481,7 +468,7 @@ const parkCatalog = [
       Platinum: {
         price: "$260",
         access: "Herschend",
-        parking: ["Adventureland", FreeParkingHerschend]
+        noParking: ["Dutch Wonderland", "Lake Compounce"]
       }
     }
   },
@@ -494,7 +481,7 @@ const parkCatalog = [
       Platinum: {
         price: "$250",
         access: "Herschend",
-        parking: ["Dutch Wonderland", FreeParkingHerschend]
+        noParking: ["Adventureland", "Lake Compounce"]
       }
     }
   },
@@ -507,7 +494,7 @@ const parkCatalog = [
       Platinum: {
         price: "$250",
         access: "Herschend",
-        parking: ["Dutch Wonderland", FreeParkingHerschend]
+        noParking: ["Adventureland", "Lake Compounce"]
       }
     }
 
@@ -521,7 +508,7 @@ const parkCatalog = [
       Platinum: {
         price: "$250",
         access: "Herschend",
-        parking: ["Dutch Wonderland", FreeParkingHerschend]
+        noParking: ["Adventureland", "Lake Compounce"]
       }
     }
   },
@@ -534,7 +521,7 @@ const parkCatalog = [
       Platinum: {
         price: "$210",
         access: "Herschend",
-        parking: ["Lake Compounce", FreeParkingHerschend]
+        noParking: ["Adventureland", "Dutch Wonderland"]
       }
     }
   },
@@ -547,7 +534,7 @@ const parkCatalog = [
       Platinum: {
         price: "$210",
         access: "Herschend",
-        parking: FreeParkingHerschend
+        noParking: ["Adventureland", "Dutch Wonderland", "Lake Compounce"]
       }
     }
   },
@@ -575,13 +562,11 @@ const parkCatalog = [
     passes: {
       Season: {
         price: "$120",
-        access: "Fun Spot America",
-        parking: "Fun Spot America"
+        access: "Fun Spot America"
       },
       Ultimate: {
         price: "$290",
-        access: "Fun Spot America",
-        parking: "Fun Spot America"
+        access: "Fun Spot America"
       }
     }
    }

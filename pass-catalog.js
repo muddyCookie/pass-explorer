@@ -117,7 +117,9 @@ function normalizePassDefinition(rawPassDefinition) {
     return {
       price: String(price || "").trim(),
       access,
-      parking: rawPassDefinition.parking ?? null,
+      parking: rawPassDefinition.noParking != null
+        ? { exclude: rawPassDefinition.noParking }
+        : (rawPassDefinition.parking ?? null),
       disclaimer: rawPassDefinition.disclaimer ?? ""
     };
   }
@@ -132,19 +134,19 @@ function normalizeParkingConfig(rawParking) {
 
   if (typeof rawParking === "string") {
     const entry = rawParking.trim();
-    return entry ? { includeHomePark: false, entries: [entry] } : null;
+    return entry ? { mode: "include", includeHomePark: false, entries: [entry] } : null;
   }
 
   if (rawParking === true) {
-    return { includeHomePark: true, entries: [] };
+    return { mode: "include", includeHomePark: true, entries: [] };
   }
 
   if (rawParking === false) {
-    return { includeHomePark: false, entries: [] };
+    return { mode: "include", includeHomePark: false, entries: [] };
   }
 
   if (Array.isArray(rawParking)) {
-    return { includeHomePark: false, entries: rawParking };
+    return { mode: "include", includeHomePark: false, entries: rawParking };
   }
 
   if (typeof rawParking === "object") {
@@ -155,15 +157,24 @@ function normalizeParkingConfig(rawParking) {
       ?? rawParking.homePark
       ?? false
     );
-    const entries = rawParking.entries
+    const excludedEntries = rawParking.exclude
+      ?? rawParking.excludedAt
+      ?? rawParking.notIncludedAt
+      ?? rawParking.notIncluded
+      ?? null;
+    const entries = excludedEntries
+      ?? rawParking.entries
       ?? rawParking.extra
       ?? rawParking.include
       ?? rawParking.includedAt
       ?? rawParking.parks
       ?? [];
     return {
+      mode: excludedEntries ? "exclude" : "include",
       includeHomePark,
-      entries: Array.isArray(entries) ? entries : []
+      entries: Array.isArray(entries)
+        ? entries
+        : (entries == null ? [] : [entries])
     };
   }
 
@@ -223,6 +234,32 @@ function expandParkingParks(entries, homePark, includeHomePark = false) {
   }
 
   return expanded;
+}
+
+function resolveExplicitParkingIncludedParks(accessibleParks, parkingConfig, homePark) {
+  if (!parkingConfig) {
+    return null;
+  }
+
+  if (parkingConfig.mode === "exclude") {
+    const excludedParks = new Set(expandParkingParks(parkingConfig.entries, homePark, false));
+    const includedParks = [];
+
+    for (const parkName of accessibleParks || []) {
+      const normalizedParkName = String(parkName || "").trim();
+      if (normalizedParkName && !excludedParks.has(normalizedParkName)) {
+        includedParks.push(normalizedParkName);
+      }
+    }
+
+    return includedParks;
+  }
+
+  return expandParkingParks(
+    parkingConfig.entries,
+    homePark,
+    Boolean(parkingConfig.includeHomePark)
+  );
 }
 
 function hasIncludedParking(offer, parkName) {
@@ -325,8 +362,6 @@ for (const parkConfig of parkCatalog) {
 
     const passParkingConfig = normalizeParkingConfig(passDefinition.parking);
     const hasExplicitParkingConfig = Boolean(passParkingConfig);
-    const resolvedParkingEntries = passParkingConfig?.entries || [];
-    const resolvedIncludeHomePark = Boolean(passParkingConfig?.includeHomePark);
     const funCardOverride = passType === "Fun Card"
       ? String(parkConfig.urlFunCard || "").trim()
       : "";
@@ -352,7 +387,7 @@ for (const parkConfig of parkCatalog) {
       passPurchaseUrl: resolvedTierPassUrl || fallbackPassUrl,
       accessibleParks,
       explicitParkingIncludedParks: hasExplicitParkingConfig
-        ? expandParkingParks(resolvedParkingEntries, parkName, resolvedIncludeHomePark)
+        ? resolveExplicitParkingIncludedParks(expandedAccessibleParks, passParkingConfig, parkName)
         : null
     });
   }
