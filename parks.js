@@ -41,7 +41,7 @@ const parkCatalog = [
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
-        price: "$89", 
+        price: "$125", 
         access: "Six Flags Midwest", 
         noParking: ["Canada's Wonderland", "La Ronde"]
       },
@@ -168,7 +168,7 @@ const parkCatalog = [
         noParking: "Knott's Berry Farm"
       },
       Prestige: {
-        price: "$125",
+        price: "$399",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
