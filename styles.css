@@ -33,6 +33,13 @@
 
   --empty-bg: #fff8f0;
   --empty-border: #f0ceab;
+
+  /* Inverted button palette (light theme buttons are dark). */
+  --btn-surface: #0f1916;
+  --btn-surface-2: #15221e;
+  --btn-ink: #e6f4ee;
+  --btn-border: #2a3a34;
+  --btn-hover-ink: #ffffff;
 }
 
 :root[data-theme="dark"] {
@@ -70,6 +77,13 @@
 
   --empty-bg: #231b12;
   --empty-border: #5b3e1e;
+
+  /* Inverted button palette (dark theme buttons are light). */
+  --btn-surface: #ffffff;
+  --btn-surface-2: #f7fbf6;
+  --btn-ink: #162521;
+  --btn-border: #d6e0d3;
+  --btn-hover-ink: #0b1311;
 }
 
 * {
@@ -136,9 +150,9 @@ body {
 }
 
 .theme-toggle {
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
-  color: var(--ink);
+  border: 1px solid var(--btn-border);
+  background: linear-gradient(180deg, var(--btn-surface) 0%, var(--btn-surface-2) 100%);
+  color: var(--btn-ink);
   border-radius: 999px;
   font: inherit;
   font-size: 0.82rem;
@@ -159,19 +173,18 @@ body {
   height: 0.78rem;
   border-radius: 999px;
   background: radial-gradient(circle at 30% 30%, var(--accent-2) 0%, var(--accent-2) 35%, rgba(0, 0, 0, 0) 36%);
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22);
 }
 
 :root[data-theme="dark"] .theme-toggle::before {
-  background: radial-gradient(circle at 30% 30%, #ffffff 0%, #ffffff 35%, rgba(0, 0, 0, 0) 36%);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 0 2px rgba(11, 19, 17, 0.18);
 }
 
 .theme-toggle:hover,
 .theme-toggle:focus-visible {
   border-color: var(--accent);
   background: var(--accent);
-  color: #0b1311;
+  color: var(--btn-hover-ink);
   outline: none;
   transform: translateY(-1px);
   box-shadow: 0 14px 26px rgba(0, 0, 0, 0.14);
@@ -251,9 +264,9 @@ h1 {
   width: .74rem;
   height: .74rem;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
-  color: var(--ink);
+  border: 1px solid var(--btn-border);
+  background: linear-gradient(180deg, var(--btn-surface) 0%, var(--btn-surface-2) 100%);
+  color: var(--btn-ink);
   font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
@@ -275,7 +288,7 @@ h1 {
 .theme-toggle:focus-visible {
   border-color: var(--accent);
   background: var(--accent);
-  color: #0b1311;
+  color: var(--btn-hover-ink);
   outline: none;
   transform: translateY(-1px);
   box-shadow: 0 14px 26px rgba(0, 0, 0, 0.14);
