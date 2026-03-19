@@ -9,6 +9,83 @@
     highlightedCompanyOptionIndex: 0
   };
 
+  const dropdownPortalState = new WeakMap();
+  let activeDropdown = null;
+  let dropdownListenersBound = false;
+  let pendingDropdownReposition = false;
+
+  function portalDropdown(listElement) {
+    if (!listElement || dropdownPortalState.has(listElement)) {
+      return;
+    }
+
+    dropdownPortalState.set(listElement, { parent: listElement.parentNode, next: listElement.nextSibling });
+    document.body.appendChild(listElement);
+    listElement.classList.add("is-portaled");
+  }
+
+  function restoreDropdown(listElement) {
+    const state = dropdownPortalState.get(listElement);
+    if (!state) {
+      return;
+    }
+
+    state.parent.insertBefore(listElement, state.next);
+    dropdownPortalState.delete(listElement);
+    listElement.classList.remove("is-portaled");
+    listElement.style.left = "";
+    listElement.style.top = "";
+    listElement.style.width = "";
+    listElement.style.maxHeight = "";
+  }
+
+  function positionDropdown(listElement, inputElement) {
+    if (!listElement || !inputElement) {
+      return;
+    }
+
+    const rect = inputElement.getBoundingClientRect();
+    const gap = 6;
+    const top = rect.bottom + gap;
+
+    listElement.style.left = `${rect.left}px`;
+    listElement.style.top = `${top}px`;
+    listElement.style.width = `${rect.width}px`;
+  }
+
+  function scheduleActiveDropdownPositionUpdate() {
+    if (!activeDropdown || pendingDropdownReposition) {
+      return;
+    }
+
+    pendingDropdownReposition = true;
+    requestAnimationFrame(() => {
+      pendingDropdownReposition = false;
+      if (!activeDropdown) {
+        return;
+      }
+      positionDropdown(activeDropdown.listElement, activeDropdown.inputElement);
+    });
+  }
+
+  function setActiveDropdown(listElement, inputElement) {
+    activeDropdown = listElement && inputElement ? { listElement, inputElement } : null;
+    scheduleActiveDropdownPositionUpdate();
+  }
+
+  function bindDropdownPositionListeners() {
+    if (dropdownListenersBound) {
+      return;
+    }
+    dropdownListenersBound = true;
+
+    window.addEventListener("resize", scheduleActiveDropdownPositionUpdate, { passive: true });
+    window.addEventListener("scroll", scheduleActiveDropdownPositionUpdate, true);
+
+    const controlsPanel = document.getElementById("controls") || document.querySelector(".controls");
+    controlsPanel?.addEventListener("scroll", scheduleActiveDropdownPositionUpdate, { passive: true });
+  }
+
   function ensureCompanyFilterCombobox() {
     let companyFilterInput = document.getElementById("companyFilterInput");
     let companyFilterList = document.getElementById("companyFilterList");
@@ -133,6 +210,10 @@
     }
     companyFilterList.hidden = true;
     companyFilterInput.setAttribute("aria-expanded", "false");
+    if (activeDropdown?.listElement === companyFilterList) {
+      setActiveDropdown(null, null);
+    }
+    restoreDropdown(companyFilterList);
   }
 
   function openCompanyFilterDropdown() {
@@ -140,6 +221,9 @@
     if (!companyFilterList || !companyFilterInput) {
       return;
     }
+    bindDropdownPositionListeners();
+    portalDropdown(companyFilterList);
+    setActiveDropdown(companyFilterList, companyFilterInput);
     companyFilterList.hidden = false;
     companyFilterInput.setAttribute("aria-expanded", "true");
   }
@@ -247,10 +331,17 @@
     const { parkFilterList, parkFilterInput } = pe.dom;
     parkFilterList.hidden = true;
     parkFilterInput.setAttribute("aria-expanded", "false");
+    if (activeDropdown?.listElement === parkFilterList) {
+      setActiveDropdown(null, null);
+    }
+    restoreDropdown(parkFilterList);
   }
 
   function openParkFilterDropdown() {
     const { parkFilterList, parkFilterInput } = pe.dom;
+    bindDropdownPositionListeners();
+    portalDropdown(parkFilterList);
+    setActiveDropdown(parkFilterList, parkFilterInput);
     parkFilterList.hidden = false;
     parkFilterInput.setAttribute("aria-expanded", "true");
   }

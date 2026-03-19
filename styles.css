@@ -218,6 +218,12 @@ h1 {
   box-shadow: 10px 0 20px rgba(22, 37, 33, 0.18);
 }
 
+.filters-title {
+  margin: 0.4rem 0 0.9rem; /* 0.4rem is the “push down” */
+  font-size: 1.2rem;       /* match .section-title in styles.css:427 */
+}
+
+
 .controls.open {
   right: 0;
 }
@@ -330,6 +336,14 @@ input[type="search"]::-webkit-search-cancel-button {
   box-shadow: var(--combobox-shadow);
   max-height: 210px;
   overflow-y: auto;
+}
+
+.park-combobox-list.is-portaled {
+  position: fixed;
+  left: 0;
+  right: auto;
+  top: 0;
+  max-height: 260px;
 }
 
 .park-combobox-option {
