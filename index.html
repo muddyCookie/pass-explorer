@@ -75,59 +75,64 @@
         Compare pass prices and find which amusement parks are included!
       </p>
     </header>
-  
-    <section class="controls" aria-label="Filter passes">
-      <div class="control">
-        <label for="companyFilterInput">Filter by Company</label>
-        <div class="park-combobox">
-          <input
-            id="companyFilterInput"
-            type="search"
-            placeholder="Search companies"
-            autocomplete="off"
-            aria-haspopup="listbox"
-            aria-expanded="false"
-            aria-controls="companyFilterList"
-          >
-          <ul id="companyFilterList" class="park-combobox-list" role="listbox" hidden></ul>
-        </div>
-      </div>
-      <div class="control">
-        <label for="parkFilterInput">Filter by Park Access</label>
-        <div class="park-combobox">
-          <input
-            id="parkFilterInput"
-            type="search"
-            placeholder="Search parks"
-            autocomplete="off"
-            aria-haspopup="listbox"
-            aria-expanded="false"
-            aria-controls="parkFilterList"
-          >
-          <ul id="parkFilterList" class="park-combobox-list" role="listbox" hidden></ul>
-        </div>
-      </div>
-      <div class="control">
-        <label for="typeFilter">Filter by Pass Tiers</label>
-        <select id="typeFilter">
-          <option value="all">All Tiers</option>
-        </select>
-      </div>
-      <div class="control">
-        <label for="priceSort">Sort by Price</label>
-        <select id="priceSort">
-          <option value="none">Default</option>
-          <option value="low-high">Lowest to Highest</option>
-          <option value="high-low">Highest to Lowest</option>
-        </select>
-      </div>
-      <p id="resultsMeta" class="results-meta"></p>
-    </section>
+    <button id="toggleBtn" class="filter-toggle" aria-expanded="false" aria-label="Open filters">Filters</button>
+    <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
-    <section>
-      <h2 class="section-title">Available Season Passes</h2>
-      <div id="passGrid" class="pass-grid" aria-live="polite"></div>
-    </section>
+    <div class="content-layout">
+      <section class="results-panel">
+        <h2 class="section-title">Available Season Passes</h2>
+        <div id="passGrid" class="pass-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="controls" id="controls" aria-label="Filter passes">
+        <h2 class="filters-title">Filters</h2>
+        <div class="control">
+          <label for="companyFilterInput">Filter by Company</label>
+          <div class="park-combobox">
+            <input
+              id="companyFilterInput"
+              type="search"
+              placeholder="Search companies"
+              autocomplete="off"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="companyFilterList"
+            >
+            <ul id="companyFilterList" class="park-combobox-list" role="listbox" hidden></ul>
+          </div>
+        </div>
+        <div class="control">
+          <label for="parkFilterInput">Filter by Park Access</label>
+          <div class="park-combobox">
+            <input
+              id="parkFilterInput"
+              type="search"
+              placeholder="Search parks"
+              autocomplete="off"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="parkFilterList"
+            >
+            <ul id="parkFilterList" class="park-combobox-list" role="listbox" hidden></ul>
+          </div>
+        </div>
+        <div class="control">
+          <label for="typeFilter">Filter by Pass Tiers</label>
+          <select id="typeFilter">
+            <option value="all">All Tiers</option>
+          </select>
+        </div>
+        <div class="control">
+          <label for="priceSort">Sort by Price</label>
+          <select id="priceSort">
+            <option value="none">Default</option>
+            <option value="low-high">Lowest to Highest</option>
+            <option value="high-low">Highest to Lowest</option>
+          </select>
+        </div>
+        <p id="resultsMeta" class="results-meta"></p>
+      </section>
+    </div>
   </main>
 
   <template id="passCardTemplate">
@@ -153,5 +158,6 @@
   <script src="render.js"></script>
   <script src="filters.js"></script>
   <script src="main.js"></script>
+  <script src="tgl-btn.js"></script>
 </body>
 </html>
