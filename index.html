@@ -75,8 +75,9 @@
         Compare pass prices and find which amusement parks are included!
       </p>
     </header>
-  
-    <section class="controls" aria-label="Filter passes">
+  <button id="toggleBtn" class="filter-toggle" aria-expanded="false" aria-label="Open filters">Filters</button>
+  <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+    <section class="controls" id="controls" aria-label="Filter passes">
       <div class="control">
         <label for="companyFilterInput">Filter by Company</label>
         <div class="park-combobox">
@@ -153,5 +154,6 @@
   <script src="render.js"></script>
   <script src="filters.js"></script>
   <script src="main.js"></script>
+  <script src="tgl-btn.js"></script>
 </body>
 </html>
