@@ -115,6 +115,10 @@ body {
   padding: 2.25rem 1rem 3rem;
 }
 
+.content-layout {
+  margin-top: 1.2rem;
+}
+
 .hero {
   background: radial-gradient(circle at top right, var(--hero-grad-1) 0%, var(--hero-grad-2) 34%, var(--hero-grad-3) 100%);
   border: 1px solid var(--border);
@@ -236,8 +240,8 @@ h1 {
 .toggle-btn,
 .filter-toggle {
   position: fixed;
-  top: 1rem;
-  left: 1rem;
+  bottom: 1rem;
+  right: 1rem;
   width: .74rem;
   height: .74rem;
   border-radius: 10px;
@@ -358,7 +362,8 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 @media (min-width: 980px) {
-  .toggle-btn {
+  .toggle-btn,
+  .filter-toggle {
     display: none;
   }
 
@@ -366,19 +371,37 @@ input[type="search"]::-webkit-search-cancel-button {
     display: none;
   }
 
+  .content-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 1.4rem;
+    align-items: start;
+  }
+
+  .results-panel {
+    min-width: 0;
+  }
+
   .controls {
-    position: relative;
-    left: 0;
-    top: auto;
-    width: auto;
+    position: sticky;
+    top: 1rem;
+    right: auto;
+    left: auto;
+    width: 100%;
+    max-height: calc(100vh - 2rem);
     height: auto;
-    margin-top: 1.2rem;
+    margin-top: 0;
     padding: 1rem;
-    border-radius: 16px;
-    overflow-y: visible;
-    box-shadow: none;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    border-radius: 18px;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+    grid-template-columns: 1fr;
     gap: 0.6rem;
+    z-index: 5;
+  }
+
+  .controls.open {
+    right: auto;
   }
 
   .control {
@@ -397,7 +420,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
   .results-meta {
     font-size: 0.84rem;
-    margin-top: 0.05rem;
+    margin-top: 0.15rem;
   }
 }
 

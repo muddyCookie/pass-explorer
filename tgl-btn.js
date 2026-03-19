@@ -1,31 +1,47 @@
-// Get references to the elements
-const toggleBtn = document.getElementById('toggleBtn');
-const controls = document.querySelector('.controls');
-const backdrop = document.getElementById('sidebarBackdrop');
+const toggleBtn = document.getElementById("toggleBtn");
+const controls = document.querySelector(".controls");
+const backdrop = document.getElementById("sidebarBackdrop");
+const mobileViewport = window.matchMedia("(max-width: 979px)");
 
-// Function to open/close the sidebar
+function syncSidebarAccessibility(isOpen) {
+  backdrop?.classList.toggle("active", isOpen);
+  backdrop?.setAttribute("aria-hidden", String(!isOpen));
+
+  if (toggleBtn) {
+    toggleBtn.setAttribute("aria-expanded", String(isOpen));
+    toggleBtn.setAttribute("aria-label", isOpen ? "Close filters" : "Open filters");
+  }
+}
+
 function setSidebarOpen(isOpen) {
-  controls.classList.toggle('open', isOpen);           // Add/remove .open class
-  backdrop?.classList.toggle('active', isOpen);        // Show/hide backdrop
-  backdrop?.setAttribute('aria-hidden', String(!isOpen)); // Hide from screen readers
-  toggleBtn.setAttribute('aria-expanded', String(isOpen)); // Update toggle button state
-  toggleBtn.setAttribute('aria-label', isOpen ? 'Close filters' : 'Open filters');
+  if (!controls) return;
+
+  if (!mobileViewport.matches) {
+    controls.classList.remove("open");
+    syncSidebarAccessibility(false);
+    return;
+  }
+
+  controls.classList.toggle("open", isOpen);
+  syncSidebarAccessibility(isOpen);
 }
 
-// Helper to toggle the current state
 function toggleSidebar() {
-  setSidebarOpen(!controls.classList.contains('open'));
+  if (!controls || !mobileViewport.matches) return;
+  setSidebarOpen(!controls.classList.contains("open"));
 }
 
-// Click the button to toggle
-toggleBtn.addEventListener('click', toggleSidebar);
+toggleBtn?.addEventListener("click", toggleSidebar);
+backdrop?.addEventListener("click", () => setSidebarOpen(false));
 
-// Click the backdrop to close
-backdrop?.addEventListener('click', () => setSidebarOpen(false));
-
-// Press Escape to close
-document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') {
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
     setSidebarOpen(false);
   }
 });
+
+mobileViewport.addEventListener("change", () => {
+  setSidebarOpen(false);
+});
+
+setSidebarOpen(false);
