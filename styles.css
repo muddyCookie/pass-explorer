@@ -366,6 +366,10 @@ input[type="search"] {
   font-family: inherit;
 }
 
+.filter-native-select {
+  display: none;
+}
+
 input[type="search"]::-webkit-search-cancel-button {
   cursor: pointer;
 }
@@ -451,6 +455,15 @@ input[type="search"]::-webkit-search-cancel-button {
   input[type="search"] {
     padding: 0.48rem 0.62rem;
     font-size: 0.92rem;
+  }
+
+  .park-combobox input[type="search"],
+  .park-combobox-list {
+    display: none !important;
+  }
+
+  .park-combobox .filter-native-select {
+    display: block;
   }
 
   .results-meta {

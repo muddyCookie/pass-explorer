@@ -21,6 +21,24 @@
   let pendingDropdownReposition = false;
   let sidebarListenersBound = false;
 
+  function setSelectOptions(selectElement, options, selectedValue) {
+    if (!selectElement) {
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    for (const option of options) {
+      const optionEl = document.createElement("option");
+      optionEl.value = option.value;
+      optionEl.textContent = option.label;
+      fragment.appendChild(optionEl);
+    }
+
+    selectElement.innerHTML = "";
+    selectElement.appendChild(fragment);
+    selectElement.value = selectedValue;
+  }
+
   function portalDropdown(listElement) {
     if (!listElement || dropdownPortalState.has(listElement)) {
       return;
@@ -256,12 +274,18 @@
 
     if (pe.state.selectedTypeFilterValue === "all") {
       typeFilterInput.value = "";
+      if (pe.dom.typeFilterSelect) {
+        pe.dom.typeFilterSelect.value = "all";
+      }
       return;
     }
 
     const options = getTypeFilterOptions(pe.state.selectedCompanyFilterValue, pe.state.selectedParkFilterValue);
     const selectedOption = options.find((option) => option.value === pe.state.selectedTypeFilterValue);
     typeFilterInput.value = selectedOption ? selectedOption.label : "";
+    if (pe.dom.typeFilterSelect) {
+      pe.dom.typeFilterSelect.value = pe.state.selectedTypeFilterValue;
+    }
   }
 
   function getFilteredTypeOptions(query) {
@@ -348,6 +372,13 @@
   // Keeps the type combobox in sync with the active Company/Park scope.
   function renderTypeFilterOptions(selectedCompany, selectedPark = "all") {
     ensureTypeSelectionIsVisible(selectedCompany, selectedPark);
+
+    setSelectOptions(
+      pe.dom.typeFilterSelect,
+      getTypeFilterOptions(selectedCompany, selectedPark),
+      pe.state.selectedTypeFilterValue
+    );
+
     syncTypeInputWithSelection();
 
     const { typeFilterInput, typeFilterList } = pe.dom;
@@ -366,11 +397,17 @@
     }
     if (selectedCompanyFilterValue === "all") {
       companyFilterInput.value = "";
+      if (pe.dom.companyFilterSelect) {
+        pe.dom.companyFilterSelect.value = "all";
+      }
       return;
     }
 
     const selectedOption = companyFilterOptions.find((option) => option.value === selectedCompanyFilterValue);
     companyFilterInput.value = selectedOption ? selectedOption.label : "";
+    if (pe.dom.companyFilterSelect) {
+      pe.dom.companyFilterSelect.value = selectedCompanyFilterValue;
+    }
   }
 
   function getFilteredCompanyOptions(query) {
@@ -414,6 +451,8 @@
   function renderCompanyFilterOptions(query = "") {
     const { companyFilterList } = pe.dom;
     const { selectedCompanyFilterValue } = pe.state;
+
+    setSelectOptions(pe.dom.companyFilterSelect, companyFilterOptions, selectedCompanyFilterValue);
 
     if (!companyFilterList) {
       return;
@@ -510,11 +549,17 @@
 
     if (selectedParkFilterValue === "all") {
       parkFilterInput.value = "";
+      if (pe.dom.parkFilterSelect) {
+        pe.dom.parkFilterSelect.value = "all";
+      }
       return;
     }
 
     const selectedOption = getScopedParkOptions().find((option) => option.value === selectedParkFilterValue);
     parkFilterInput.value = selectedOption ? selectedOption.label : "";
+    if (pe.dom.parkFilterSelect) {
+      pe.dom.parkFilterSelect.value = selectedParkFilterValue;
+    }
   }
 
   function getFilteredParkOptions(query) {
@@ -552,6 +597,10 @@
 
   function renderParkFilterOptions(query = "") {
     const { parkFilterList } = pe.dom;
+
+    ensureParkSelectionIsVisible();
+    setSelectOptions(pe.dom.parkFilterSelect, getScopedParkOptions(), pe.state.selectedParkFilterValue);
+
     const filteredOptions = getFilteredParkOptions(query);
     parkFilterList.innerHTML = "";
 
@@ -620,11 +669,17 @@
 
     if (pe.state.selectedCountryFilterValue === "all") {
       countryFilterInput.value = "";
+      if (pe.dom.countryFilterSelect) {
+        pe.dom.countryFilterSelect.value = "all";
+      }
       return;
     }
 
     const selectedOption = getScopedCountryOptions().find((option) => option.value === pe.state.selectedCountryFilterValue);
     countryFilterInput.value = selectedOption ? selectedOption.label : "";
+    if (pe.dom.countryFilterSelect) {
+      pe.dom.countryFilterSelect.value = pe.state.selectedCountryFilterValue;
+    }
   }
 
   function getScopedCountryOptions() {
@@ -738,6 +793,7 @@
       pe.state.selectedCountryFilterValue = "all";
     }
 
+    setSelectOptions(pe.dom.countryFilterSelect, scopedOptions, pe.state.selectedCountryFilterValue);
     syncCountryInputWithSelection();
 
     const { countryFilterInput, countryFilterList } = pe.dom;
@@ -793,12 +849,18 @@
 
     if (pe.state.selectedStateFilterValue === "all") {
       stateFilterInput.value = "";
+      if (pe.dom.stateFilterSelect) {
+        pe.dom.stateFilterSelect.value = "all";
+      }
       return;
     }
 
     const options = getScopedStateOptions(pe.state.selectedCountryFilterValue);
     const selectedOption = options.find((option) => option.value === pe.state.selectedStateFilterValue);
     stateFilterInput.value = selectedOption ? selectedOption.label : "";
+    if (pe.dom.stateFilterSelect) {
+      pe.dom.stateFilterSelect.value = pe.state.selectedStateFilterValue;
+    }
   }
 
   function getFilteredStateOptions(query) {
@@ -885,6 +947,11 @@
 
   function renderStateFilterOptions() {
     ensureStateSelectionIsVisible();
+    setSelectOptions(
+      pe.dom.stateFilterSelect,
+      getScopedStateOptions(pe.state.selectedCountryFilterValue),
+      pe.state.selectedStateFilterValue
+    );
     syncStateInputWithSelection();
 
     const { stateFilterInput, stateFilterList } = pe.dom;
@@ -913,16 +980,55 @@
     const {
       companyFilterInput,
       companyFilterList,
+      companyFilterSelect,
       parkFilterInput,
       parkFilterList,
+      parkFilterSelect,
       countryFilterInput,
       countryFilterList,
+      countryFilterSelect,
       stateFilterInput,
       stateFilterList,
+      stateFilterSelect,
       typeFilterInput,
       typeFilterList,
+      typeFilterSelect,
       priceSort
     } = pe.dom;
+
+    companyFilterSelect?.addEventListener("change", () => {
+      pe.state.selectedCompanyFilterValue = companyFilterSelect.value || "all";
+      syncCompanyInputWithSelection();
+      handleCompanyFilterChange();
+      applyFilters();
+    });
+
+    parkFilterSelect?.addEventListener("change", () => {
+      pe.state.selectedParkFilterValue = parkFilterSelect.value || "all";
+      syncParkInputWithSelection();
+      handleParkFilterChange();
+      applyFilters();
+    });
+
+    countryFilterSelect?.addEventListener("change", () => {
+      pe.state.selectedCountryFilterValue = countryFilterSelect.value || "all";
+      syncCountryInputWithSelection();
+      handleCountryFilterChange();
+      applyFilters();
+    });
+
+    stateFilterSelect?.addEventListener("change", () => {
+      pe.state.selectedStateFilterValue = stateFilterSelect.value || "all";
+      syncStateInputWithSelection();
+      handleStateFilterChange();
+      applyFilters();
+    });
+
+    typeFilterSelect?.addEventListener("change", () => {
+      pe.state.selectedTypeFilterValue = typeFilterSelect.value || "all";
+      syncTypeInputWithSelection();
+      applyFilters();
+    });
 
     companyFilterInput?.addEventListener("focus", () => {
       pe.state.highlightedCompanyOptionIndex = 0;
