@@ -98,7 +98,14 @@
     const toggleBtn = document.getElementById("toggleBtn");
     const controls = document.getElementById("controls") || document.querySelector(".controls");
     const backdrop = document.getElementById("sidebarBackdrop");
+    const closeBtn = document.getElementById("closeFiltersBtn");
     const mobileViewport = window.matchMedia("(max-width: 979px)");
+
+    const SWIPE_CLOSE_MIN_X = 60;
+    const SWIPE_MAX_Y = 40;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartedWhenOpen = false;
 
     function syncSidebarAccessibility(isOpen) {
       backdrop?.classList.toggle("active", isOpen);
@@ -130,6 +137,7 @@
 
     toggleBtn?.addEventListener("click", toggleSidebar);
     backdrop?.addEventListener("click", () => setSidebarOpen(false));
+    closeBtn?.addEventListener("click", () => setSidebarOpen(false));
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
@@ -140,6 +148,40 @@
     mobileViewport.addEventListener("change", () => {
       setSidebarOpen(false);
     });
+
+    const onTouchStart = (event) => {
+      if (!mobileViewport.matches) return;
+      if (!controls) return;
+      touchStartedWhenOpen = controls.classList.contains("open");
+      if (!touchStartedWhenOpen) return;
+
+      const touch = event.touches && event.touches[0];
+      if (!touch) return;
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    };
+
+    const onTouchEnd = (event) => {
+      if (!mobileViewport.matches) return;
+      if (!controls) return;
+      if (!touchStartedWhenOpen) return;
+      touchStartedWhenOpen = false;
+
+      const touch = event.changedTouches && event.changedTouches[0];
+      if (!touch) return;
+
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      const isHorizontal = Math.abs(dy) <= SWIPE_MAX_Y && Math.abs(dx) >= SWIPE_CLOSE_MIN_X;
+      if (isHorizontal && dx > 0) {
+        setSidebarOpen(false);
+      }
+    };
+
+    controls?.addEventListener("touchstart", onTouchStart, { passive: true });
+    controls?.addEventListener("touchend", onTouchEnd, { passive: true });
+    backdrop?.addEventListener("touchstart", onTouchStart, { passive: true });
+    backdrop?.addEventListener("touchend", onTouchEnd, { passive: true });
 
     setSidebarOpen(false);
   }
