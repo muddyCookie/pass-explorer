@@ -5,60 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light dark">
   <title>Pass Explorer</title>
+  <script src="theme.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Archivo+Black&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <script>
-    (function initTheme() {
-      let stored = null;
-      try {
-        stored = localStorage.getItem("pe-theme");
-      } catch (err) {
-        stored = null;
-      }
-
-      let prefersDark = false;
-      try {
-        prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      } catch (err) {
-        prefersDark = false;
-      }
-
-      const theme = stored || (prefersDark ? "dark" : "light");
-      document.documentElement.dataset.theme = theme;
-    })();
-
-    // Fallback binding in case external scripts fail to load.
-    window.addEventListener("DOMContentLoaded", function bindThemeToggleFallback() {
-      const toggle = document.getElementById("themeToggle");
-      if (!toggle) return;
-      if (toggle.dataset.themeToggleBound === "true") return;
-      toggle.dataset.themeToggleBound = "true";
-
-      function getTheme() {
-        return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
-      }
-
-      function applyTheme(theme) {
-        const normalized = theme === "dark" ? "dark" : "light";
-        document.documentElement.dataset.theme = normalized;
-        toggle.setAttribute("aria-pressed", String(normalized === "dark"));
-        toggle.textContent = normalized === "dark" ? "Light mode" : "Dark mode";
-
-        try {
-          localStorage.setItem("pe-theme", normalized);
-        } catch (err) {
-          // Ignore if storage is unavailable.
-        }
-      }
-
-      applyTheme(getTheme());
-      toggle.addEventListener("click", function onThemeToggleClick() {
-        applyTheme(getTheme() === "dark" ? "light" : "dark");
-      });
-    });
-  </script>
 </head>
 <body>
   <div class="bg-orb orb-1" aria-hidden="true"></div>
@@ -117,6 +68,18 @@
           </div>
         </div>
         <div class="control">
+          <label for="countryFilter">Filter by Country</label>
+          <select id="countryFilter">
+            <option value="all">All Countries</option>
+          </select>
+        </div>
+        <div class="control">
+          <label for="stateFilter">Filter by State / Province</label>
+          <select id="stateFilter">
+            <option value="all">All States / Provinces</option>
+          </select>
+        </div>
+        <div class="control">
           <label for="typeFilter">Filter by Pass Tiers</label>
           <select id="typeFilter">
             <option value="all">All Tiers</option>
@@ -150,14 +113,15 @@
     </article>
   </template>
 
+  <!-- Data -->
   <script src="companies.js"></script>
   <script src="parks.js"></script>
   <script src="pass-catalog.js"></script>
   <script src="pricing.js"></script>
-  <script src="theme.js"></script>
+
+  <!-- UI -->
   <script src="render.js"></script>
   <script src="filters.js"></script>
   <script src="main.js"></script>
-  <script src="tgl-btn.js"></script>
 </body>
 </html>

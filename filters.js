@@ -6,13 +6,16 @@
     selectedParkFilterValue: "all",
     highlightedParkOptionIndex: 0,
     selectedCompanyFilterValue: "all",
-    highlightedCompanyOptionIndex: 0
+    highlightedCompanyOptionIndex: 0,
+    selectedCountryFilterValue: "all",
+    selectedStateFilterValue: "all"
   };
 
   const dropdownPortalState = new WeakMap();
   let activeDropdown = null;
   let dropdownListenersBound = false;
   let pendingDropdownReposition = false;
+  let sidebarListenersBound = false;
 
   function portalDropdown(listElement) {
     if (!listElement || dropdownPortalState.has(listElement)) {
@@ -86,45 +89,59 @@
     controlsPanel?.addEventListener("scroll", scheduleActiveDropdownPositionUpdate, { passive: true });
   }
 
-  function ensureCompanyFilterCombobox() {
-    let companyFilterInput = document.getElementById("companyFilterInput");
-    let companyFilterList = document.getElementById("companyFilterList");
-    if (companyFilterInput && companyFilterList) {
-      return { companyFilterInput, companyFilterList };
+  function bindSidebarToggle() {
+    if (sidebarListenersBound) {
+      return;
+    }
+    sidebarListenersBound = true;
+
+    const toggleBtn = document.getElementById("toggleBtn");
+    const controls = document.getElementById("controls") || document.querySelector(".controls");
+    const backdrop = document.getElementById("sidebarBackdrop");
+    const mobileViewport = window.matchMedia("(max-width: 979px)");
+
+    function syncSidebarAccessibility(isOpen) {
+      backdrop?.classList.toggle("active", isOpen);
+      backdrop?.setAttribute("aria-hidden", String(!isOpen));
+
+      if (toggleBtn) {
+        toggleBtn.setAttribute("aria-expanded", String(isOpen));
+        toggleBtn.setAttribute("aria-label", isOpen ? "Close filters" : "Open filters");
+      }
     }
 
-    const controls = document.querySelector(".controls");
-    if (!controls) {
-      return { companyFilterInput: null, companyFilterList: null };
+    function setSidebarOpen(isOpen) {
+      if (!controls) return;
+
+      if (!mobileViewport.matches) {
+        controls.classList.remove("open");
+        syncSidebarAccessibility(false);
+        return;
+      }
+
+      controls.classList.toggle("open", isOpen);
+      syncSidebarAccessibility(isOpen);
     }
 
-    let companyControl = document.getElementById("companyFilter")?.closest(".control")
-      || document.getElementById("companyFilterInput")?.closest(".control");
-    if (!companyControl) {
-      companyControl = document.createElement("div");
-      companyControl.className = "control";
-      controls.insertBefore(companyControl, controls.firstElementChild);
+    function toggleSidebar() {
+      if (!controls || !mobileViewport.matches) return;
+      setSidebarOpen(!controls.classList.contains("open"));
     }
 
-    companyControl.innerHTML = `
-      <label for="companyFilterInput">Company</label>
-      <div class="park-combobox">
-        <input
-          id="companyFilterInput"
-          type="search"
-          placeholder="Search companies"
-          autocomplete="off"
-          aria-haspopup="listbox"
-          aria-expanded="false"
-          aria-controls="companyFilterList"
-        >
-        <ul id="companyFilterList" class="park-combobox-list" role="listbox" hidden></ul>
-      </div>
-    `;
+    toggleBtn?.addEventListener("click", toggleSidebar);
+    backdrop?.addEventListener("click", () => setSidebarOpen(false));
 
-    companyFilterInput = document.getElementById("companyFilterInput");
-    companyFilterList = document.getElementById("companyFilterList");
-    return { companyFilterInput, companyFilterList };
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setSidebarOpen(false);
+      }
+    });
+
+    mobileViewport.addEventListener("change", () => {
+      setSidebarOpen(false);
+    });
+
+    setSidebarOpen(false);
   }
 
   function getVisibleOffersForFilters(companyName = "all", parkName = "all") {
@@ -277,16 +294,37 @@
 
   function getScopedParkOptions() {
     const { selectedCompanyFilterValue } = pe.state;
-    if (selectedCompanyFilterValue === "all") {
-      return allParkFilterOptions;
+    const { selectedCountryFilterValue, selectedStateFilterValue } = pe.state;
+
+    const matchesLocation = (parkName) => {
+      const location = parkByName[parkName] || null;
+      if (!location) {
+        return selectedCountryFilterValue === "all" && selectedStateFilterValue === "all";
+      }
+
+      const matchesCountry = selectedCountryFilterValue === "all"
+        || location.country === selectedCountryFilterValue;
+      const matchesState = selectedStateFilterValue === "all"
+        || location.state === selectedStateFilterValue;
+      return matchesCountry && matchesState;
+    };
+
+    const baseOptions = selectedCompanyFilterValue === "all"
+      ? allParkFilterOptions
+      : (() => {
+        const parksForCompany = new Set(
+          passOffers
+            .filter((offer) => offer.company === selectedCompanyFilterValue)
+            .flatMap((offer) => expandAccessibleParks(offer.accessibleParks))
+        );
+        return allParkFilterOptions.filter((option) => option.value === "all" || parksForCompany.has(option.value));
+      })();
+
+    if (selectedCountryFilterValue === "all" && selectedStateFilterValue === "all") {
+      return baseOptions;
     }
 
-    const parksForCompany = new Set(
-      passOffers
-        .filter((offer) => offer.company === selectedCompanyFilterValue)
-        .flatMap((offer) => expandAccessibleParks(offer.accessibleParks))
-    );
-    return allParkFilterOptions.filter((option) => option.value === "all" || parksForCompany.has(option.value));
+    return baseOptions.filter((option) => option.value === "all" || matchesLocation(option.value));
   }
 
   function ensureParkSelectionIsVisible() {
@@ -389,7 +427,9 @@
       pe.state.selectedCompanyFilterValue,
       pe.state.selectedParkFilterValue,
       pe.dom.typeFilter.value,
-      pe.dom.priceSort.value
+      pe.dom.priceSort.value,
+      pe.state.selectedCountryFilterValue,
+      pe.state.selectedStateFilterValue
     );
   }
 
@@ -404,12 +444,83 @@
     renderTypeFilterOptions(pe.state.selectedCompanyFilterValue, pe.state.selectedParkFilterValue);
   }
 
+  function renderCountryFilterOptions() {
+    const { countryFilter } = pe.dom;
+    if (!countryFilter) return;
+
+    const currentSelection = countryFilter.value || pe.state.selectedCountryFilterValue || "all";
+    countryFilter.innerHTML = "";
+
+    for (const option of countryFilterOptions) {
+      const el = document.createElement("option");
+      el.value = option.value;
+      el.textContent = option.label;
+      countryFilter.appendChild(el);
+    }
+
+    const isValid = countryFilterOptions.some((option) => option.value === currentSelection);
+    const nextValue = isValid ? currentSelection : "all";
+    countryFilter.value = nextValue;
+    pe.state.selectedCountryFilterValue = nextValue;
+  }
+
+  function ensureStateSelectionIsVisible() {
+    if (pe.state.selectedStateFilterValue === "all") {
+      return;
+    }
+
+    const stateOptions = getStateOptionsForCountry(pe.state.selectedCountryFilterValue);
+    const selectionExists = stateOptions.some((option) => option.value === pe.state.selectedStateFilterValue);
+    if (!selectionExists) {
+      pe.state.selectedStateFilterValue = "all";
+    }
+  }
+
+  function renderStateFilterOptions() {
+    const { stateFilter } = pe.dom;
+    if (!stateFilter) return;
+
+    const options = getStateOptionsForCountry(pe.state.selectedCountryFilterValue);
+    const currentSelection = stateFilter.value || pe.state.selectedStateFilterValue || "all";
+    stateFilter.innerHTML = "";
+
+    for (const option of options) {
+      const el = document.createElement("option");
+      el.value = option.value;
+      el.textContent = option.label;
+      stateFilter.appendChild(el);
+    }
+
+    const isValid = options.some((option) => option.value === currentSelection);
+    const nextValue = isValid ? currentSelection : "all";
+    stateFilter.value = nextValue;
+    pe.state.selectedStateFilterValue = nextValue;
+  }
+
+  function handleCountryFilterChange() {
+    renderStateFilterOptions();
+    ensureStateSelectionIsVisible();
+    renderParkFilterOptions(pe.dom.parkFilterInput.value);
+    ensureParkSelectionIsVisible();
+    syncParkInputWithSelection();
+  }
+
+  function handleStateFilterChange() {
+    renderParkFilterOptions(pe.dom.parkFilterInput.value);
+    ensureParkSelectionIsVisible();
+    syncParkInputWithSelection();
+  }
+
   function bindFilterEvents() {
+    bindSidebarToggle();
+
     const {
       companyFilterInput,
       companyFilterList,
       parkFilterInput,
       parkFilterList,
+      countryFilter,
+      stateFilter,
       typeFilter,
       priceSort
     } = pe.dom;
@@ -633,11 +744,22 @@
       }, 0);
     });
 
+    countryFilter?.addEventListener("change", () => {
+      pe.state.selectedCountryFilterValue = countryFilter.value || "all";
+      handleCountryFilterChange();
+      applyFilters();
+    });
+
+    stateFilter?.addEventListener("change", () => {
+      pe.state.selectedStateFilterValue = stateFilter.value || "all";
+      handleStateFilterChange();
+      applyFilters();
+    });
+
     typeFilter.addEventListener("change", applyFilters);
     priceSort.addEventListener("change", applyFilters);
   }
 
-  pe.ensureCompanyFilterCombobox = ensureCompanyFilterCombobox;
   pe.getPassTypeOrderMap = getPassTypeOrderMap;
   pe.renderTypeFilterOptions = renderTypeFilterOptions;
   pe.syncCompanyInputWithSelection = syncCompanyInputWithSelection;
@@ -647,5 +769,7 @@
   pe.applyFilters = applyFilters;
   pe.handleCompanyFilterChange = handleCompanyFilterChange;
   pe.handleParkFilterChange = handleParkFilterChange;
+  pe.renderCountryFilterOptions = renderCountryFilterOptions;
+  pe.renderStateFilterOptions = renderStateFilterOptions;
   pe.bindFilterEvents = bindFilterEvents;
 })();

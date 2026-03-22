@@ -24,6 +24,7 @@ const parkCatalog = [
     park: "California's Great America",
     company: "Six Flags",
     slug: "cagreatamerica",
+    state: "California",
     group: "Six Flags West",
     passes: {
       Gold: { 
@@ -38,6 +39,8 @@ const parkCatalog = [
     company: "Six Flags",
     slug: "canadaswonderland",
     currency: "CAD",
+    country: "Canada",
+    state: "Ontario",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -56,6 +59,7 @@ const parkCatalog = [
     park: "Carowinds",
     company: "Six Flags",
     slug: "carowinds",
+    state: "North Carolina",
     group: "Six Flags East",
     passes: {
       Gold: { 
@@ -73,6 +77,7 @@ const parkCatalog = [
     park: "Cedar Point",
     company: "Six Flags",
     slug: "cedarpoint",
+    state: "Ohio",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -91,6 +96,7 @@ const parkCatalog = [
     park: "Dorney Park",
     company: "Six Flags",
     slug: "dorneypark",
+    state: "Pennsylvania",
     group: "Six Flags East",
     passes: {
       Gold: { 
@@ -108,6 +114,7 @@ const parkCatalog = [
     park: "Frontier City",
     company: "Six Flags",
     slug: "frontiercity",
+    state: "Oklahoma",
     group: "Six Flags Texas",
     passes: {
       Gold: { 
@@ -125,6 +132,7 @@ const parkCatalog = [
     park: "Kings Dominion",
     company: "Six Flags",
     slug: "kingsdominion",
+    state: "Virginia",
     group: "Six Flags East",
     passes: {
       Gold: { 
@@ -142,6 +150,7 @@ const parkCatalog = [
     park: "Kings Island",
     company: "Six Flags",
     slug: "kingsisland",
+    state: "Ohio",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -160,6 +169,7 @@ const parkCatalog = [
     park: "Knott's Berry Farm",
     company: "Six Flags",
     slug: "knotts",
+    state: "California",
     group: "Six Flags West",
     passes: {
       Gold: { 
@@ -180,6 +190,8 @@ const parkCatalog = [
     slug: "laronde",
     urlPass: "passeports",
     currency: "CAD",
+    country: "Canada",
+    state: "Quebec",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -198,6 +210,7 @@ const parkCatalog = [
     park: "Michigan's Adventure",
     company: "Six Flags",
     slug: "miadventure",
+    state: "Michigan",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -216,6 +229,7 @@ const parkCatalog = [
     park: "Six Flags Darien Lake",
     company: "Six Flags",
     slug: "darienlake",
+    state: "New York",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -234,6 +248,7 @@ const parkCatalog = [
     park: "Six Flags Discovery Kingdom",
     company: "Six Flags",
     slug: "discoverykingdom",
+    state: "California",
     group: "Six Flags West",
     passes: {
       Gold: { 
@@ -252,6 +267,7 @@ const parkCatalog = [
     park: "Six Flags Fiesta Texas",
     company: "Six Flags",
     slug: "fiestatexas",
+    state: "Texas",
     group: "Six Flags Texas",
     passes: {
       Gold: { 
@@ -269,6 +285,7 @@ const parkCatalog = [
     park: "Six Flags Great Adventure",
     company: "Six Flags",
     slug: "greatadventure",
+    state: "New Jersey",
     group: "Six Flags East",
     passes: {
       Gold: { 
@@ -286,6 +303,7 @@ const parkCatalog = [
     park: "Six Flags Great America",
     company: "Six Flags",
     slug: "greatamerica",
+    state: "Illinois",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -304,6 +322,7 @@ const parkCatalog = [
     park: "Six Flags Great Escape",
     company: "Six Flags",
     slug: "greatescape",
+    state: "New York",
     group: "Six Flags East",
     passes: {
       Gold: { 
@@ -321,6 +340,7 @@ const parkCatalog = [
     park: "Six Flags Magic Mountain",
     company: "Six Flags",
     slug: "magicmountain",
+    state: "California",
     group: "Six Flags West",
     passes: {
       Gold: { 
@@ -339,6 +359,8 @@ const parkCatalog = [
     park: "Six Flags Mexico",
     company: "Six Flags",
     slug: "mexico",
+    country: "Mexico",
+    state: "Mexico City",
     group: "Six Flags West",
     currency: "MXN",
     passes: {
@@ -358,6 +380,7 @@ const parkCatalog = [
     park: "Six Flags New England",
     company: "Six Flags",
     slug: "newengland",
+    state: "Massachusetts",
     group: "Six Flags East",
     passes: {
       Gold: { 
@@ -375,6 +398,7 @@ const parkCatalog = [
     park: "Six Flags Over Georgia",
     company: "Six Flags",
     slug: "overgeorgia",
+    state: "Georgia",
     group: "Six Flags East",
     passes: {
       Gold: { 
@@ -392,6 +416,7 @@ const parkCatalog = [
     park: "Six Flags Over Texas",
     company: "Six Flags",
     slug: "overtexas",
+    state: "Texas",
     group: "Six Flags Texas",
     passes: {
       Gold: { 
@@ -409,6 +434,7 @@ const parkCatalog = [
     park: "Six Flags St. Louis",
     company: "Six Flags",
     slug: "stlouis",
+    state: "Missouri",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -427,6 +453,7 @@ const parkCatalog = [
     park: "Valleyfair",
     company: "Six Flags",
     slug: "valleyfair",
+    state: "Minnesota",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -445,6 +472,7 @@ const parkCatalog = [
     park: "Worlds of Fun",
     company: "Six Flags",
     slug: "worldsoffun",
+    state: "Missouri",
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
@@ -463,6 +491,7 @@ const parkCatalog = [
     park: "Adventureland",
     company: "Herschend",
     url: "adventurelandpark",
+    state: "Iowa",
     group: "Herschend",
     passes: {
       Platinum: {
@@ -476,6 +505,7 @@ const parkCatalog = [
     park: "Dutch Wonderland",
     company: "Herschend",
     url: "dutchwonderland",
+    state: "Pennsylvania",
     group: "Herschend",
     passes: {
       Platinum: {
@@ -489,6 +519,7 @@ const parkCatalog = [
     park: "Idlewild", // Free Parking
     company: "Herschend",
     url: "idlewild",
+    state: "Pennsylvania",
     group: "Herschend",
     passes: {
       Platinum: {
@@ -503,6 +534,7 @@ const parkCatalog = [
     park: "Kennywood", // Free Parking
     company: "Herschend",
     url: "kennywood",
+    state: "Pennsylvania",
     group: "Herschend",
     passes: {
       Platinum: {
@@ -516,6 +548,7 @@ const parkCatalog = [
     park: "Lake Compounce",
     company: "Herschend",
     url: "lakecompounce",
+    state: "Connecticut",
     group: "Herschend",
     passes: {
       Platinum: {
@@ -529,6 +562,7 @@ const parkCatalog = [
     park: "Story Land", // Free Parking
     company: "Herschend",
     url: "storylandnh",
+    state: "New Hampshire",
     group: "Herschend",
     passes: {
       Platinum: {
@@ -542,18 +576,21 @@ const parkCatalog = [
     park: "Fun Spot America Orlando", // Free Parking
     company: "Fun Spot America",
     slug: "orlando",
+    state: "Florida",
     group: "Fun Spot America"
   },
   {
     park: "Fun Spot America Kissimmee", // Free Parking
     company: "Fun Spot America",
     slug: "kissimmee",
+    state: "Florida",
     group: "Fun Spot America"
   },
   {
     park: "Fun Spot America Atlanta", // Free Parking
     company: "Fun Spot America",
     url: "funspotamericaatlanta",
+    state: "Georgia",
     group: "Fun Spot America"
   },
   {
@@ -568,6 +605,6 @@ const parkCatalog = [
         price: "$290",
         access: "Fun Spot America"
       }
-    }
    }
+  }
 ];

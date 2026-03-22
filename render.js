@@ -70,7 +70,9 @@
     selectedCompany = "all",
     selectedPark = "all",
     selectedType = "all",
-    selectedSort = "none"
+    selectedSort = "none",
+    selectedCountry = "all",
+    selectedState = "all"
   ) {
     const { passGrid, resultsMeta, template } = pe.dom;
     passGrid.innerHTML = "";
@@ -88,7 +90,19 @@
         const matchesCompany = selectedCompany === "all" || offer.company === selectedCompany;
         const matchesPark = selectedPark === "all" || offer.expandedParks.includes(selectedPark);
         const matchesType = selectedType === "all" || offer.passType === selectedType;
-        return matchesCompany && matchesPark && matchesType;
+
+        // Location filters apply to the offer's *home park* only.
+        const homePark = parkByName[offer.homePark] || null;
+        const matchesCountry = selectedCountry === "all"
+          || (homePark && homePark.country === selectedCountry);
+        const matchesState = selectedState === "all"
+          || (
+            homePark
+            && homePark.state === selectedState
+            && (selectedCountry === "all" || homePark.country === selectedCountry)
+          );
+
+        return matchesCompany && matchesPark && matchesType && matchesCountry && matchesState;
       });
 
     const passTypeOrder = pe.getPassTypeOrderMap(selectedCompany, selectedPark);

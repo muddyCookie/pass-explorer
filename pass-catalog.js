@@ -15,6 +15,23 @@ function normalizeGroupName(groupValue) {
   return match || raw;
 }
 
+function normalizeLocationPart(value) {
+  const trimmed = String(value || "").trim();
+  return trimmed || "";
+}
+
+function getParkLocationForConfig(parkName, parkConfig) {
+  const fromMap = typeof parkLocationByName === "object" && parkLocationByName
+    ? parkLocationByName[parkName]
+    : null;
+  const country = normalizeLocationPart(parkConfig?.country) || getCompanyDefaultCountry(parkConfig?.company);
+  const state = normalizeLocationPart(parkConfig?.state ?? parkConfig?.province) || normalizeLocationPart(fromMap?.state);
+  return {
+    country: country || "Unknown",
+    state: state || "Unknown"
+  };
+}
+
 // Builds a normalized park directory from `parks.js`.
 const parkDirectory = [];
 const parkDirectoryByGroup = Object.fromEntries(groupOrder.map((group) => [group, []]));
@@ -27,11 +44,14 @@ for (const parkConfig of parkCatalog) {
 
   const parkGroup = normalizeGroupName(parkConfig.group);
   const links = buildParkLinksForCompany(company, parkConfig);
+  const location = getParkLocationForConfig(parkName, parkConfig);
   const parkEntry = {
     name: parkName,
     company,
     website: links.website,
-    passPurchaseUrl: links.passPurchaseUrl
+    passPurchaseUrl: links.passPurchaseUrl,
+    country: location.country,
+    state: location.state
   };
 
   parkDirectory.push(parkEntry);
@@ -78,6 +98,30 @@ const parkCollectionsByName = {
   ...groupParks,
   ...parkAccessGroups
 };
+
+const countries = Array.from(new Set(parkDirectory.map((park) => park.country))).sort((a, b) => a.localeCompare(b));
+const countryFilterOptions = [
+  { value: "all", label: "All Countries" },
+  ...countries.map((country) => ({ value: country, label: country }))
+];
+
+function getStateOptionsForCountry(countryValue = "all") {
+  const normalizedCountry = String(countryValue || "all");
+  const parksInScope = normalizedCountry === "all"
+    ? parkDirectory
+    : parkDirectory.filter((park) => park.country === normalizedCountry);
+  const states = Array.from(
+    new Set(
+      parksInScope
+        .map((park) => park.state)
+        .filter((state) => state && state !== "Unknown")
+    )
+  ).sort((a, b) => a.localeCompare(b));
+  return [
+    { value: "all", label: "All States / Provinces" },
+    ...states.map((state) => ({ value: state, label: state }))
+  ];
+}
 
 function getParkWebsiteUrl(parkName) {
   return parkByName[parkName]?.website || "#";

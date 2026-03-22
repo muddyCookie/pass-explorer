@@ -4,13 +4,16 @@
   // `main.js` is the orchestration layer: collect DOM refs, bind handlers, then render.
   const parkFilterInput = document.getElementById("parkFilterInput");
   const parkFilterList = document.getElementById("parkFilterList");
-  const { companyFilterInput, companyFilterList } = pe.ensureCompanyFilterCombobox();
+  const companyFilterInput = document.getElementById("companyFilterInput");
+  const companyFilterList = document.getElementById("companyFilterList");
 
   pe.dom = {
     parkFilterInput,
     parkFilterList,
     companyFilterInput,
     companyFilterList,
+    countryFilter: document.getElementById("countryFilter"),
+    stateFilter: document.getElementById("stateFilter"),
     typeFilter: document.getElementById("typeFilter"),
     priceSort: document.getElementById("priceSort"),
     passGrid: document.getElementById("passGrid"),
@@ -26,6 +29,8 @@
   pe.syncCompanyInputWithSelection();
   pe.renderParkFilterOptions();
   pe.syncParkInputWithSelection();
+  pe.renderCountryFilterOptions();
+  pe.renderStateFilterOptions();
   pe.renderPasses("all");
 
   fetchExchangeRates().finally(() => {

@@ -256,7 +256,6 @@ h1 {
   pointer-events: auto;
 }
 
-.toggle-btn,
 .filter-toggle {
   position: fixed;
   bottom: 1rem;
@@ -280,10 +279,8 @@ h1 {
   z-index: 40;
 }
 
-.toggle-btn:hover,
 .filter-toggle:hover,
 .theme-toggle:hover,
-.toggle-btn:focus-visible,
 .filter-toggle:focus-visible,
 .theme-toggle:focus-visible {
   border-color: var(--accent);
@@ -389,7 +386,6 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 @media (min-width: 980px) {
-  .toggle-btn,
   .filter-toggle {
     display: none;
   }

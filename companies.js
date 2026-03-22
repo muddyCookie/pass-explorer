@@ -35,6 +35,7 @@ const companyCatalog = [
   {
     name: "Six Flags",
     defaultCurrency: "USD",
+    defaultCountry: "United States",
     tierOrder: ["Gold", "Prestige"],
     defaultUrl: "sixflags",
     defaultUrlPass: "season-passes"
@@ -42,6 +43,7 @@ const companyCatalog = [
   {
     name: "Herschend",
     defaultCurrency: "USD",
+    defaultCountry: "United States",
     tierOrder: ["Platinum"],
     defaultSlug: "buy-tickets",
     defaultUrlPass: "season-passes"
@@ -49,6 +51,7 @@ const companyCatalog = [
   {
   name: "Fun Spot America",
   defaultCurrency: "USD",
+  defaultCountry: "United States",
   tierOrder: ["Season", "Ultimate"],
   defaultUrl: "fun-spot",
   defaultUrlPass: "buy-tickets"
@@ -110,6 +113,10 @@ function getCompanyConfig(companyName) {
 
 function getCompanyDefaultCurrency(companyName) {
   return getCompanyConfig(companyName)?.defaultCurrency || "USD";
+}
+
+function getCompanyDefaultCountry(companyName) {
+  return getCompanyConfig(companyName)?.defaultCountry || "United States";
 }
 
 // Builds website + buy URLs for a park using company-level URL rules and optional park-level `urlPass`.
@@ -235,6 +242,7 @@ const companyConfig = Object.fromEntries(
     company.name,
     {
       defaultCurrency: company.defaultCurrency || "USD",
+      defaultCountry: company.defaultCountry || "United States",
       tierOrder: company.tierOrder || [],
       passDisplayRules: company.passDisplayRules || {},
       defaultSlug: String(company.defaultSlug || "").trim(),
