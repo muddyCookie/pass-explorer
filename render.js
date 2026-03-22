@@ -76,11 +76,24 @@
   ) {
     const { passGrid, resultsMeta, template } = pe.dom;
     passGrid.innerHTML = "";
+    const locationFilterActive = selectedCountry !== "all" || selectedState !== "all";
+
+    const parkMatchesLocation = (park) => {
+      if (!park) return false;
+      if (selectedCountry !== "all" && park.country !== selectedCountry) {
+        return false;
+      }
+      if (selectedState !== "all" && park.state !== selectedState) {
+        return false;
+      }
+      return true;
+    };
 
     let visibleOffers = passOffers
       .map((offer, index) => ({
         ...offer,
         originalIndex: index,
+        homeParkEntry: parkByName[offer.homePark] || null,
         expandedParks: expandAccessibleParks(offer.accessibleParks),
         numericPrice: exchangeRatesLoaded
           ? convertToUsd(parsePrice(offer.price), offer.currency)
@@ -91,16 +104,13 @@
         const matchesPark = selectedPark === "all" || offer.expandedParks.includes(selectedPark);
         const matchesType = selectedType === "all" || offer.passType === selectedType;
 
-        // Location filters apply to the offer's *home park* only.
-        const homePark = parkByName[offer.homePark] || null;
         const matchesCountry = selectedCountry === "all"
-          || (homePark && homePark.country === selectedCountry);
+          || parkMatchesLocation(offer.homeParkEntry)
+          || offer.expandedParks.some((parkName) => parkMatchesLocation(parkByName[parkName]));
+
         const matchesState = selectedState === "all"
-          || (
-            homePark
-            && homePark.state === selectedState
-            && (selectedCountry === "all" || homePark.country === selectedCountry)
-          );
+          || parkMatchesLocation(offer.homeParkEntry)
+          || offer.expandedParks.some((parkName) => parkMatchesLocation(parkByName[parkName]));
 
         return matchesCompany && matchesPark && matchesType && matchesCountry && matchesState;
       });
@@ -137,7 +147,36 @@
     };
 
     let otherPassesDividerIndex = -1;
-    if (selectedPark !== "all") {
+    let locationDividerIndex = -1;
+    let locationDividerText = "";
+
+    if (locationFilterActive && selectedPark === "all") {
+      const homeLocationOffers = [];
+      const otherIncludingOffers = [];
+
+      for (const offer of visibleOffers) {
+        if (parkMatchesLocation(offer.homeParkEntry)) {
+          homeLocationOffers.push(offer);
+        } else {
+          otherIncludingOffers.push(offer);
+        }
+      }
+
+      homeLocationOffers.sort(compareBySelectedSort);
+      otherIncludingOffers.sort(compareBySelectedSort);
+
+      const label = selectedState !== "all"
+        ? (selectedCountry !== "all" ? `${selectedState}, ${selectedCountry}` : selectedState)
+        : selectedCountry;
+      locationDividerText = label
+        ? `Other passes that include parks in ${label}`
+        : "Other passes that include matching parks";
+
+      locationDividerIndex = homeLocationOffers.length > 0 && otherIncludingOffers.length > 0
+        ? homeLocationOffers.length
+        : -1;
+      visibleOffers = [...homeLocationOffers, ...otherIncludingOffers];
+    } else if (selectedPark !== "all") {
       const homeParkOffers = [];
       const otherMatchingOffers = [];
 
@@ -175,10 +214,17 @@
     }
 
     visibleOffers.forEach((offer, index) => {
+      if (index === locationDividerIndex) {
+        const divider = document.createElement("p");
+        divider.className = "results-divider";
+        divider.textContent = locationDividerText;
+        passGrid.appendChild(divider);
+      }
+
       if (index === otherPassesDividerIndex) {
         const divider = document.createElement("p");
         divider.className = "results-divider";
-        divider.textContent = "Other passes that include this park";
+        divider.textContent = `Other passes that include ${selectedPark}`;
         passGrid.appendChild(divider);
       }
 

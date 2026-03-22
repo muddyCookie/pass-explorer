@@ -606,5 +606,83 @@ const parkCatalog = [
         access: "Fun Spot America"
       }
    }
+  },
+  {
+    park: "Legoland California",
+    company: "Merlin",
+    slug: "california",
+    state: "California",
+    group: "Legoland",
+    passes: {
+      Elite: {
+        price: "$349",
+        access: ["Legoland", "Legoland Florida"]
+      }
+    }
+  },
+  {
+    park: "Legoland Florida",
+    company: "Merlin",
+    slug: "florida",
+    state: "Florida",
+    group: "Merlin Florida",
+    passes: {
+      Silver: {
+        price: "$199",
+        access: "Merlin Florida",
+        noParking: "Merlin Florida"
+      },
+      Gold: {
+        price: "$259",
+        access: ["Merlin Florida", "Legoland"]
+      },
+      Elite: {
+        price: "$349",
+        access: ["Merlin Florida", "Legoland", "Peppa Pig Dallas-Fort Worth"]
+      }
+    }
+  },
+  {
+    park: "Legoland New York",
+    company: "Merlin",
+    slug: "new-york",
+    state: "New York",
+    group: "Legoland",
+    passes: {
+      Elite: {
+        price: "$349",
+        access: ["Merlin Florida", "Legoland", "Peppa Pig Dallas-Fort Worth"]
+      }
+    }
+  },
+  {
+    park: "Peppa Pig Florida",
+    company: "Merlin",
+    url: "peppapigthemepark",
+    slug: "florida",
+    state: "Florida",
+    group: "Merlin Florida",
+    passes: {
+      Silver: {
+        price: "$199",
+        access: "Merlin Florida",
+        noParking: "Merlin Florida"
+      },
+      Gold: {
+        price: "$259",
+        access: "Merlin Florida"
+      },
+      Elite: {
+        price: "$349",
+        access: ["Merlin Florida", "Legoland"]
+      }
+    }
+  },
+  {
+    park: "Peppa Pig Dallas-Fort Worth",
+    company: "Merlin",
+    url: "peppapigthemepark",
+    slug: "dallas-ft-worth",
+    state: "Texas"
   }
 ];

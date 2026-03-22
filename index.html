@@ -71,22 +71,49 @@
           </div>
         </div>
         <div class="control">
-          <label for="countryFilter">Filter by Country</label>
-          <select id="countryFilter">
-            <option value="all">All Countries</option>
-          </select>
+          <label for="countryFilterInput">Filter by Country</label>
+          <div class="park-combobox">
+            <input
+              id="countryFilterInput"
+              type="search"
+              placeholder="Search countries"
+              autocomplete="off"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="countryFilterList"
+            >
+            <ul id="countryFilterList" class="park-combobox-list" role="listbox" hidden></ul>
+          </div>
         </div>
         <div class="control">
-          <label for="stateFilter">Filter by State / Province</label>
-          <select id="stateFilter">
-            <option value="all">All States / Provinces</option>
-          </select>
+          <label for="stateFilterInput">Filter by State / Province</label>
+          <div class="park-combobox">
+            <input
+              id="stateFilterInput"
+              type="search"
+              placeholder="Search states / provinces"
+              autocomplete="off"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="stateFilterList"
+            >
+            <ul id="stateFilterList" class="park-combobox-list" role="listbox" hidden></ul>
+          </div>
         </div>
         <div class="control">
-          <label for="typeFilter">Filter by Pass Tiers</label>
-          <select id="typeFilter">
-            <option value="all">All Tiers</option>
-          </select>
+          <label for="typeFilterInput">Filter by Pass Tiers</label>
+          <div class="park-combobox">
+            <input
+              id="typeFilterInput"
+              type="search"
+              placeholder="Search tiers"
+              autocomplete="off"
+              aria-haspopup="listbox"
+              aria-expanded="false"
+              aria-controls="typeFilterList"
+            >
+            <ul id="typeFilterList" class="park-combobox-list" role="listbox" hidden></ul>
+          </div>
         </div>
         <div class="control">
           <label for="priceSort">Sort by Price</label>

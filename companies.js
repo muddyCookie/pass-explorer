@@ -55,6 +55,14 @@ const companyCatalog = [
   tierOrder: ["Season", "Ultimate"],
   defaultUrl: "fun-spot",
   defaultUrlPass: "buy-tickets"
+  },
+  {
+    name: "Merlin",
+    defaultCurrency: "USD",
+    defaultCountry: "United States",
+    tierOrder: ["Silver", "Gold","Elite"],
+    defaultUrl: "legoland",
+    defaultUrlPass: "tickets-passes/annual-passes"
   }
   // {
   //   name: "Merlin",
