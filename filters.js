@@ -106,6 +106,7 @@
     let touchStartX = 0;
     let touchStartY = 0;
     let touchStartedWhenOpen = false;
+    let isDesktopCollapsed = false;
 
     function syncSidebarAccessibility(isOpen) {
       backdrop?.classList.toggle("active", isOpen);
@@ -130,6 +131,19 @@
       syncSidebarAccessibility(isOpen);
     }
 
+    function setDesktopCollapsed(collapsed) {
+      if (!controls) return;
+      isDesktopCollapsed = Boolean(collapsed);
+      controls.classList.toggle("is-collapsed", isDesktopCollapsed);
+      if (closeBtn) {
+        closeBtn.textContent = isDesktopCollapsed ? "Open" : "Close";
+      }
+    }
+
+    function toggleDesktopCollapsed() {
+      setDesktopCollapsed(!isDesktopCollapsed);
+    }
+
     function toggleSidebar() {
       if (!controls || !mobileViewport.matches) return;
       setSidebarOpen(!controls.classList.contains("open"));
@@ -137,7 +151,13 @@
 
     toggleBtn?.addEventListener("click", toggleSidebar);
     backdrop?.addEventListener("click", () => setSidebarOpen(false));
-    closeBtn?.addEventListener("click", () => setSidebarOpen(false));
+    closeBtn?.addEventListener("click", () => {
+      if (mobileViewport.matches) {
+        setSidebarOpen(false);
+        return;
+      }
+      toggleDesktopCollapsed();
+    });
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
@@ -147,6 +167,7 @@
 
     mobileViewport.addEventListener("change", () => {
       setSidebarOpen(false);
+      setDesktopCollapsed(false);
     });
 
     const onTouchStart = (event) => {
@@ -183,6 +204,8 @@
     backdrop?.addEventListener("touchstart", onTouchStart, { passive: true });
     backdrop?.addEventListener("touchend", onTouchEnd, { passive: true });
 
+    // Desktop starts expanded by default.
+    setDesktopCollapsed(false);
     setSidebarOpen(false);
   }
 
