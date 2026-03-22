@@ -609,7 +609,7 @@ const parkCatalog = [
   },
   {
     park: "Legoland California",
-    company: "Merlin",
+    company: "Merlin Entertainments",
     slug: "california",
     state: "California",
     group: "Legoland",
@@ -622,7 +622,7 @@ const parkCatalog = [
   },
   {
     park: "Legoland Florida",
-    company: "Merlin",
+    company: "Merlin Entertainments",
     slug: "florida",
     state: "Florida",
     group: "Merlin Florida",
@@ -644,7 +644,7 @@ const parkCatalog = [
   },
   {
     park: "Legoland New York",
-    company: "Merlin",
+    company: "Merlin Entertainments",
     slug: "new-york",
     state: "New York",
     group: "Legoland",
@@ -657,7 +657,7 @@ const parkCatalog = [
   },
   {
     park: "Peppa Pig Florida",
-    company: "Merlin",
+    company: "Merlin Entertainments",
     url: "peppapigthemepark",
     slug: "florida",
     state: "Florida",
@@ -680,9 +680,43 @@ const parkCatalog = [
   },
   {
     park: "Peppa Pig Dallas-Fort Worth",
-    company: "Merlin",
+    company: "Merlin Entertainments",
     url: "peppapigthemepark",
     slug: "dallas-ft-worth",
     state: "Texas"
+  },
+  {
+    park: "Sesame Place San Diego",
+    company: "United Parks",
+    url: "sesameplace",
+    slug: "san-diego",
+    urlPass: "season-pass",
+    state: "California",
+    group: "United",
+    passes: {
+      Season: {
+        price: "$229",
+        access: ["Sesame Place San Diego", "SeaWorld San Diego"]
+      },
+      Platinum: {
+        price: "$375",
+        access: "United"
+      }
+    }
+  },
+  {
+    park: "Sesame Place Philadelphia",
+    company: "United Parks",
+    url: "sesameplace",
+    slug: "philadelphia",
+    urlPass: "season-pass",
+    state: "California",
+    group: "United",
+    passes: {
+      Platinum: {
+        price: "$374",
+        access: "United"
+      }
+    }
   }
 ];

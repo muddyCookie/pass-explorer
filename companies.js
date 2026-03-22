@@ -57,7 +57,7 @@ const companyCatalog = [
   defaultUrlPass: "buy-tickets"
   },
   {
-    name: "Merlin",
+    name: "Merlin Entertainments",
     defaultCurrency: "USD",
     defaultCountry: "United States",
     tierOrder: ["Silver", "Gold","Elite"],
@@ -68,9 +68,9 @@ const companyCatalog = [
     name: "United Parks",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    tierOrder: [""],
-    defaultUrl: "",
-    defaultUrlPass: ""
+    tierOrder: ["Season", "Platinum"],
+    defaultUrl: "seaworld",
+    defaultUrlPass: "annual-pass"
   }
 
   // {
