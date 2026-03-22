@@ -214,11 +214,11 @@ h1 {
 .controls {
   position: fixed;
   top: 0;
-  right: -270px;
-  width: 260px;
-  height: 100vh;
+  right: 0;
+  width: min(90vw, 340px);
+  height: 100dvh;
   margin: 0;
-  padding: 2rem 1rem 1rem;
+  padding: 1.5rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px 0 0 16px;
@@ -226,7 +226,8 @@ h1 {
   grid-template-columns: 1fr;
   gap: 0.9rem;
   overflow-y: auto;
-  transition: right 0.3s ease, box-shadow 0.3s ease;
+  transform: translateX(calc(100% + 12px));
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   z-index: 30;
   box-shadow: 10px 0 20px rgba(22, 37, 33, 0.18);
 }
@@ -238,7 +239,7 @@ h1 {
 
 
 .controls.open {
-  right: 0;
+  transform: translateX(0);
 }
 
 .sidebar-backdrop {
@@ -258,8 +259,8 @@ h1 {
 
 .filter-toggle {
   position: fixed;
-  bottom: 1rem;
-  right: 1rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  right: calc(1rem + env(safe-area-inset-right, 0px));
   width: .74rem;
   height: .74rem;
   border-radius: 10px;
@@ -273,10 +274,16 @@ h1 {
   padding: 0.35rem 0.75rem;
   cursor: pointer;
   box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
-  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease, color 160ms ease;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease, color 160ms ease, opacity 160ms ease;
   display: grid;
   place-content: center;
   z-index: 40;
+}
+
+.filter-toggle[aria-expanded="true"] {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
 }
 
 .filter-toggle:hover,
@@ -385,6 +392,37 @@ input[type="search"]::-webkit-search-cancel-button {
   grid-column: 1 / -1;
 }
 
+@media (max-width: 979px) {
+  .controls {
+    padding: 1.25rem 0.9rem calc(0.9rem + env(safe-area-inset-bottom, 0px));
+    gap: 0.7rem;
+  }
+
+  .filters-title {
+    margin: 0;
+    font-size: 1.12rem;
+  }
+
+  .control {
+    gap: 0.25rem;
+  }
+
+  label {
+    font-size: 0.82rem;
+  }
+
+  select,
+  input[type="search"] {
+    padding: 0.48rem 0.62rem;
+    font-size: 0.92rem;
+  }
+
+  .results-meta {
+    font-size: 0.82rem;
+    align-self: start;
+  }
+}
+
 @media (min-width: 980px) {
   .filter-toggle {
     display: none;
@@ -421,10 +459,12 @@ input[type="search"]::-webkit-search-cancel-button {
     grid-template-columns: 1fr;
     gap: 0.6rem;
     z-index: 5;
+    transform: none;
   }
 
   .controls.open {
     right: auto;
+    transform: none;
   }
 
   .control {
