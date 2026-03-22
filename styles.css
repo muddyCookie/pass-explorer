@@ -98,6 +98,10 @@ body {
   min-height: 100vh;
 }
 
+body.is-scroll-locked {
+  overflow: hidden;
+}
+
 .bg-orb {
   position: fixed;
   border-radius: 999px;

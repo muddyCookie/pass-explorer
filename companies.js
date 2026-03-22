@@ -63,14 +63,16 @@ const companyCatalog = [
     tierOrder: ["Silver", "Gold","Elite"],
     defaultUrl: "legoland",
     defaultUrlPass: "tickets-passes/annual-passes"
+  },
+  {
+    name: "United Parks",
+    defaultCurrency: "USD",
+    defaultCountry: "United States",
+    tierOrder: [""],
+    defaultUrl: "",
+    defaultUrlPass: ""
   }
-  // {
-  //   name: "Merlin",
-  //     Legoland Florida
-  //     Legoland New York
-  //     Legoland California
-  //     Peppa Pig Florida
-  // },
+
   // {
   //   name: "United Parks",
   //     Busch Gardens Tampa Bay

@@ -129,6 +129,8 @@
     let touchStartY = 0;
     let touchStartedWhenOpen = false;
     let isDesktopCollapsed = false;
+    let pageScrollLocked = false;
+    let lockedScrollY = 0;
 
     function syncSidebarAccessibility(isOpen) {
       backdrop?.classList.toggle("active", isOpen);
@@ -140,17 +142,53 @@
       }
     }
 
+    function lockPageScroll() {
+      if (pageScrollLocked) {
+        return;
+      }
+      pageScrollLocked = true;
+      lockedScrollY = window.scrollY || window.pageYOffset || 0;
+
+      document.body.classList.add("is-scroll-locked");
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${lockedScrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+    }
+
+    function unlockPageScroll() {
+      if (!pageScrollLocked) {
+        return;
+      }
+      pageScrollLocked = false;
+
+      document.body.classList.remove("is-scroll-locked");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, lockedScrollY);
+    }
+
     function setSidebarOpen(isOpen) {
       if (!controls) return;
 
       if (!mobileViewport.matches) {
         controls.classList.remove("open");
         syncSidebarAccessibility(false);
+        unlockPageScroll();
         return;
       }
 
       controls.classList.toggle("open", isOpen);
       syncSidebarAccessibility(isOpen);
+      if (isOpen) {
+        lockPageScroll();
+      } else {
+        unlockPageScroll();
+      }
     }
 
     function setDesktopCollapsed(collapsed) {
