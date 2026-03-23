@@ -28,7 +28,10 @@ const groupOrder = [
   "Six Flags Texas", 
   "Six Flags West",
   "Herschend",
-  "Fun Spot America"
+  "Fun Spot America",
+  "United",
+  "Disney World",
+  "Disneyland"
 ];
 
 const companyCatalog = [
@@ -36,7 +39,6 @@ const companyCatalog = [
     name: "Six Flags",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    tierOrder: ["Gold", "Prestige"],
     defaultUrl: "sixflags",
     defaultUrlPass: "season-passes"
   },
@@ -44,7 +46,6 @@ const companyCatalog = [
     name: "Herschend",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    tierOrder: ["Platinum"],
     defaultSlug: "buy-tickets",
     defaultUrlPass: "season-passes"
   },
@@ -52,7 +53,6 @@ const companyCatalog = [
   name: "Fun Spot America",
   defaultCurrency: "USD",
   defaultCountry: "United States",
-  tierOrder: ["Season", "Ultimate"],
   defaultUrl: "fun-spot",
   defaultUrlPass: "buy-tickets"
   },
@@ -60,7 +60,6 @@ const companyCatalog = [
     name: "Merlin Entertainments",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    tierOrder: ["Silver", "Gold","Elite"],
     defaultUrl: "legoland",
     defaultUrlPass: "tickets-passes/annual-passes"
   },
@@ -68,31 +67,19 @@ const companyCatalog = [
     name: "United Parks",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    tierOrder: ["Season", "Platinum"],
     defaultUrl: "seaworld",
     defaultUrlPass: "annual-pass"
+  },
+  {
+    name: "Walt Disney",
+    defaultCurrency: "USD",
+    defaultCountry: "United States",
+    defaultUrlPass: "passes"
   }
 
   // {
-  //   name: "United Parks",
-  //     Busch Gardens Tampa Bay
-  //     Busch Gardens Williamsburg
-  //     SeaWorld Orlando
-  //     SeaWorld San Antonio
-  //     SeaWorld San Diego
-  //     Sesame Place Philadelphia
-  //     Sesame Place San Diego
-  // },
-  // {
   //   name: "Universal",
   //     ???
-  // },
-  // {
-  //   name: "Fun Spot America",
-  //     Orlando, Atlanta, Kissimmee
-  // }
-  // {
-  //   name: "Walt Disney",
   // }
 ];
 

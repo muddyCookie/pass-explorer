@@ -6,7 +6,7 @@
       return true;
     }
 
-    if (/pass$/i.test(passType)) {
+    if (/\bpass\b/i.test(String(passType).trim())) {
       return true;
     }
 

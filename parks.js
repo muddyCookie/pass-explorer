@@ -594,7 +594,7 @@ const parkCatalog = [
     group: "Fun Spot America"
   },
   {
-    park: "Fun Spot America", // Orlando, Kissimmee, Atlanta Combined due to shared season pass website
+    park: "Fun Spot America", // Orlando, Kissimmee, Atlanta combined due to shared season pass website
     company: "Fun Spot America",
     passes: {
       Season: {
@@ -696,7 +696,8 @@ const parkCatalog = [
     passes: {
       Season: {
         price: "$229",
-        access: ["Sesame Place San Diego", "SeaWorld San Diego"]
+        access: ["Sesame Place San Diego", "SeaWorld San Diego"],
+        noParking: ["Sesame Place San Diego", "SeaWorld San Diego"]
       },
       Platinum: {
         price: "$375",
@@ -716,6 +717,156 @@ const parkCatalog = [
       Platinum: {
         price: "$374",
         access: "United"
+      }
+    }
+  },
+  {
+    park: "Busch Gardens Williamsburg",
+    company: "United Parks",
+    url: "buschgardens",
+    slug: "williamsburg",
+    state: "Virginia",
+    group: "United",
+    passes: {
+      Platinum: {
+        price: "$537",
+        access: "United"
+      }
+    }
+  },
+  {
+    park: "Busch Gardens Tampa Bay",
+    company: "United Parks",
+    url: "buschgardens",
+    slug: "tampa",
+    state: "Florida",
+    group: "United",
+    passes: {
+      price: "$549",
+      access: "United"
+    }
+  },
+  {
+    park: "SeaWorld San Diego",
+    company: "United Parks",
+    slug: "san-diego",
+    state: "California",
+    group: "United",
+    passes: {
+      Season: {
+        price: "$229",
+        access: ["Sesame Place San Diego", "SeaWorld San Diego"],
+        noParking: ["Sesame Place San Diego", "SeaWorld San Diego"]
+      },
+      Platinum: {
+        price: "$375",
+        access: "United"
+      }
+    }
+  },
+  {
+    park: "SeaWorld San Antonio",
+    company: "United Parks",
+    slug: "san-antonio",
+    state: "Texas",
+    group: "United",
+    passes: {
+      Platinum: {
+        price: "$273",
+        access: "United"
+      }
+    }
+  },
+  {
+    park: "SeaWorld Orlando",
+    company: "United Parks",
+    slug: "orlando",
+    state: "Florida",
+    group: "United",
+    passes: {
+      Platinum: {
+        price: "$549",
+        access: "United"
+      }
+    }
+  },
+  {
+    park: "Magic Kingdom",
+    company: "Walt Disney",
+    url: "disneyworld.disney.go.com",
+    slug: "destinations/magic-kingdom",
+    state: "Florida",
+    group: "Disney World"
+  },
+  {
+    park: "Hollywood Studios",
+    company: "Walt Disney",
+    url: "disneyworld.disney.go.com",
+    slug: "destinations/hollywood-studios",
+    state: "Florida",
+    group: "Disney World"
+  },
+  {
+    park: "Epcot",
+    company: "Walt Disney",
+    url: "disneyworld.disney.go.com",
+    slug: "destinations/epcot",
+    state: "Florida",
+    group: "Disney World"
+  },
+  {
+    park: "Animal Kingdom",
+    company: "Walt Disney",
+    url: "disneyworld.disney.go.com",
+    slug: "destinations/animal-kingdom",
+    state: "Florida",
+    group: "Disney World"
+  },
+  {
+    park: "Disney World", // Magic Kingdom, Epcot, Hollywood Studios, Animal Kingdom combined due to shared season pass website
+    company: "Walt Disney",
+    url: "disneyworld.disney.go.com",
+    passes: {
+      "Incredi-Pass": {
+        price: "$1629",
+        access: "Disney World"
+      }
+    }    
+  },
+  {
+    park: "Disneyland",
+    company: "Walt Disney",
+    url: "disneyland.disney.go.com",
+    slug: "destinations/disneyland",
+    state: "California",
+    group: "Disneyland"
+  },
+  {
+    park: "California Adventure",
+    company: "Walt Disney",
+    url: "disneyland.disney.go.com",
+    slug: "destinations/disney-california-adventure",
+    state: "California",
+    group: "Disneyland"
+  },
+  {
+    park: "Disneyland", // California Adventure, Disneyland combined due to shared season pass website
+    company: "Walt Disney",
+    url: "disneyland.disney.go.com",
+    passes: {
+      "Explore Key": {
+        price: "$999",
+        access: "Disneyland",
+        noParking: "Disneyland"
+      },
+      "Believe Key": {
+        price: "$1,474",
+        access: "Disneyland",
+        noParking: "Disneyland",
+      },
+      "Inspire Key": {
+        price: "$1,899",
+        access: "Disneyland"
       }
     }
   }
