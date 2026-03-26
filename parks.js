@@ -869,5 +869,61 @@ const parkCatalog = [
         access: "Disneyland"
       }
     }
+  },
+  {
+    park: "Universal Studios Florida",
+    company: "Universal",
+    slug: "web/en/us/theme-parks/universal-studios-florida",
+    state: "Florida",
+    group: "Universal Orlando"
+  },
+  {
+    park: "Islands of Adventure",
+    company: "Universal",
+    slug: "web/en/us/theme-parks/islands-of-adventure",
+    state: "Florida",
+    group: "Universal Orlando"
+  },
+  {
+    park: "Universal Orlando", // Universal Studios Florida, Islands of Adventure combined due to shared season pass website
+    company: "Universal",
+    passes: {
+      "Seasonal": {
+        price: "$425",
+        access: "Universal Orlando",
+        noParking: "Universal Orlando"
+      },
+      "Power": {
+        price: "$475",
+        access: "Universal Orlando",
+        noParking: "Universal Orlando"
+      },
+      "Preferred": {
+        price: "$630",
+        access: "Universal Orlando",
+      },
+      "Premier": {
+        price: "$905",
+        access: "Universal Orlando",
+      },
+      "Seasonal Water": {
+        price: "$475",
+        access: "Universal Orlando",
+        noParking: "Universal Orlando"
+      },
+      "Power Water": {
+        price: "$435",
+        access: "Universal Orlando",
+        noParking: "Universal Orlando"
+      },
+      "Preferred Water": {
+        price: "$690",
+        access: "Universal Orlando",
+      },
+      "Premier Water": {
+        price: "$1015",
+        access: "Universal Orlando",
+      },
+    }
   }
 ];

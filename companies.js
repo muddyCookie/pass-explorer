@@ -31,7 +31,8 @@ const groupOrder = [
   "Fun Spot America",
   "United",
   "Disney World",
-  "Disneyland"
+  "Disneyland",
+  "Universal Orlando"
 ];
 
 const companyCatalog = [
@@ -75,12 +76,14 @@ const companyCatalog = [
     defaultCurrency: "USD",
     defaultCountry: "United States",
     defaultUrlPass: "passes"
+  },
+  {
+    name: "Universal",
+    defaultCurrency: "USD",
+    defaultCountry: "United States",
+    defaultUrl: "universalorlando",
+    defaultUrlPass: "web/en/us/tickets-packages/annual-passes/promo",
   }
-
-  // {
-  //   name: "Universal",
-  //     ???
-  // }
 ];
 
 function trimSlashes(value) {
