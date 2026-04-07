@@ -44,6 +44,12 @@ const companyCatalog = [
     defaultUrlPass: "season-passes"
   },
   {
+    name: "Enchanted Parks",
+    defaultCurrency: "USD",
+    defaultCountry: "United States",
+    defaultUrlPass: "passes-and-tickets/park-admission/season-passes/"
+  },
+  {
     name: "Herschend",
     defaultCurrency: "USD",
     defaultCountry: "United States",

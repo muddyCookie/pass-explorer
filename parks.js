@@ -81,12 +81,12 @@ const parkCatalog = [
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
-        price: "$195", 
+        price: "$150", 
         access: "Six Flags Midwest", 
         noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
-        price: "$299",
+        price: "$300",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -100,11 +100,11 @@ const parkCatalog = [
     group: "Six Flags East",
     passes: {
       Gold: { 
-        price: "$160", 
+        price: "$105", 
         access: "Six Flags East"
       },
       Prestige: {
-        price: "$180",
+        price: "$145",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -140,7 +140,7 @@ const parkCatalog = [
         access: "Six Flags East"
       },
       Prestige: {
-        price: "$225",
+        price: "$199",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -154,12 +154,12 @@ const parkCatalog = [
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
-        price: "$180", 
+        price: "$145", 
         access: "Six Flags Midwest", 
         noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
-        price: "$299",
+        price: "$275",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -173,12 +173,12 @@ const parkCatalog = [
     group: "Six Flags West",
     passes: {
       Gold: { 
-        price: "$240", 
+        price: "$145", 
         access: "Six Flags West", 
         noParking: "Knott's Berry Farm"
       },
       Prestige: {
-        price: "$399",
+        price: "$300",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -200,7 +200,7 @@ const parkCatalog = [
         noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
-        price: "$150",
+        price: "$135",
         access: SixFlagsPrestigeAccess,
         noParking: "Canada's Wonderland"
       }
@@ -208,20 +208,18 @@ const parkCatalog = [
   },
   {
     park: "Michigan's Adventure",
-    company: "Six Flags",
-    slug: "miadventure",
+    company: "Enchanted Parks",
+    url: "miadventure.enchantedparks.com",
     state: "Michigan",
-    group: "Six Flags Midwest",
+    group: "Enchanted Parks",
     passes: {
-      Gold: { 
-        price: "$140", 
-        access: "Six Flags Midwest", 
-        noParking: ["Canada's Wonderland", "La Ronde"]
+      Hero: { 
+        price: "$65", 
+        access: "Enchanted Parks", 
       },
-      Prestige: {
-        price: "$190",
-        access: SixFlagsPrestigeAccess,
-        noParking: ["Canada's Wonderland", "La Ronde"]
+      Legend: {
+        price: "$90",
+        access: "Enchanted Parks"
       }
     }
   },
@@ -233,12 +231,12 @@ const parkCatalog = [
     group: "Six Flags Midwest",
     passes: {
       Gold: { 
-        price: "$95", 
+        price: "$75", 
         access: "Six Flags Midwest", 
         noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
-        price: "$200",
+        price: "$135",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -257,7 +255,7 @@ const parkCatalog = [
         noParking: "Knott's Berry Farm"
       },
       Prestige: {
-        price: "$200",
+        price: "$145",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -275,7 +273,7 @@ const parkCatalog = [
         access: "Six Flags Texas"
       },
       Prestige: {
-        price: "$200",
+        price: "$145",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -293,7 +291,7 @@ const parkCatalog = [
         access: "Six Flags East"
       },
       Prestige: {
-        price: "$200",
+        price: "$155",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -312,7 +310,7 @@ const parkCatalog = [
         noParking: ["Canada's Wonderland", "La Ronde"]
       },
       Prestige: {
-        price: "$200",
+        price: "$145",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -320,19 +318,18 @@ const parkCatalog = [
   },
   {
     park: "Six Flags Great Escape",
-    company: "Six Flags",
-    slug: "greatescape",
+    company: "Enchanted Parks",
+    url: "greatescapeparks.enchantedparks.com",
     state: "New York",
-    group: "Six Flags East",
+    group: "Enchanted Parks",
     passes: {
-      Gold: { 
-        price: "$79", 
-        access: "Six Flags East"
+      Hero: { 
+        price: "$65", 
+        access: "Enchanted Parks"
       },
-      Prestige: {
-        price: "$200",
-        access: SixFlagsPrestigeAccess,
-        noParking: ["Canada's Wonderland", "La Ronde"]
+      Legend: {
+        price: "$90",
+        access: "Enchanted Parks"
       }
     }
   },
@@ -349,7 +346,7 @@ const parkCatalog = [
         noParking: "Knott's Berry Farm"
       },
       Prestige: {
-        price: "$275",
+        price: "$250",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -370,7 +367,7 @@ const parkCatalog = [
         noParking: "Knott's Berry Farm"
       },
       Prestige: {
-        price: "$2999",
+        price: "$1999",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -388,7 +385,7 @@ const parkCatalog = [
         access: "Six Flags East"
       },
       Prestige: {
-        price: "$200",
+        price: "$145",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -406,7 +403,7 @@ const parkCatalog = [
         access: "Six Flags East"
       },
       Prestige: {
-        price: "$200",
+        price: "$145",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -424,7 +421,7 @@ const parkCatalog = [
         access: "Six Flags Texas"
       },
       Prestige: {
-        price: "$200",
+        price: "$155",
         access: SixFlagsPrestigeAccess,
         noParking: ["Canada's Wonderland", "La Ronde"]
       }
@@ -432,58 +429,52 @@ const parkCatalog = [
   },
   {
     park: "Six Flags St. Louis",
-    company: "Six Flags",
-    slug: "stlouis",
+    company: "Enchanted Parks",
+    url: "mid-americaparks.enchantedparks.com",
     state: "Missouri",
-    group: "Six Flags Midwest",
+    group: "Enchanted Parks",
     passes: {
-      Gold: { 
-        price: "$75", 
-        access: "Six Flags Midwest", 
-        noParking: ["Canada's Wonderland", "La Ronde"]
+      Hero: { 
+        price: "$65", 
+        access: "Enchanted Parks"
       },
-      Prestige: {
-        price: "$200",
-        access: SixFlagsPrestigeAccess,
-        noParking: ["Canada's Wonderland", "La Ronde"]
+      Legend: {
+        price: "$90",
+        access: "Enchanted Parks"
       }
     }
   },
   {
     park: "Valleyfair",
-    company: "Six Flags",
-    slug: "valleyfair",
+    company: "Enchanted Parks",
+    url: "valleyfair.enchantedparks.com",
     state: "Minnesota",
-    group: "Six Flags Midwest",
+    group: "Enchanted Parks",
     passes: {
-      Gold: { 
-        price: "$140", 
-        access: "Six Flags Midwest", 
-        noParking: ["Canada's Wonderland", "La Ronde"]
+      Hero: { 
+        price: "$65", 
+        access: "Enchanted Parks"
       },
-      Prestige: {
-        price: "$180",
-        access: SixFlagsPrestigeAccess,
-        noParking: ["Canada's Wonderland", "La Ronde"]
+      Legend: {
+        price: "$90",
+        access: "Enchanted Parks"
       }
     }
   },
   {
     park: "Worlds of Fun",
-    company: "Six Flags",
-    slug: "worldsoffun",
+    company: "Enchanted Parks",
+    url: "worldsoffun.enchantedparks.com",
     state: "Missouri",
-    group: "Six Flags Midwest",
+    group: "Enchanted Parks",
     passes: {
-      Gold: { 
+      Hero: { 
         price: "$90", 
-        access: "Six Flags Midwest", 
-        noParking: ["Canada's Wonderland", "La Ronde"]
+        access: "Enchanted Parks"
       },
-      Prestige: {
+      Legend: {
         price: "$180",
-        access: SixFlagsPrestigeAccess,
-        noParking: ["Canada's Wonderland", "La Ronde"]
+        access: "Enchanted Parks"
       }
     }
   },
