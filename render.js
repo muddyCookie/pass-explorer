@@ -95,9 +95,7 @@
         originalIndex: index,
         homeParkEntry: parkByName[offer.homePark] || null,
         expandedParks: expandAccessibleParks(offer.accessibleParks),
-        numericPrice: exchangeRatesLoaded
-          ? convertToUsd(parsePrice(offer.price), offer.currency)
-          : parsePrice(offer.price)
+        numericPrice: parsePrice(offer.price)
       }))
       .filter((offer) => {
         const matchesCompany = selectedCompany === "all" || offer.company === selectedCompany;
@@ -129,6 +127,15 @@
       return a.originalIndex - b.originalIndex;
     };
     const compareBySelectedSort = (a, b) => {
+      const aPriceMissing = !Number.isFinite(a.numericPrice);
+      const bPriceMissing = !Number.isFinite(b.numericPrice);
+      if (aPriceMissing || bPriceMissing) {
+        if (aPriceMissing && bPriceMissing) {
+          return compareByNameThenTierThenOriginal(a, b);
+        }
+        return aPriceMissing ? 1 : -1;
+      }
+
       if (selectedSort === "low-high") {
         return a.numericPrice - b.numericPrice;
       }

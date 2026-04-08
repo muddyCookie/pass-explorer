@@ -40,8 +40,4 @@
   pe.renderCountryFilterOptions();
   pe.renderStateFilterOptions();
   pe.renderPasses("all");
-
-  fetchExchangeRates().finally(() => {
-    pe.applyFilters();
-  });
 })();

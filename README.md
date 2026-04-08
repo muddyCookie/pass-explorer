@@ -21,6 +21,6 @@ Static (no-build) app for comparing amusement park season passes.
 
 - `filters.js` - filter UI + filter state (`window.PassExplorer.state`) + mobile filter sidebar toggle.
 - `render.js` - renders the pass cards (`window.PassExplorer.renderPasses()`).
-- `pricing.js` - price parsing + exchange-rate conversion (`fetchExchangeRates()`, `formatOfferPrice()`).
+- `pricing.js` - price parsing + display formatting (`formatOfferPrice()`).
 - `theme.js` - theme selection + theme toggle (persists `pe-theme`).
 - `main.js` - app bootstrap / orchestration (wires DOM → binds events → initial render).
