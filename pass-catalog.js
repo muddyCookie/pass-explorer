@@ -32,10 +32,30 @@ function getParkLocationForConfig(parkName, parkConfig) {
   };
 }
 
+function getExpandedParkCatalogEntries() {
+  return Object.entries(parkCatalog || {}).flatMap(([company, groups]) =>
+    Object.entries(groups || {}).flatMap(([group, groupConfig]) => {
+      const normalizedGroupConfig = Array.isArray(groupConfig)
+        ? { defaults: {}, parks: groupConfig }
+        : {
+            defaults: groupConfig?.defaults || {},
+            parks: groupConfig?.parks || []
+          };
+
+      return normalizedGroupConfig.parks.map((parkConfig) => ({
+        company,
+        group,
+        ...normalizedGroupConfig.defaults,
+        ...parkConfig
+      }));
+    })
+  );
+}
+
 // Builds a normalized park directory from `parks.js`.
 const parkDirectory = [];
 const parkDirectoryByGroup = Object.fromEntries(groupOrder.map((group) => [group, []]));
-for (const parkConfig of parkCatalog) {
+for (const parkConfig of getExpandedParkCatalogEntries()) {
   const parkName = String(parkConfig.park || "").trim();
   const company = String(parkConfig.company || "").trim();
   if (!parkName || !company) {
@@ -378,7 +398,7 @@ function expandAccessibleParks(accessEntries) {
 
 const passOffers = [];
 const OMIT_HOME_ONLY_PASSES = true;
-for (const parkConfig of parkCatalog) {
+for (const parkConfig of getExpandedParkCatalogEntries()) {
   const parkName = String(parkConfig.park || "").trim();
   const company = String(parkConfig.company || "").trim();
   if (!parkName || !company) {

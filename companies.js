@@ -27,6 +27,7 @@ const groupOrder = [
   "Six Flags Midwest",
   "Six Flags Texas", 
   "Six Flags West",
+  "Enchanted Parks",
   "Herschend",
   "Fun Spot America",
   "United",
@@ -47,7 +48,11 @@ const companyCatalog = [
     name: "Enchanted Parks",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    defaultUrlPass: "passes-and-tickets/park-admission/season-passes/"
+    defaultUrlPass: "passes-and-tickets/park-admission/season-passes/",
+    urlRules: {
+      parkTemplate: "https://{hostSlug}.enchantedparks.com",
+      passTemplate: "https://{hostSlug}.enchantedparks.com/{urlPass}"
+    }
   },
   {
     name: "Herschend",
@@ -81,7 +86,11 @@ const companyCatalog = [
     name: "Walt Disney",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    defaultUrlPass: "passes"
+    defaultUrlPass: "passes",
+    urlRules: {
+      parkTemplate: "https://{hostSlug}.disney.go.com/{slug}",
+      passTemplate: "https://{hostSlug}.disney.go.com/{urlPass}"
+    }
   },
   {
     name: "Universal",
@@ -135,6 +144,7 @@ function buildParkLinksForCompany(companyName, parkConfig) {
   let parkUrlValue = originalParkUrlValue;
   const hasAbsoluteParkUrl = /^https?:\/\//i.test(parkUrlValue);
   let rawSlug = String(parkConfig.slug || "").trim();
+  const rawHostSlug = String(parkConfig.hostSlug || "").trim();
   const slugMode = String(parkConfig.slugMode || "").trim().toLowerCase();
 
   const companyDefaultUrl = String(company?.defaultUrl || "").trim();
@@ -177,7 +187,8 @@ function buildParkLinksForCompany(companyName, parkConfig) {
     url: normalizeHostPath(expandUrlTemplate(baseUrlTemplateOrValue, { url: resolvedUrlValue, parkUrl: originalParkUrlValue, slug: rawSlug })),
     urlRoot: "",
     urlPass: String(parkConfig.urlPass || "").trim(),
-    parkUrl: originalParkUrlValue
+    parkUrl: originalParkUrlValue,
+    hostSlug: rawHostSlug || (!rawSlug.includes("/") ? rawSlug : "")
   };
   templateValuesBase.urlRoot = String(templateValuesBase.url || "").split("/")[0] || "";
   const websiteTemplateValues = { ...templateValuesBase, slug: resolvedWebsiteSlugValue };
@@ -186,7 +197,7 @@ function buildParkLinksForCompany(companyName, parkConfig) {
   let website = "#";
   if (hasAbsoluteParkUrl) {
     website = originalParkUrlValue;
-  } else if (websiteTemplateValues.url && urlRules.parkTemplate) {
+  } else if ((websiteTemplateValues.url || websiteTemplateValues.hostSlug) && urlRules.parkTemplate) {
     const templatedUrl = normalizeUrlSlashes(applyUrlTemplate(urlRules.parkTemplate, websiteTemplateValues)).trim();
     website = templatedUrl || (websiteTemplateValues.url ? `https://${websiteTemplateValues.url}` : "#");
   } else if (websiteTemplateValues.url) {
