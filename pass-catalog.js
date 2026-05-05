@@ -438,7 +438,12 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
     .map(([passType, rawPassDefinition]) => [passType, normalizePassDefinition(rawPassDefinition)])
     .filter(([, passDefinition]) => Boolean(passDefinition?.price || passDefinition?.pricing));
   const passUrlByTier = parkConfig.passPurchaseUrlByTier || parkConfig.buyPassUrlByTier || {};
+  const membershipUrlByTier = parkConfig.membershipPurchaseUrlByTier || parkConfig.buyMembershipUrlByTier || {};
   const fallbackPassUrl = links.passPurchaseUrl || parkConfig.passPurchaseUrl || parkConfig.buyPassUrl || null;
+  const companyMembershipUrl = getCompanyConfig(company)?.defaultMembershipUrlPass || "";
+  const fallbackMembershipUrl = parkConfig.membershipPurchaseUrl
+    || parkConfig.buyMembershipUrl
+    || (companyMembershipUrl ? companyMembershipUrl : null);
   for (const [passType, passDefinition] of tierOffers) {
     const price = passDefinition.price;
     const pricing = passDefinition.pricing ?? null;
@@ -458,7 +463,10 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
     const funCardOverride = passType === "Fun Card"
       ? String(parkConfig.urlFunCard || "").trim()
       : "";
-    const rawTierUrl = funCardOverride || passUrlByTier[passType] || null;
+    const isMembership = pricing?.type === "membership";
+    const rawTierUrl = funCardOverride
+      || (isMembership ? membershipUrlByTier[passType] : passUrlByTier[passType])
+      || null;
     const tierUrl = rawTierUrl
       ? String(rawTierUrl || "").trim()
       : "";
@@ -467,6 +475,15 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
         /^https?:\/\//i.test(tierUrl)
           ? tierUrl
           : (/^https?:\/\//i.test(links.website) ? joinUrl(links.website, trimSlashes(tierUrl)) : tierUrl)
+      )
+      : null;
+
+    const resolvedFallbackUrlRaw = isMembership ? fallbackMembershipUrl : fallbackPassUrl;
+    const resolvedFallbackUrl = resolvedFallbackUrlRaw
+      ? (
+        /^https?:\/\//i.test(String(resolvedFallbackUrlRaw))
+          ? String(resolvedFallbackUrlRaw)
+          : (/^https?:\/\//i.test(links.website) ? joinUrl(links.website, trimSlashes(resolvedFallbackUrlRaw)) : String(resolvedFallbackUrlRaw))
       )
       : null;
     passOffers.push({
@@ -478,7 +495,7 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       pricing,
       currency: parkConfig.currency || getCompanyDefaultCurrency(company),
       disclaimer: String(passDefinition.disclaimer || parkConfig.disclaimer || "").trim(),
-      passPurchaseUrl: resolvedTierPassUrl || fallbackPassUrl,
+      passPurchaseUrl: resolvedTierPassUrl || resolvedFallbackUrl,
       accessibleParks,
       explicitParkingIncludedParks: hasExplicitParkingConfig
         ? resolveExplicitParkingIncludedParks(expandedAccessibleParks, passParkingConfig, parkName)

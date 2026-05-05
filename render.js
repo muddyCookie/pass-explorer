@@ -333,7 +333,7 @@
       buyLink.href = getPassPurchaseUrl(offer);
       buyLink.target = "_blank";
       buyLink.rel = "noopener noreferrer";
-      buyLink.textContent = "Buy This Pass";
+      buyLink.textContent = offer?.pricing?.type === "membership" ? "Buy This Membership" : "Buy This Pass";
       disclaimerEl.textContent = "";
       disclaimerEl.appendChild(buyLink);
       if (disclaimerText) {

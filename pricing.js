@@ -94,17 +94,13 @@ function formatOfferPrice(offer) {
       return "";
     }
 
-    const monthlyAmount = parsePrice(monthly);
-    const downAmount = parsePrice(downPayment);
-    const totalAmount = downAmount + (monthlyAmount * minMonths);
     if (code === "USD") {
-      return formatUsd(totalAmount);
+      return `${monthly}/mo`;
     }
 
-    const usdTotal = convertToUsd(totalAmount, code);
-    return Number.isFinite(usdTotal)
-      ? `~${formatUsd(usdTotal)}`
-      : `${code} ${formatCurrency(totalAmount, code)}`.trim();
+    const monthlyAmount = parsePrice(monthly);
+    const usdMonthly = convertToUsd(monthlyAmount, code);
+    return Number.isFinite(usdMonthly) ? `~${formatUsd(usdMonthly)}/mo` : `${code} ${monthly}/mo`;
   }
 
   if (!rawPrice) {
@@ -142,10 +138,19 @@ function formatOfferPriceNote(offer) {
     return "";
   }
 
-  const monthlyText = `${monthly}/mo`;
-  const downText = downPayment ? `${downPayment} down` : "";
-  const breakdown = downText ? `${monthlyText} + ${downText}` : monthlyText;
-  return `${breakdown}, ${minMonths} mo min`;
+  const feeText = downPayment ? `${downPayment} fee` : "Fee";
+
+  const monthlyAmount = parsePrice(monthly);
+  const feeAmount = parsePrice(downPayment);
+  const totalAmount = feeAmount + (monthlyAmount * minMonths);
+  const code = String(offer?.currency || "USD").toUpperCase();
+  const totalText = Number.isFinite(totalAmount) && totalAmount > 0
+    ? (code === "USD" ? formatUsd(totalAmount) : formatCurrency(totalAmount, code))
+    : "";
+
+  return totalText
+    ? `${feeText} + min ${minMonths} mo (${totalText} total)`
+    : `${feeText} + min ${minMonths} mo`;
 }
 
 function formatOfferPriceSub(offer) {
@@ -167,9 +172,8 @@ function formatOfferPriceSub(offer) {
       return "";
     }
     const monthlyText = `${monthly}/mo`;
-    const downText = downPayment ? `${downPayment} down` : "";
-    const breakdown = downText ? `${monthlyText} + ${downText}` : monthlyText;
-    return `${code} ${breakdown}, ${minMonths} mo min`;
+    const feeText = downPayment ? `${downPayment} fee` : "Fee";
+    return `${code} ${monthlyText} (${feeText}, min ${minMonths} mo)`;
   }
 
   const rawPrice = String(offer.price || "").trim();

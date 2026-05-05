@@ -42,7 +42,8 @@ const companyCatalog = [
     defaultCurrency: "USD",
     defaultCountry: "United States",
     defaultUrl: "sixflags",
-    defaultUrlPass: "season-passes"
+    defaultUrlPass: "season-passes",
+    defaultMembershipUrlPass: "memberships"
   },
   {
     name: "Enchanted Parks",
@@ -264,6 +265,7 @@ const companyConfig = Object.fromEntries(
       passDisplayRules: company.passDisplayRules || {},
       defaultSlug: String(company.defaultSlug || "").trim(),
       defaultUrl: String(company.defaultUrl || "").trim(),
+      defaultMembershipUrlPass: String(company.defaultMembershipUrlPass || "").trim(),
       urlRules: {
         ...urlRules,
         ...(company.urlRules || {}),

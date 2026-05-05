@@ -434,6 +434,7 @@ const parkCatalog = {
         park: "Six Flags Over Georgia",
         slug: "overgeorgia",
         state: "Georgia",
+        membershipPurchaseUrl: "memberships",
         passes: {
           Gold: {
             price: "$89",
