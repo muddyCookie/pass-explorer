@@ -168,12 +168,39 @@ function normalizePassDefinition(rawPassDefinition) {
     return null;
   }
 
+  const normalizeMembershipPricing = (rawMembership) => {
+    if (rawMembership == null) {
+      return null;
+    }
+
+    if (typeof rawMembership !== "object" || Array.isArray(rawMembership)) {
+      return null;
+    }
+
+    const monthly = String(rawMembership.monthly ?? rawMembership.monthlyPrice ?? rawMembership.perMonth ?? "").trim();
+    const downPayment = String(rawMembership.downPayment ?? rawMembership.down ?? rawMembership.dueToday ?? "").trim();
+    const minMonthsRaw = rawMembership.minMonths ?? rawMembership.minimumMonths ?? rawMembership.termMonths ?? rawMembership.term ?? null;
+    const minMonths = Number.isFinite(Number(minMonthsRaw)) ? Number(minMonthsRaw) : null;
+
+    if (!monthly) {
+      return null;
+    }
+
+    return {
+      type: "membership",
+      monthly,
+      downPayment,
+      minMonths
+    };
+  };
+
   if (typeof rawPassDefinition === "string" || typeof rawPassDefinition === "number") {
     return { price: String(rawPassDefinition).trim() };
   }
 
   if (typeof rawPassDefinition === "object" && !Array.isArray(rawPassDefinition)) {
     const price = rawPassDefinition.price ?? rawPassDefinition.cost ?? rawPassDefinition.value ?? "";
+    const membershipPricing = normalizeMembershipPricing(rawPassDefinition.membership ?? rawPassDefinition.pricing ?? null);
     const rawAccess = rawPassDefinition.access ?? rawPassDefinition.accessibleParks ?? rawPassDefinition.parkAccess ?? null;
     const access = Array.isArray(rawAccess)
       ? rawAccess
@@ -184,7 +211,8 @@ function normalizePassDefinition(rawPassDefinition) {
       parking: rawPassDefinition.noParking != null
         ? { exclude: rawPassDefinition.noParking }
         : (rawPassDefinition.parking ?? null),
-      disclaimer: rawPassDefinition.disclaimer ?? ""
+      disclaimer: rawPassDefinition.disclaimer ?? "",
+      pricing: membershipPricing
     };
   }
 
@@ -408,11 +436,12 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
   const links = buildParkLinksForCompany(company, parkConfig);
   const tierOffers = Object.entries(parkConfig.passes || {})
     .map(([passType, rawPassDefinition]) => [passType, normalizePassDefinition(rawPassDefinition)])
-    .filter(([, passDefinition]) => Boolean(passDefinition?.price));
+    .filter(([, passDefinition]) => Boolean(passDefinition?.price || passDefinition?.pricing));
   const passUrlByTier = parkConfig.passPurchaseUrlByTier || parkConfig.buyPassUrlByTier || {};
   const fallbackPassUrl = links.passPurchaseUrl || parkConfig.passPurchaseUrl || parkConfig.buyPassUrl || null;
   for (const [passType, passDefinition] of tierOffers) {
     const price = passDefinition.price;
+    const pricing = passDefinition.pricing ?? null;
     const accessibleParks = getAccessibleParksForOffer(parkConfig, passType, parkName, company);
 
     const expandedAccessibleParks = expandAccessibleParks(accessibleParks);
@@ -446,6 +475,7 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       company,
       passType,
       price,
+      pricing,
       currency: parkConfig.currency || getCompanyDefaultCurrency(company),
       disclaimer: String(passDefinition.disclaimer || parkConfig.disclaimer || "").trim(),
       passPurchaseUrl: resolvedTierPassUrl || fallbackPassUrl,

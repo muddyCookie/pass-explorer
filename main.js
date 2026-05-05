@@ -1,4 +1,4 @@
-(function bootstrapPassExplorer() {
+(async function bootstrapPassExplorer() {
   const pe = window.PassExplorer = window.PassExplorer || {};
 
   // `main.js` is the orchestration layer: collect DOM refs, bind handlers, then render.
@@ -30,6 +30,10 @@
   };
 
   pe.bindFilterEvents();
+
+  if (typeof fetchExchangeRates === "function") {
+    await fetchExchangeRates();
+  }
 
   // Start in an unscoped state: no single company is selected by default.
   pe.renderTypeFilterOptions("all", "all");

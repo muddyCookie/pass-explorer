@@ -137,10 +137,16 @@
     <article class="pass-card">
       <div class="card-top">
         <h3 class="pass-name"></h3>
-        <p class="pass-price"></p>
+        <div class="pass-price-stack">
+          <p class="pass-price"></p>
+          <p class="pass-price-sub" hidden></p>
+        </div>
       </div>
       <div>
-        <p class="detail-label">Park Access</p>
+        <div class="detail-row">
+          <p class="detail-label">Park Access</p>
+          <p class="pass-price-note" hidden></p>
+        </div>
         <ul class="park-list"></ul>
         <button type="button" class="park-toggle" hidden aria-expanded="false">More</button>
       </div>

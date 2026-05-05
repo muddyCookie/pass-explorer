@@ -1,12 +1,63 @@
 (function initRenderModule() {
   const pe = window.PassExplorer = window.PassExplorer || {};
 
+  function getOfferNumericPrice(offer) {
+    if (!offer) {
+      return Number.NaN;
+    }
+
+    const pricing = offer.pricing ?? null;
+    if (pricing?.type === "membership") {
+      const monthly = parsePrice(pricing.monthly);
+      const downPayment = parsePrice(pricing.downPayment);
+      const minMonthsRaw = pricing.minMonths;
+      const minMonths = Number.isFinite(Number(minMonthsRaw)) ? Number(minMonthsRaw) : 12;
+      const total = downPayment + (monthly * minMonths);
+      if (!Number.isFinite(total) || total <= 0) {
+        return Number.NaN;
+      }
+
+      const currency = String(offer.currency || "USD").toUpperCase();
+      if (currency === "USD") {
+        return total;
+      }
+
+      if (typeof convertToUsd === "function") {
+        const usdTotal = convertToUsd(total, currency);
+        return Number.isFinite(usdTotal) ? usdTotal : Number.NaN;
+      }
+
+      return Number.NaN;
+    }
+
+    const currency = String(offer.currency || "USD").toUpperCase();
+    const numeric = parsePrice(offer.price);
+    if (!Number.isFinite(numeric) || numeric <= 0) {
+      return Number.NaN;
+    }
+
+    if (currency === "USD") {
+      return numeric;
+    }
+
+    if (typeof convertToUsd === "function") {
+      const usd = convertToUsd(numeric, currency);
+      return Number.isFinite(usd) ? usd : Number.NaN;
+    }
+
+    return Number.NaN;
+  }
+
   function shouldOmitPassSuffix(companyName, passType) {
     if (!passType) {
       return true;
     }
 
     if (/\bpass\b/i.test(String(passType).trim())) {
+      return true;
+    }
+
+    if (/\bmembership\b/i.test(String(passType).trim())) {
       return true;
     }
 
@@ -95,7 +146,7 @@
         originalIndex: index,
         homeParkEntry: parkByName[offer.homePark] || null,
         expandedParks: expandAccessibleParks(offer.accessibleParks),
-        numericPrice: parsePrice(offer.price)
+        numericPrice: getOfferNumericPrice(offer)
       }))
       .filter((offer) => {
         const matchesCompany = selectedCompany === "all" || offer.company === selectedCompany;
@@ -239,6 +290,25 @@
       const passNameEl = node.querySelector(".pass-name");
       passNameEl.textContent = formatPassCardTitle(offer);
       node.querySelector(".pass-price").textContent = formatOfferPrice(offer);
+
+      const priceSubEl = node.querySelector(".pass-price-sub");
+      const priceNoteEl = node.querySelector(".pass-price-note");
+      const membershipNote = typeof formatOfferPriceNote === "function" ? formatOfferPriceNote(offer) : "";
+      const priceSub = typeof formatOfferPriceSub === "function" ? formatOfferPriceSub(offer) : "";
+
+      if (priceSubEl) {
+        // For memberships, keep the native currency line under the total price (if present).
+        // For standard non-USD passes, show the native currency price on the Park Access row instead.
+        const showSub = Boolean(priceSub) && Boolean(membershipNote);
+        priceSubEl.textContent = showSub ? priceSub : "";
+        priceSubEl.hidden = !showSub;
+      }
+
+      const priceNote = membershipNote || (!membershipNote ? priceSub : "");
+      if (priceNoteEl) {
+        priceNoteEl.textContent = priceNote;
+        priceNoteEl.hidden = !priceNote;
+      }
       const cardEl = node.querySelector(".pass-card");
 
       const sortedParksToDisplay = [...offer.expandedParks].sort((a, b) => a.localeCompare(b));

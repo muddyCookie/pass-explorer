@@ -12,6 +12,12 @@
 //             price: "$85",
 //             access: "Six Flags West",
 //             noParking: "Knott's Berry Farm"
+//           },
+//           // Example monthly membership pricing (set access/parking per park/tier)
+//           Membership: {
+//             pricing: { type: "membership", monthly: "$8", downPayment: "$20", minMonths: 12 },
+//             access: "Six Flags West",
+//             noParking: "Knott's Berry Farm"
 //           }
 //         }
 //       }
@@ -72,8 +78,28 @@ const parkCatalog = {
             access: "Six Flags West",
             noParking: "Knott's Berry Farm"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$7", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags West",
+            noParking: "Knott's Berry Farm"
+          },
           Prestige: {
             price: "$145",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$13", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
           }
@@ -89,8 +115,28 @@ const parkCatalog = {
             access: "Six Flags West",
             noParking: "Knott's Berry Farm"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$8", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags West",
+            noParking: "Knott's Berry Farm"
+          },
           Prestige: {
             price: "$250",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$20", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
           }
@@ -200,11 +246,31 @@ const parkCatalog = {
             access: "Six Flags Midwest",
             noParking: ["Canada's Wonderland", "La Ronde"]
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$7", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags Midwest",
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
           Prestige: {
             price: "$135",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
-          }
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$13", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
         }
       },
       {
@@ -217,11 +283,31 @@ const parkCatalog = {
             access: "Six Flags Midwest",
             noParking: ["Canada's Wonderland", "La Ronde"]
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$8", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags Midwest",
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
           Prestige: {
             price: "$145",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
-          }
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$14", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
         }
       }
     ],
@@ -283,11 +369,30 @@ const parkCatalog = {
             price: "$89",
             access: "Six Flags East"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$8", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags East"
+          },
           Prestige: {
             price: "$155",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
-          }
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$14", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
         }
       },
       {
@@ -299,8 +404,27 @@ const parkCatalog = {
             price: "$89",
             access: "Six Flags East"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$7", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags East"
+          },
           Prestige: {
             price: "$145",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$13", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
           }
@@ -315,8 +439,27 @@ const parkCatalog = {
             price: "$89",
             access: "Six Flags East"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$7", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags East"
+          },
           Prestige: {
             price: "$145",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$13", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
           }
@@ -333,8 +476,27 @@ const parkCatalog = {
             price: "$79",
             access: "Six Flags Texas"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$7", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags Texas"
+          },
           Prestige: {
             price: "$125",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$13", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
           }
@@ -349,8 +511,27 @@ const parkCatalog = {
             price: "$99",
             access: "Six Flags Texas"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$8", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags Texas"
+          },
           Prestige: {
             price: "$145",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$14", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
           }
@@ -365,8 +546,27 @@ const parkCatalog = {
             price: "$99",
             access: "Six Flags Texas"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$8", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags Texas"
+          },
           Prestige: {
             price: "$155",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland", "La Ronde"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$14", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland", "La Ronde"]
           }
