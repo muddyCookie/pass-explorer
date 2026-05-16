@@ -64,7 +64,7 @@ const parkCatalog = {
           Prestige: {
             price: "$300",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -91,7 +91,7 @@ const parkCatalog = {
           Prestige: {
             price: "$145",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -101,7 +101,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -128,7 +128,7 @@ const parkCatalog = {
           Prestige: {
             price: "$250",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -138,7 +138,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -157,7 +157,7 @@ const parkCatalog = {
           Prestige: {
             price: "$1999",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       }
@@ -173,12 +173,11 @@ const parkCatalog = {
           Gold: {
             price: "$125",
             access: "Six Flags Midwest",
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           Prestige: {
             price: "$210",
             access: SixFlagsPrestigeAccess,
-            noParking: "La Ronde"
           }
         }
       },
@@ -190,12 +189,12 @@ const parkCatalog = {
           Gold: {
             price: "$150",
             access: "Six Flags Midwest",
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           Prestige: {
             price: "$300",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -207,32 +206,12 @@ const parkCatalog = {
           Gold: {
             price: "$145",
             access: "Six Flags Midwest",
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           Prestige: {
             price: "$275",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
-          }
-        }
-      },
-      {
-        park: "La Ronde",
-        slug: "laronde",
-        urlPass: "passeports",
-        currency: "CAD",
-        country: "Canada",
-        state: "Quebec",
-        passes: {
-          Gold: {
-            price: "$95",
-            access: "Six Flags Midwest",
-            noParking: ["Canada's Wonderland", "La Ronde"]
-          },
-          Prestige: {
-            price: "$135",
-            access: SixFlagsPrestigeAccess,
-            noParking: "Canada's Wonderland"
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -244,7 +223,7 @@ const parkCatalog = {
           Gold: {
             price: "$75",
             access: "Six Flags Midwest",
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Gold Membership": {
             pricing: { 
@@ -254,12 +233,12 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: "Six Flags Midwest",
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           Prestige: {
             price: "$135",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -269,7 +248,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
         }
       },
@@ -281,7 +260,7 @@ const parkCatalog = {
           Gold: {
             price: "$99",
             access: "Six Flags Midwest",
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Gold Membership": {
             pricing: { 
@@ -291,12 +270,12 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: "Six Flags Midwest",
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           Prestige: {
             price: "$145",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -306,7 +285,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
         }
       }
@@ -324,7 +303,7 @@ const parkCatalog = {
           Prestige: {
             price: "$225",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -340,7 +319,7 @@ const parkCatalog = {
           Prestige: {
             price: "$145",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -356,7 +335,7 @@ const parkCatalog = {
           Prestige: {
             price: "$199",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -381,7 +360,7 @@ const parkCatalog = {
           Prestige: {
             price: "$155",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -391,7 +370,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
         }
       },
@@ -416,7 +395,7 @@ const parkCatalog = {
           Prestige: {
             price: "$145",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -426,7 +405,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -452,7 +431,7 @@ const parkCatalog = {
           Prestige: {
             price: "$145",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -462,7 +441,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       }
@@ -489,7 +468,7 @@ const parkCatalog = {
           Prestige: {
             price: "$125",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -499,7 +478,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -524,7 +503,7 @@ const parkCatalog = {
           Prestige: {
             price: "$145",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -534,7 +513,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       },
@@ -559,7 +538,7 @@ const parkCatalog = {
           Prestige: {
             price: "$155",
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           },
           "Prestige Membership": {
             pricing: { 
@@ -569,7 +548,7 @@ const parkCatalog = {
               minMonths: 12 
             },
             access: SixFlagsPrestigeAccess,
-            noParking: ["Canada's Wonderland", "La Ronde"]
+            noParking: ["Canada's Wonderland"]
           }
         }
       }
