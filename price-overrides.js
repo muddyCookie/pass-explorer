@@ -2,14 +2,300 @@
 // Do not edit by hand (edit scripts/price-sources.json instead).
 
 window.priceOverrides = {
-  "Cedar Point": {
+  "California's Great America": {
     "Gold": {
-      "price": "$150.00",
-      "updatedAt": "2026-05-17"
+      "updatedAt": "2026-05-17",
+      "price": "$89.00"
+    }
+  },
+  "Canada's Wonderland": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$135.00"
     },
     "Prestige": {
-      "price": "$325.00",
-      "updatedAt": "2026-05-17"
+      "updatedAt": "2026-05-17",
+      "price": "$215.00"
+    }
+  },
+  "Carowinds": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$109.00"
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$165.00"
+    }
+  },
+  "Cedar Point": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$150.00"
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$325.00"
+    }
+  },
+  "Dorney Park": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$105.00"
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$145.00"
+    }
+  },
+  "King's Dominion": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$89.00"
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$199.00"
+    }
+  },
+  "King's Island": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$145.00"
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$325.00"
+    }
+  },
+  "Knott's Berry Farm": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$150.00"
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$300.00"
+    }
+  },
+  "Frontier City": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$79.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$7.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$125.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$13.00"
+      }
+    }
+  },
+  "Six Flags Darien Lake": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$75.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$7.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$135.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$13.00"
+      }
+    }
+  },
+  "Six Flags Discovery Kingdom": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$85.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$7.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$145.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$13.00"
+      }
+    }
+  },
+  "Six Flags Fiesta Texas": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$99.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$8.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$145.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$14.00"
+      }
+    }
+  },
+  "Six Flags Great Adventure": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$89.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$8.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$155.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$14.00"
+      }
+    }
+  },
+  "Six Flags Great America": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$99.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$8.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$145.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$14.00"
+      }
+    }
+  },
+  "Six Flags Magic Mountain": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$115.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$8.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$249.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$20.00"
+      }
+    }
+  },
+  "Six Flags New England": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$79.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$7.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$145.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$13.00"
+      }
+    }
+  },
+  "Six Flags Over Georgia": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$89.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$7.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$145.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$13.00"
+      }
+    }
+  },
+  "Six Flags Over Texas": {
+    "Gold": {
+      "updatedAt": "2026-05-17",
+      "price": "$99.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$8.00"
+      }
+    },
+    "Prestige": {
+      "updatedAt": "2026-05-17",
+      "price": "$155.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-05-17",
+      "pricing": {
+        "monthly": "$14.00"
+      }
     }
   }
 }
