@@ -216,6 +216,48 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
   return null;
 }
 
+function deepCollectMatchCandidates(root, matchPath, limit = 20) {
+  const matchPaths = toMatchPaths(matchPath);
+  if (!root || typeof root !== "object" || matchPaths.length === 0) return [];
+
+  const results = [];
+  const seen = new Set();
+  const stack = [root];
+
+  while (stack.length > 0 && results.length < limit) {
+    const current = stack.pop();
+    if (!current || typeof current !== "object") {
+      continue;
+    }
+
+    for (const pathStr of matchPaths) {
+      const value = getByDotPath(current, pathStr);
+      if (typeof value === "string" || typeof value === "number") {
+        const text = String(value).trim();
+        if (!text) continue;
+        const key = text.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        results.push(text);
+        if (results.length >= limit) break;
+      }
+    }
+
+    if (Array.isArray(current)) {
+      for (const item of current) stack.push(item);
+      continue;
+    }
+
+    for (const value of Object.values(current)) {
+      if (value && typeof value === "object") {
+        stack.push(value);
+      }
+    }
+  }
+
+  return results;
+}
+
 function normalizeRequestBody(body) {
   if (body == null) {
     return null;
@@ -506,11 +548,14 @@ async function main() {
     }
 
     let extracted = "";
+    let jsonForDebug = null;
     if (extractType === "json") {
       const json = await fetchJson(url.toString(), method, headers, body);
+      jsonForDebug = json;
       extracted = String(getByDotPath(json, extract?.path) ?? "").trim();
     } else if (extractType === "json-search") {
       const json = await fetchJson(url.toString(), method, headers, body);
+      jsonForDebug = json;
       const arrays = collectAllArraysByDotPaths(json, extract?.arrayPath ?? extract?.arrayPaths);
       const matchPath = extract?.match?.path ?? extract?.matchPath;
       const includesValue = extract?.match?.includes ?? extract?.matchIncludes;
@@ -521,6 +566,7 @@ async function main() {
         : "";
     } else if (extractType === "json-deep-search") {
       const json = await fetchJson(url.toString(), method, headers, body);
+      jsonForDebug = json;
       const matchPath = extract?.match?.path ?? extract?.matchPath;
       const includesValue = extract?.match?.includes ?? extract?.matchIncludes;
       const valuePath = extract?.value?.path ?? extract?.valuePath;
@@ -535,6 +581,13 @@ async function main() {
     if (!normalized) {
       missingCount += 1;
       console.warn(`No price extracted for ${park} / ${passType} (${url.toString()})`);
+      if (jsonForDebug && (extractType === "json-search" || extractType === "json-deep-search")) {
+        const matchPath = extract?.match?.path ?? extract?.matchPath;
+        const samples = deepCollectMatchCandidates(jsonForDebug, matchPath, 12);
+        if (samples.length > 0) {
+          console.warn(`Sample match candidates (${Array.isArray(matchPath) ? matchPath.join(",") : String(matchPath || "")}): ${samples.map((s) => JSON.stringify(s)).join(", ")}`);
+        }
+      }
       const targetPath = String(source?.target || "price").trim() || "price";
       const fallback = getByDotPath(existingOverrides?.[park]?.[passType], targetPath);
       if (fallback != null && String(fallback).trim()) {
