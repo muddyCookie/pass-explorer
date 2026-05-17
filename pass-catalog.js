@@ -32,6 +32,21 @@ function getParkLocationForConfig(parkName, parkConfig) {
   };
 }
 
+function normalizeAccessEnd(rawValue) {
+  const value = String(rawValue || "").trim();
+  if (!value) {
+    return null;
+  }
+
+  // Expect `YYYY-MM-DD`. Keep as a date-only string to avoid timezone drift.
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : value;
+}
+
+function normalizeAccessDurationMonths(rawValue) {
+  const numeric = Number(rawValue);
+  return Number.isFinite(numeric) && numeric > 0 ? Math.round(numeric) : null;
+}
+
 function getExpandedParkCatalogEntries() {
   return Object.entries(parkCatalog || {}).flatMap(([company, groups]) =>
     Object.entries(groups || {}).flatMap(([group, groupConfig]) => {
@@ -65,13 +80,15 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
   const parkGroup = normalizeGroupName(parkConfig.group);
   const links = buildParkLinksForCompany(company, parkConfig);
   const location = getParkLocationForConfig(parkName, parkConfig);
+  const accessEnd = normalizeAccessEnd(parkConfig?.accessEnd ?? parkConfig?.seasonEnd ?? parkConfig?.seasonEnds);
   const parkEntry = {
     name: parkName,
     company,
     website: links.website,
     passPurchaseUrl: links.passPurchaseUrl,
     country: location.country,
-    state: location.state
+    state: location.state,
+    accessEnd
   };
 
   parkDirectory.push(parkEntry);
@@ -217,6 +234,36 @@ function normalizePassDefinition(rawPassDefinition) {
   }
 
   return null;
+}
+
+function getPriceOverride(parkName, passType) {
+  const catalog = typeof window !== "undefined" ? window.priceOverrides : null;
+  if (!catalog || typeof catalog !== "object") {
+    return null;
+  }
+  const parkOverrides = catalog[parkName];
+  if (!parkOverrides || typeof parkOverrides !== "object") {
+    return null;
+  }
+  const override = parkOverrides[passType];
+  return override && typeof override === "object" ? override : null;
+}
+
+function applyPassOverride(passDefinition, override) {
+  if (!override || typeof override !== "object") {
+    return passDefinition;
+  }
+  if (!passDefinition || typeof passDefinition !== "object") {
+    return passDefinition;
+  }
+
+  const price = override.price != null ? String(override.price || "").trim() : passDefinition.price;
+  const pricing = override.pricing != null ? override.pricing : passDefinition.pricing;
+  return {
+    ...passDefinition,
+    price,
+    pricing
+  };
 }
 
 function normalizeParkingConfig(rawParking) {
@@ -435,7 +482,11 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
 
   const links = buildParkLinksForCompany(company, parkConfig);
   const tierOffers = Object.entries(parkConfig.passes || {})
-    .map(([passType, rawPassDefinition]) => [passType, normalizePassDefinition(rawPassDefinition)])
+    .map(([passType, rawPassDefinition]) => {
+      const normalized = normalizePassDefinition(rawPassDefinition);
+      const override = getPriceOverride(String(parkConfig.park || "").trim(), passType);
+      return [passType, applyPassOverride(normalized, override)];
+    })
     .filter(([, passDefinition]) => Boolean(passDefinition?.price || passDefinition?.pricing));
   const passUrlByTier = parkConfig.passPurchaseUrlByTier || parkConfig.buyPassUrlByTier || {};
   const membershipUrlByTier = parkConfig.membershipPurchaseUrlByTier || parkConfig.buyMembershipUrlByTier || {};
@@ -497,6 +548,9 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       disclaimer: String(passDefinition.disclaimer || parkConfig.disclaimer || "").trim(),
       passPurchaseUrl: resolvedTierPassUrl || resolvedFallbackUrl,
       accessibleParks,
+      accessEnd: normalizeAccessEnd(parkConfig?.accessEnd ?? parkConfig?.seasonEnd ?? parkConfig?.seasonEnds),
+      accessEndOverride: normalizeAccessEnd(passDefinition?.accessEnd ?? passDefinition?.seasonEnd ?? passDefinition?.seasonEnds),
+      accessDurationMonths: normalizeAccessDurationMonths(passDefinition?.accessDurationMonths ?? passDefinition?.durationMonths),
       explicitParkingIncludedParks: hasExplicitParkingConfig
         ? resolveExplicitParkingIncludedParks(expandedAccessibleParks, passParkingConfig, parkName)
         : null

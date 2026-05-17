@@ -55,9 +55,10 @@ const parkCatalog = {
         park: "Knott's Berry Farm",
         slug: "knotts",
         state: "California",
+        accessEnd: "2026-12-31",
         passes: {
           Gold: {
-            price: "$145",
+            price: "$150",
             access: "Six Flags West",
             noParking: "Knott's Berry Farm"
           },
@@ -72,9 +73,10 @@ const parkCatalog = {
         park: "Six Flags Discovery Kingdom",
         slug: "discoverykingdom",
         state: "California",
+        accessEnd: "2026-12-31",
         passes: {
           Gold: {
-            price: "$79",
+            price: "$85",
             access: "Six Flags West",
             noParking: "Knott's Berry Farm"
           },
@@ -166,6 +168,7 @@ const parkCatalog = {
       {
         park: "Canada's Wonderland",
         slug: "canadaswonderland",
+        accessEnd: "2026-09-07",
         currency: "CAD",
         country: "Canada",
         state: "Ontario",
@@ -184,6 +187,7 @@ const parkCatalog = {
       {
         park: "Cedar Point",
         slug: "cedarpoint",
+        accessEnd: "2026-10-31",
         state: "Ohio",
         passes: {
           Gold: {

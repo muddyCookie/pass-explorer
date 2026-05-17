@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "park": "Canada's Wonderland",
+      "passType": "Gold",
+      "currency": "CAD",
+      "url": "https://example.com",
+      "method": "GET",
+      "extract": {
+        "type": "regex",
+        "pattern": "\\\"gold\\\"\\s*:\\s*\\{[^}]*?\\\"price\\\"\\s*:\\s*\\\"(\\$[0-9,.]+)\\\""
+      }
+    },
+    {
+      "park": "Cedar Point",
+      "passType": "Gold",
+      "currency": "USD",
+      "url": "https://example.com/api/getpackageswaps",
+      "method": "GET",
+      "body": null,
+      "extract": {
+        "type": "json-search",
+        "arrayPaths": [
+          "SERVICE.PACKAGES",
+          "SERVICE.PACKAGE",
+          "SERVICE.PACKAGE_LIST",
+          "SERVICE.MULTIPACKS",
+          "MULTIPACKS",
+          "GROUPS"
+        ],
+        "match": { "path": "name", "includes": "2026 Gold Pass" },
+        "value": { "path": "CT.retail_amount" }
+      }
+    },
+    {
+      "park": "Six Flags Discovery Kingdom",
+      "passType": "Gold",
+      "currency": "USD",
+      "url": "https://example.com/static-api/bootstrap?m=SF-GC-DK",
+      "method": "GET",
+      "headers": {
+        "origin": "https://sf-gc-dk.store.sixflags.com",
+        "referer": "https://sf-gc-dk.store.sixflags.com/"
+      },
+      "extract": {
+        "type": "json-deep-search",
+        "match": { "path": "name", "includes": "2026 Gold Pass" },
+        "value": { "path": "CT.retail_amount" }
+      }
+    }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "park": "Cedar Point",
+      "passType": "Gold",
+      "currency": "USD",
+      "url": "https://ecomm.api.cf.accessoticketing.com/api/request/getpackageswaps",
+      "method": "POST",
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "com-accessopassport-app-id": "1500",
+        "com-accessopassport-client": "cedarfair",
+        "com-accessopassport-language": "en",
+        "com-accessopassport-merchant-id": "9",
+        "content-type": "application/json;charset=utf-8",
+        "origin": "https://cf-cp.buy.sixflags.com",
+        "referer": "https://cf-cp.buy.sixflags.com/"
+      },
+      "body": {
+        "merchant_id": "9",
+        "request_type": "GetPackageSwaps",
+        "_version": "6.28.6",
+        "application_id": "1500",
+        "machine_id": "500",
+        "agent_id": "5",
+        "user_id": "5",
+        "device": "desktop",
+        "language": "en",
+        "request_token": "",
+        "cart_id": "",
+        "cart_key": "",
+        "session_id": ""
+      },
+      "extract": {
+        "type": "json-search",
+        "arrayPaths": [
+          "GROUPS.GROUP",
+          "GROUPS",
+          "MULTIPACKS.MP",
+          "MULTIPACKS",
+          "SERVICE.GROUPS.GROUP",
+          "SERVICE.MULTIPACKS.MP"
+        ],
+        "match": { "path": "name", "includes": "2026 Gold Pass" },
+        "value": { "path": "CT.retail_amount" }
+      }
+    },
+    {
+      "park": "Cedar Point",
+      "passType": "Prestige",
+      "currency": "USD",
+      "url": "https://ecomm.api.cf.accessoticketing.com/api/request/getpackageswaps",
+      "method": "POST",
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "com-accessopassport-app-id": "1500",
+        "com-accessopassport-client": "cedarfair",
+        "com-accessopassport-language": "en",
+        "com-accessopassport-merchant-id": "9",
+        "content-type": "application/json;charset=utf-8",
+        "origin": "https://cf-cp.buy.sixflags.com",
+        "referer": "https://cf-cp.buy.sixflags.com/"
+      },
+      "body": {
+        "merchant_id": "9",
+        "request_type": "GetPackageSwaps",
+        "_version": "6.28.6",
+        "application_id": "1500",
+        "machine_id": "500",
+        "agent_id": "5",
+        "user_id": "5",
+        "device": "desktop",
+        "language": "en",
+        "request_token": "",
+        "cart_id": "",
+        "cart_key": "",
+        "session_id": ""
+      },
+      "extract": {
+        "type": "json-search",
+        "arrayPaths": [
+          "GROUPS.GROUP",
+          "GROUPS",
+          "MULTIPACKS.MP",
+          "MULTIPACKS",
+          "SERVICE.GROUPS.GROUP",
+          "SERVICE.MULTIPACKS.MP"
+        ],
+        "match": { "path": "name", "includes": "2026 Prestige Pass" },
+        "value": { "path": "CT.retail_amount" }
+      }
+    },
+    {
+      "park": "Cedar Point",
+      "passType": "Silver",
+      "currency": "USD",
+      "url": "https://ecomm.api.cf.accessoticketing.com/api/request/getpackageswaps",
+      "method": "POST",
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "com-accessopassport-app-id": "1500",
+        "com-accessopassport-client": "cedarfair",
+        "com-accessopassport-language": "en",
+        "com-accessopassport-merchant-id": "9",
+        "content-type": "application/json;charset=utf-8",
+        "origin": "https://cf-cp.buy.sixflags.com",
+        "referer": "https://cf-cp.buy.sixflags.com/"
+      },
+      "body": {
+        "merchant_id": "9",
+        "request_type": "GetPackageSwaps",
+        "_version": "6.28.6",
+        "application_id": "1500",
+        "machine_id": "500",
+        "agent_id": "5",
+        "user_id": "5",
+        "device": "desktop",
+        "language": "en",
+        "request_token": "",
+        "cart_id": "",
+        "cart_key": "",
+        "session_id": ""
+      },
+      "extract": {
+        "type": "json-search",
+        "arrayPaths": [
+          "GROUPS.GROUP",
+          "GROUPS",
+          "MULTIPACKS.MP",
+          "MULTIPACKS",
+          "SERVICE.GROUPS.GROUP",
+          "SERVICE.MULTIPACKS.MP"
+        ],
+        "match": { "path": "name", "includes": "2026 Silver Pass" },
+        "value": { "path": "CT.retail_amount" }
+      }
+    },
+    {
+      "park": "Six Flags Discovery Kingdom",
+      "passType": "Gold",
+      "currency": "USD",
+      "url": "https://ecomm.api.sf.accessoticketing.com/static-api/bootstrap?m=SF-GC-DK",
+      "method": "GET",
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "origin": "https://sf-gc-dk.store.sixflags.com",
+        "referer": "https://sf-gc-dk.store.sixflags.com/"
+      },
+      "extract": {
+        "type": "json-deep-search",
+        "match": { "path": "name", "includes": "2026 Gold Pass" },
+        "value": { "path": "CT.retail_amount" }
+      }
+    },
+    {
+      "park": "Six Flags Discovery Kingdom",
+      "passType": "Prestige",
+      "currency": "USD",
+      "url": "https://ecomm.api.sf.accessoticketing.com/static-api/bootstrap?m=SF-GC-DK",
+      "method": "GET",
+      "headers": {
+        "accept": "application/json, text/plain, */*",
+        "origin": "https://sf-gc-dk.store.sixflags.com",
+        "referer": "https://sf-gc-dk.store.sixflags.com/"
+      },
+      "extract": {
+        "type": "json-deep-search",
+        "match": { "path": "name", "includes": "2026 Prestige Pass" },
+        "value": { "path": "CT.retail_amount" }
+      }
+    }
+  ]
+}
