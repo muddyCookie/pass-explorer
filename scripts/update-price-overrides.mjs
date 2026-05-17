@@ -302,6 +302,26 @@ function deepFindFirstByKeyEqualsWithValue(root, keyName, keyValue, valuePath) {
   return null;
 }
 
+function extractAccessoAmountFromNode(node, valuePathStr) {
+  const pathStr = String(valuePathStr || "").trim();
+  if (!node || typeof node !== "object" || !pathStr) return "";
+
+  let valueAtPath = getByDotPath(node, pathStr);
+  if (!valueAtPath && !pathStr.includes(".")) {
+    valueAtPath = deepFindFirstValueByKey(node, pathStr);
+  }
+
+  let valueCandidate = parseAccessoRetailAmount(valueAtPath);
+  if (valueCandidate) return valueCandidate;
+
+  const retailFallback = deepFindFirstValueByKey(node, "retail_amount")
+    ?? deepFindFirstValueByKey(node, "retailAmount")
+    ?? deepFindFirstValueByKey(node, "retail_value")
+    ?? deepFindFirstValueByKey(node, "retailValue");
+  valueCandidate = parseAccessoRetailAmount(retailFallback);
+  return valueCandidate || "";
+}
+
 function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valuePath) {
   const matchPaths = toMatchPaths(matchPath);
   const valuePathStr = String(valuePath || "").trim();
@@ -330,19 +350,7 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
         matchValue: String(candidateValue ?? "").slice(0, 120)
       };
 
-      let valueAtPath = getByDotPath(current, valuePathStr);
-      if (!valueAtPath && !valuePathStr.includes(".")) {
-        valueAtPath = deepFindFirstValueByKey(current, valuePathStr);
-      }
-      let valueCandidate = parseAccessoRetailAmount(valueAtPath);
-      if (!valueCandidate) {
-        // Fallback: some payloads don't keep pricing under CT; look for retail fields anywhere under the matched node.
-        const retailFallback = deepFindFirstValueByKey(current, "retail_amount")
-          ?? deepFindFirstValueByKey(current, "retailAmount")
-          ?? deepFindFirstValueByKey(current, "retail_value")
-          ?? deepFindFirstValueByKey(current, "retailValue");
-        valueCandidate = parseAccessoRetailAmount(retailFallback);
-      }
+      let valueCandidate = extractAccessoAmountFromNode(current, valuePathStr);
       if (valueCandidate) {
         return current;
       }
@@ -793,7 +801,7 @@ async function main() {
       const matchSpec = extract?.match ?? extract?.matchSpec ?? { includes: extract?.matchIncludes };
       const valuePath = extract?.value?.path ?? extract?.valuePath;
       const item = deepFindFirstByIncludesWithValue(json, matchPath, matchSpec, valuePath);
-      extracted = item ? parseAccessoRetailAmount(getByDotPath(item, valuePath)) : "";
+      extracted = item ? extractAccessoAmountFromNode(item, valuePath) : "";
     } else {
       const text = await fetchText(url.toString(), method, headers, body);
       extracted = extractViaRegex(text, extract?.pattern);
