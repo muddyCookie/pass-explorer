@@ -187,11 +187,19 @@ function buildMatchPredicate(match) {
   return null;
 }
 
-function findFirstByIncludes(items, matchPath, includesValue) {
+function normalizeMatchSpec(matchSpecOrIncludes) {
+  if (matchSpecOrIncludes && typeof matchSpecOrIncludes === "object") {
+    return matchSpecOrIncludes;
+  }
+  return { includes: matchSpecOrIncludes };
+}
+
+function findFirstByIncludes(items, matchPath, matchSpecOrIncludes) {
   if (!Array.isArray(items)) return null;
   const matchPaths = toMatchPaths(matchPath);
   if (matchPaths.length === 0) return null;
-  const predicate = buildMatchPredicate({ includes: includesValue });
+  const matchSpec = normalizeMatchSpec(matchSpecOrIncludes);
+  const predicate = buildMatchPredicate(matchSpec);
   if (!predicate) return null;
 
   for (const item of items) {
@@ -297,7 +305,8 @@ function deepFindFirstByKeyEqualsWithValue(root, keyName, keyValue, valuePath) {
 function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valuePath) {
   const matchPaths = toMatchPaths(matchPath);
   const valuePathStr = String(valuePath || "").trim();
-  const predicate = buildMatchPredicate(includesValue);
+  const matchSpec = normalizeMatchSpec(includesValue);
+  const predicate = buildMatchPredicate(matchSpec);
   if (!predicate || matchPaths.length === 0 || !valuePathStr) {
     return null;
   }
@@ -697,7 +706,7 @@ async function main() {
       const matchPath = extract?.match?.path ?? extract?.matchPath;
       const matchSpec = extract?.match ?? extract?.matchSpec ?? { includes: extract?.matchIncludes };
       const valuePath = extract?.value?.path ?? extract?.valuePath;
-      const item = findFirstByIncludesInAnyArray(arrays, matchPath, matchSpec?.includes ?? matchSpec);
+      const item = findFirstByIncludesInAnyArray(arrays, matchPath, matchSpec);
       extracted = item && valuePath
         ? parseAccessoRetailAmount(getByDotPath(item, valuePath))
         : "";
