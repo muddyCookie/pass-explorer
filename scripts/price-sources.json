@@ -1,39 +1,132 @@
 {
-  "version": 1,
-  "sources": [
-    {
-      "park": "Cedar Point",
-      "passType": "Gold",
-      "currency": "USD",
-      "url": "https://ecomm.api.cf.accessoticketing.com/static-api/bootstrap?m=CF-CP",
+  "version": 2,
+  "sources": [],
+  "templates": {
+    "sixFlagsAccessoBootstrap": {
       "method": "GET",
       "headers": {
         "accept": "application/json, text/plain, */*",
-        "origin": "https://cf-cp.buy.sixflags.com",
-        "referer": "https://cf-cp.buy.sixflags.com/"
+        "origin": "https://{storeHost}",
+        "referer": "https://{storeHost}/"
       },
+      "url": "https://{apiHost}/static-api/bootstrap?m={merchant}",
       "extract": {
         "type": "json-deep-search",
-        "match": { "path": ["name", "label"], "includes": "2026 GOLD PASS" },
+        "match": { "path": ["name", "label"], "includes": "{passLabel}" },
         "value": { "path": "CT" }
       }
-    },
+    }
+  },
+  "generatedSources": [
     {
-      "park": "Cedar Point",
-      "passType": "Prestige",
-      "currency": "USD",
-      "url": "https://ecomm.api.cf.accessoticketing.com/static-api/bootstrap?m=CF-CP",
-      "method": "GET",
-      "headers": {
-        "accept": "application/json, text/plain, */*",
-        "origin": "https://cf-cp.buy.sixflags.com",
-        "referer": "https://cf-cp.buy.sixflags.com/"
+      "template": "sixFlagsAccessoBootstrap",
+      "defaults": {
+        "currency": "USD",
+        "apiHost": "ecomm.api.sf.accessoticketing.com"
       },
-      "extract": {
-        "type": "json-deep-search",
-        "match": { "path": ["name", "label"], "includes": "2026 PRESTIGE PASS" },
-        "value": { "path": "CT" }
-      }
+      "parks": [
+        {
+          "park": "California's Great America",
+          "merchant": "CF-GA",
+          "storeHost": "cf-ga.buy.sixflags.com"
+        },
+        {
+          "park": "Canada's Wonderland",
+          "merchant": "CF-CW",
+          "storeHost": "cf-cw.buy.sixflags.com"
+        },
+        {
+          "park": "Carowinds",
+          "merchant": "CF-CA",
+          "storeHost": "cf-ca.buy.sixflags.com"
+        },
+        {
+          "park": "Cedar Point",
+          "merchant": "CF-CP",
+          "storeHost": "cf-cp.buy.sixflags.com"
+        },
+        {
+          "park": "Dorney Park",
+          "merchant": "CF-DP",
+          "storeHost": "cf-dp.buy.sixflags.com"
+        },
+        {
+          "park": "Frontier City",
+          "merchant": "SF-GC-FC",
+          "storeHost": "sf-gc-fc.store.sixflags.com"
+        },
+        {
+          "park": "King's Dominion",
+          "merchant": "CF-KD",
+          "storeHost": "cf-kd.buy.sixflags.com"
+        },
+        {
+          "park": "King's Island",
+          "merchant": "CF-KI",
+          "storeHost": "cf-ki.buy.sixflags.com"
+        },
+        {
+          "park": "Knott's Berry Farm",
+          "merchant": "CF-KBF",
+          "storeHost": "cf-kbf.buy.sixflags.com"
+        },
+        {
+          "park": "Six Flags Darien Lake",
+          "merchant": "SF-GC-DL",
+          "storeHost": "sf-gc-dl.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags Discovery Kingdom",
+          "merchant": "SF-GC-DK",
+          "storeHost": "sf-gc-dk.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags Fiesta Texas",
+          "merchant": "SF-GC-FT",
+          "storeHost": "sf-gc-ft.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags Great Adventure",
+          "merchant": "SF-GC-NJ",
+          "storeHost": "sf-gc-nj.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags Great America",
+          "merchant": "SF-GC-GA",
+          "storeHost": "sf-gc-ga.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags Magic Mountain",
+          "merchant": "SF-GC-MM",
+          "storeHost": "sf-gc-mm.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags Mexico",
+          "merchant": "SF-GC-CDMX",
+          "storeHost": "sf-gc-cdmx.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags New England",
+          "merchant": "SF-GC-NE",
+          "storeHost": "sf-gc-ne.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags Over Georgia",
+          "merchant": "SF-GC-OG",
+          "storeHost": "sf-gc-og.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags Over Texas",
+          "merchant": "SF-GC-OT",
+          "storeHost": "sf-gc-ot.store.sixflags.com"
+        }
+      ],
+      "passes": [
+        { "passType": "Gold", "passLabel": "2026 Gold Pass" },
+        { "passType": "Gold Membership", "passLabel": "Gold Membership", "target": "pricing.monthly" },
+        { "passType": "Prestige", "passLabel": "2026 Prestige Pass" },
+        { "passType": "Prestige Membership", "passLabel": "Prestige Membership", "target": "pricing.monthly" }
+      ]
     }
   ]
 }

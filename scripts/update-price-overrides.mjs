@@ -5,6 +5,45 @@ function stableStringify(value) {
   return JSON.stringify(value, null, 2) + "\n";
 }
 
+function deepMerge(base, override) {
+  if (override == null) return base;
+  if (base == null) return override;
+  if (Array.isArray(base) || Array.isArray(override)) return override;
+  if (typeof base !== "object" || typeof override !== "object") return override;
+
+  const result = { ...base };
+  for (const [key, value] of Object.entries(override)) {
+    if (key in result) {
+      result[key] = deepMerge(result[key], value);
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+function applyTemplateString(template, vars) {
+  return String(template || "").replace(/\{(\w+)\}/g, (_, key) => {
+    const value = vars?.[key];
+    return value == null ? `{${key}}` : String(value);
+  });
+}
+
+function applyTemplatesDeep(value, vars) {
+  if (value == null) return value;
+  if (typeof value === "string") return applyTemplateString(value, vars);
+  if (typeof value === "number" || typeof value === "boolean") return value;
+  if (Array.isArray(value)) return value.map((entry) => applyTemplatesDeep(entry, vars));
+  if (typeof value === "object") {
+    const result = {};
+    for (const [key, entry] of Object.entries(value)) {
+      result[key] = applyTemplatesDeep(entry, vars);
+    }
+    return result;
+  }
+  return value;
+}
+
 function tryLoadExistingOverrides(fileText) {
   const text = String(fileText || "");
   const match = /window\\.priceOverrides\\s*=\\s*({[\\s\\S]*?})\\s*;?\\s*$/m.exec(text);
@@ -40,6 +79,21 @@ function getByDotPath(obj, dotPath) {
     current = current[part];
   }
   return current;
+}
+
+function setByDotPath(obj, dotPath, value) {
+  const parts = String(dotPath || "").split(".").map((part) => part.trim()).filter(Boolean);
+  if (parts.length === 0) return;
+  let current = obj;
+  for (let index = 0; index < parts.length - 1; index += 1) {
+    const part = parts[index];
+    const next = current[part];
+    if (!next || typeof next !== "object" || Array.isArray(next)) {
+      current[part] = {};
+    }
+    current = current[part];
+  }
+  current[parts[parts.length - 1]] = value;
 }
 
 function getFirstArrayByDotPaths(obj, dotPaths) {
@@ -243,6 +297,70 @@ function parseAccessoRetailAmount(value) {
   return "";
 }
 
+function expandSourcesFromConfig(config) {
+  const explicit = Array.isArray(config?.sources) ? config.sources : [];
+  const templates = config?.templates && typeof config.templates === "object" ? config.templates : {};
+  const generated = Array.isArray(config?.generatedSources) ? config.generatedSources : [];
+  if (generated.length === 0) return explicit;
+
+  const expanded = [];
+
+  for (const gen of generated) {
+    const parks = Array.isArray(gen?.parks) ? gen.parks : [];
+    const passes = Array.isArray(gen?.passes) ? gen.passes : [];
+    const genDefaults = gen?.defaults && typeof gen.defaults === "object" ? gen.defaults : {};
+
+    let template = null;
+    if (typeof gen?.template === "string") {
+      template = templates?.[gen.template] || null;
+    } else if (gen?.template && typeof gen.template === "object") {
+      template = gen.template;
+    }
+
+    if (!template || parks.length === 0 || passes.length === 0) {
+      continue;
+    }
+
+    for (const parkEntry of parks) {
+      const park = String(parkEntry?.park || "").trim();
+      if (!park) continue;
+
+      for (const passEntry of passes) {
+        const passType = String(passEntry?.passType || "").trim();
+        if (!passType) continue;
+
+        const currency = String(
+          passEntry?.currency || parkEntry?.currency || genDefaults?.currency || ""
+        ).trim();
+
+        const vars = {
+          park,
+          passType,
+          currency,
+          merchant: parkEntry?.merchant ?? genDefaults?.merchant ?? "",
+          merchantLower: String(parkEntry?.merchant ?? genDefaults?.merchant ?? "").toLowerCase(),
+          apiHost: parkEntry?.apiHost ?? genDefaults?.apiHost ?? "",
+          storeHost: parkEntry?.storeHost ?? genDefaults?.storeHost ?? "",
+          origin: parkEntry?.origin ?? genDefaults?.origin ?? "",
+          referer: parkEntry?.referer ?? genDefaults?.referer ?? ""
+        };
+
+        const merged = deepMerge(template, deepMerge(genDefaults, deepMerge(parkEntry, passEntry)));
+        const rendered = applyTemplatesDeep(merged, vars);
+
+        expanded.push({
+          ...rendered,
+          park,
+          passType,
+          currency: currency || rendered.currency
+        });
+      }
+    }
+  }
+
+  return [...explicit, ...expanded];
+}
+
 async function fetchText(url, method = "GET", headers = {}, body = null) {
   const normalizedBody = normalizeRequestBody(body);
   const normalizedHeaders = normalizedBody ? ensureJsonContentType(headers) : headers;
@@ -326,7 +444,7 @@ async function main() {
   const raw = await fs.readFile(configPath, "utf8");
   const config = JSON.parse(raw);
 
-  const sources = Array.isArray(config?.sources) ? config.sources : [];
+  const sources = expandSourcesFromConfig(config);
   const overrides = {};
   const updatedAt = formatTodayYmdUtc();
   let missingCount = 0;
@@ -397,22 +515,22 @@ async function main() {
     if (!normalized) {
       missingCount += 1;
       console.warn(`No price extracted for ${park} / ${passType} (${url.toString()})`);
-      const fallback = existingOverrides?.[park]?.[passType]?.price;
-      if (fallback) {
+      const targetPath = String(source?.target || "price").trim() || "price";
+      const fallback = getByDotPath(existingOverrides?.[park]?.[passType], targetPath);
+      if (fallback != null && String(fallback).trim()) {
         overrides[park] ??= {};
-        overrides[park][passType] = {
-          price: String(fallback),
-          updatedAt: existingOverrides?.[park]?.[passType]?.updatedAt || updatedAt
-        };
+        overrides[park][passType] ??= { updatedAt: existingOverrides?.[park]?.[passType]?.updatedAt || updatedAt };
+        setByDotPath(overrides[park][passType], targetPath, String(fallback).trim());
+        overrides[park][passType].updatedAt = existingOverrides?.[park]?.[passType]?.updatedAt || updatedAt;
       }
       continue;
     }
 
     overrides[park] ??= {};
-    overrides[park][passType] = {
-      price: normalized,
-      updatedAt
-    };
+    const targetPath = String(source?.target || "price").trim() || "price";
+    overrides[park][passType] ??= { updatedAt };
+    setByDotPath(overrides[park][passType], targetPath, normalized);
+    overrides[park][passType].updatedAt = updatedAt;
   }
 
   if (sources.length > 0 && Object.keys(overrides).length === 0) {

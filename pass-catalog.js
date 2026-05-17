@@ -258,7 +258,19 @@ function applyPassOverride(passDefinition, override) {
   }
 
   const price = override.price != null ? String(override.price || "").trim() : passDefinition.price;
-  const pricing = override.pricing != null ? override.pricing : passDefinition.pricing;
+  const basePricing = passDefinition.pricing;
+  const overridePricing = override.pricing;
+  const pricing = overridePricing != null
+    ? (
+      basePricing
+      && typeof basePricing === "object"
+      && !Array.isArray(basePricing)
+      && typeof overridePricing === "object"
+      && !Array.isArray(overridePricing)
+        ? { ...basePricing, ...overridePricing }
+        : overridePricing
+    )
+    : basePricing;
   return {
     ...passDefinition,
     price,

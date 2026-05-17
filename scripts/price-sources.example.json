@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "sources": [
     {
       "park": "Canada's Wonderland",
@@ -11,43 +11,46 @@
         "type": "regex",
         "pattern": "\\\"gold\\\"\\s*:\\s*\\{[^}]*?\\\"price\\\"\\s*:\\s*\\\"(\\$[0-9,.]+)\\\""
       }
-    },
-    {
-      "park": "Cedar Point",
-      "passType": "Gold",
-      "currency": "USD",
-      "url": "https://example.com/api/getpackageswaps",
-      "method": "GET",
-      "body": null,
-      "extract": {
-        "type": "json-search",
-        "arrayPaths": [
-          "SERVICE.PACKAGES",
-          "SERVICE.PACKAGE",
-          "SERVICE.PACKAGE_LIST",
-          "SERVICE.MULTIPACKS",
-          "MULTIPACKS",
-          "GROUPS"
-        ],
-        "match": { "path": "name", "includes": "2026 Gold Pass" },
-        "value": { "path": "CT" }
-      }
-    },
-    {
-      "park": "Six Flags Discovery Kingdom",
-      "passType": "Gold",
-      "currency": "USD",
-      "url": "https://example.com/static-api/bootstrap?m=SF-GC-DK",
+    }
+  ],
+  "templates": {
+    "sixFlagsAccessoBootstrap": {
       "method": "GET",
       "headers": {
-        "origin": "https://sf-gc-dk.store.sixflags.com",
-        "referer": "https://sf-gc-dk.store.sixflags.com/"
+        "accept": "application/json, text/plain, */*",
+        "origin": "https://{storeHost}",
+        "referer": "https://{storeHost}/"
       },
+      "url": "https://ecomm.api.sf.accessoticketing.com/static-api/bootstrap?m={merchant}",
       "extract": {
         "type": "json-deep-search",
-        "match": { "path": "name", "includes": "2026 Gold Pass" },
+        "match": { "path": ["name", "label"], "includes": "{passLabel}" },
         "value": { "path": "CT" }
       }
+    }
+  },
+  "generatedSources": [
+    {
+      "template": "sixFlagsAccessoBootstrap",
+      "defaults": {
+        "currency": "USD"
+      },
+      "parks": [
+        {
+          "park": "Six Flags Discovery Kingdom",
+          "merchant": "SF-GC-DK",
+          "storeHost": "sf-gc-dk.store.sixflags.com"
+        },
+        {
+          "park": "Six Flags Magic Mountain",
+          "merchant": "SF-MM",
+          "storeHost": "sf-mm.store.sixflags.com"
+        }
+      ],
+      "passes": [
+        { "passType": "Gold", "passLabel": "2026 Gold Pass" },
+        { "passType": "Prestige", "passLabel": "2026 Prestige Pass" }
+      ]
     }
   ]
 }

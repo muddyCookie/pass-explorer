@@ -38,5 +38,6 @@ For local testing, you can edit `price-overrides.local.js` (loaded after the gen
 
 Notes:
 - Some vendors use `POST` + a JSON request body for price endpoints; `scripts/price-sources.json` supports `method`, `headers`, and `body` per source.
+- If you have lots of similar parks/passes, `scripts/price-sources.json` also supports `templates` + `generatedSources` so you can define the Accesso endpoint/extract logic once and just list per-park merchant/storeHost values.
 - For Accesso endpoints, you can grab the payload by copying the `getpackageswaps` request as cURL from your browser devtools and translating the `--data-raw` JSON into `body`.
 - For Accesso `getpackageswaps`, leave `request_token`, `cart_id`, `cart_key`, and `session_id` blank (`""`) and the updater will fetch fresh values via `getcartsummary` automatically.
