@@ -14,8 +14,8 @@
       },
       "extract": {
         "type": "json-deep-search",
-        "match": { "path": ["name", "label"], "includes": "2026 Gold Pass" },
-        "value": { "path": "CT.retail_amount" }
+        "match": { "path": ["name", "label"], "includes": "2026 GOLD PASS" },
+        "value": { "path": "CT" }
       }
     },
     {
@@ -31,25 +31,8 @@
       },
       "extract": {
         "type": "json-deep-search",
-        "match": { "path": ["name", "label"], "includes": "2026 Prestige Pass" },
-        "value": { "path": "CT.retail_amount" }
-      }
-    },
-    {
-      "park": "Cedar Point",
-      "passType": "Silver",
-      "currency": "USD",
-      "url": "https://ecomm.api.cf.accessoticketing.com/static-api/bootstrap?m=CF-CP",
-      "method": "GET",
-      "headers": {
-        "accept": "application/json, text/plain, */*",
-        "origin": "https://cf-cp.buy.sixflags.com",
-        "referer": "https://cf-cp.buy.sixflags.com/"
-      },
-      "extract": {
-        "type": "json-deep-search",
-        "match": { "path": ["name", "label"], "includes": "2026 Silver Pass" },
-        "value": { "path": "CT.retail_amount" }
+        "match": { "path": ["name", "label"], "includes": "2026 PRESTIGE PASS" },
+        "value": { "path": "CT" }
       }
     }
   ]

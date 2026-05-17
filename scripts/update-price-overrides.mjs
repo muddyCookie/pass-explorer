@@ -237,6 +237,8 @@ function parseAccessoRetailAmount(value) {
   if (typeof value === "object") {
     if (value.retail_amount != null) return String(value.retail_amount).trim();
     if (value.retailAmount != null) return String(value.retailAmount).trim();
+    if (value.retail_value != null) return String(value.retail_value).trim();
+    if (value.retailValue != null) return String(value.retailValue).trim();
   }
   return "";
 }

@@ -30,7 +30,7 @@
           "GROUPS"
         ],
         "match": { "path": "name", "includes": "2026 Gold Pass" },
-        "value": { "path": "CT.retail_amount" }
+        "value": { "path": "CT" }
       }
     },
     {
@@ -46,7 +46,7 @@
       "extract": {
         "type": "json-deep-search",
         "match": { "path": "name", "includes": "2026 Gold Pass" },
-        "value": { "path": "CT.retail_amount" }
+        "value": { "path": "CT" }
       }
     }
   ]
