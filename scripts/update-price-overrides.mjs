@@ -323,6 +323,13 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
       if (candidateValue == null) continue;
       if (!predicate(candidateValue)) continue;
 
+      // Debug helper: we found a node that matches the name/label selector, but we still need pricing.
+      // To help diagnose structure differences, we can optionally dump minimal hints when extraction fails.
+      const debugHints = {
+        matchPath: pathStr,
+        matchValue: String(candidateValue ?? "").slice(0, 120)
+      };
+
       let valueAtPath = getByDotPath(current, valuePathStr);
       if (!valueAtPath && !valuePathStr.includes(".")) {
         valueAtPath = deepFindFirstValueByKey(current, valuePathStr);
@@ -352,6 +359,23 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
         if (resolved) {
           return resolved;
         }
+      }
+
+      // If we got here, we matched a node but could not find pricing. Expose a small hint upstream by
+      // attaching a non-enumerable property, so we can log it without bloating normal output.
+      try {
+        Object.defineProperty(root, "__pe_lastMatchHint", {
+          value: {
+            ...debugHints,
+            valuePath: valuePathStr,
+            hasCT: deepFindFirstValueByKey(current, "CT") != null,
+            hasRetailAmount: deepFindFirstValueByKey(current, "retail_amount") != null,
+            id: getByDotPath(current, "id") ?? getByDotPath(current, "vendor_product_id") ?? null
+          },
+          configurable: true
+        });
+      } catch {
+        // ignore
       }
     }
 
@@ -788,6 +812,10 @@ async function main() {
         const pricingSamples = deepCollectPricingCandidates(jsonForDebug, 8);
         if (pricingSamples.length > 0) {
           console.warn(`Sample pricing candidates: ${pricingSamples.map((entry) => `${entry.name ? JSON.stringify(entry.name) + " " : ""}${JSON.stringify(entry.retail_amount)}`).join(", ")}`);
+        }
+        const hint = jsonForDebug?.__pe_lastMatchHint;
+        if (hint) {
+          console.warn(`Last match hint: ${JSON.stringify(hint)}`);
         }
       }
       const targetPath = String(source?.target || "price").trim() || "price";
