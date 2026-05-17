@@ -327,7 +327,15 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
       if (!valueAtPath && !valuePathStr.includes(".")) {
         valueAtPath = deepFindFirstValueByKey(current, valuePathStr);
       }
-      const valueCandidate = parseAccessoRetailAmount(valueAtPath);
+      let valueCandidate = parseAccessoRetailAmount(valueAtPath);
+      if (!valueCandidate) {
+        // Fallback: some payloads don't keep pricing under CT; look for retail fields anywhere under the matched node.
+        const retailFallback = deepFindFirstValueByKey(current, "retail_amount")
+          ?? deepFindFirstValueByKey(current, "retailAmount")
+          ?? deepFindFirstValueByKey(current, "retail_value")
+          ?? deepFindFirstValueByKey(current, "retailValue");
+        valueCandidate = parseAccessoRetailAmount(retailFallback);
+      }
       if (valueCandidate) {
         return current;
       }
@@ -386,6 +394,50 @@ function deepCollectMatchCandidates(root, matchPath, limit = 20) {
         seen.add(key);
         results.push(text);
         if (results.length >= limit) break;
+      }
+    }
+
+    if (Array.isArray(current)) {
+      for (const item of current) stack.push(item);
+      continue;
+    }
+
+    for (const value of Object.values(current)) {
+      if (value && typeof value === "object") {
+        stack.push(value);
+      }
+    }
+  }
+
+  return results;
+}
+
+function deepCollectPricingCandidates(root, limit = 20) {
+  if (!root || typeof root !== "object") return [];
+
+  const results = [];
+  const seen = new Set();
+  const stack = [root];
+
+  while (stack.length > 0 && results.length < limit) {
+    const current = stack.pop();
+    if (!current || typeof current !== "object") {
+      continue;
+    }
+
+    if (!Array.isArray(current)) {
+      const retailAmount = deepFindFirstValueByKey(current, "retail_amount") ?? deepFindFirstValueByKey(current, "retailAmount");
+      if (retailAmount != null) {
+        const amountText = String(retailAmount).trim();
+        if (amountText) {
+          const name = deepFindFirstValueByKey(current, "name");
+          const nameText = name != null ? String(name).trim() : "";
+          const key = `${nameText.toLowerCase()}|${amountText}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            results.push({ name: nameText || null, retail_amount: amountText });
+          }
+        }
       }
     }
 
@@ -732,6 +784,10 @@ async function main() {
         const samples = deepCollectMatchCandidates(jsonForDebug, matchPath, 12);
         if (samples.length > 0) {
           console.warn(`Sample match candidates (${Array.isArray(matchPath) ? matchPath.join(",") : String(matchPath || "")}): ${samples.map((s) => JSON.stringify(s)).join(", ")}`);
+        }
+        const pricingSamples = deepCollectPricingCandidates(jsonForDebug, 8);
+        if (pricingSamples.length > 0) {
+          console.warn(`Sample pricing candidates: ${pricingSamples.map((entry) => `${entry.name ? JSON.stringify(entry.name) + " " : ""}${JSON.stringify(entry.retail_amount)}`).join(", ")}`);
         }
       }
       const targetPath = String(source?.target || "price").trim() || "price";
