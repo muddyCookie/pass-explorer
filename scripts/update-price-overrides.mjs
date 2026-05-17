@@ -340,7 +340,9 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
 
     for (const pathStr of matchPaths) {
       const candidateValue = getByDotPath(current, pathStr);
-      if (candidateValue == null) continue;
+      if (candidateValue == null) {
+        continue;
+      }
       if (!predicate(candidateValue)) continue;
 
       // Debug helper: we found a node that matches the name/label selector, but we still need pricing.
@@ -811,6 +813,11 @@ async function main() {
     if (!normalized) {
       missingCount += 1;
       console.warn(`No price extracted for ${park} / ${passType} (${url.toString()})`);
+      if (missingCount <= 3) {
+        const matchSpecDebug = extract?.match ?? extract?.matchSpec ?? null;
+        const valuePathDebug = extract?.value?.path ?? extract?.valuePath ?? null;
+        console.warn(`Debug match spec: ${matchSpecDebug ? JSON.stringify(matchSpecDebug) : "null"}; valuePath: ${valuePathDebug ? JSON.stringify(valuePathDebug) : "null"}`);
+      }
       if (jsonForDebug && (extractType === "json-search" || extractType === "json-deep-search")) {
         const matchPath = extract?.match?.path ?? extract?.matchPath;
         const samples = deepCollectMatchCandidates(jsonForDebug, matchPath, 12);
