@@ -4,15 +4,11 @@
 window.priceOverrides = {
   "Cedar Point": {
     "Gold": {
-      "price": "$140.00",
+      "price": "$150.00",
       "updatedAt": "2026-05-17"
     },
     "Prestige": {
       "price": "$325.00",
-      "updatedAt": "2026-05-17"
-    },
-    "Silver": {
-      "price": "$99.00",
       "updatedAt": "2026-05-17"
     }
   }
