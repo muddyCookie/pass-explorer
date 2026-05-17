@@ -76,7 +76,13 @@ function getByDotPath(obj, dotPath) {
   let current = obj;
   for (const part of parts) {
     if (current == null || typeof current !== "object") return undefined;
-    current = current[part];
+    if (Object.prototype.hasOwnProperty.call(current, part)) {
+      current = current[part];
+      continue;
+    }
+    const lower = part.toLowerCase();
+    const fallbackKey = Object.keys(current).find((key) => key.toLowerCase() === lower);
+    current = fallbackKey ? current[fallbackKey] : undefined;
   }
   return current;
 }
@@ -293,6 +299,14 @@ function parseAccessoRetailAmount(value) {
     if (value.retailAmount != null) return String(value.retailAmount).trim();
     if (value.retail_value != null) return String(value.retail_value).trim();
     if (value.retailValue != null) return String(value.retailValue).trim();
+
+    const keyMap = Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [String(key).toLowerCase(), entry])
+    );
+    if (keyMap["retail_amount"] != null) return String(keyMap["retail_amount"]).trim();
+    if (keyMap["retailamount"] != null) return String(keyMap["retailamount"]).trim();
+    if (keyMap["retail_value"] != null) return String(keyMap["retail_value"]).trim();
+    if (keyMap["retailvalue"] != null) return String(keyMap["retailvalue"]).trim();
   }
   return "";
 }
