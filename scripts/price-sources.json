@@ -14,6 +14,7 @@
         "com-accessopassport-language": "en",
         "com-accessopassport-merchant-id": "9",
         "content-type": "application/json;charset=utf-8",
+        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "origin": "https://cf-cp.buy.sixflags.com",
         "referer": "https://cf-cp.buy.sixflags.com/"
       },
@@ -59,6 +60,7 @@
         "com-accessopassport-language": "en",
         "com-accessopassport-merchant-id": "9",
         "content-type": "application/json;charset=utf-8",
+        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "origin": "https://cf-cp.buy.sixflags.com",
         "referer": "https://cf-cp.buy.sixflags.com/"
       },
@@ -104,6 +106,7 @@
         "com-accessopassport-language": "en",
         "com-accessopassport-merchant-id": "9",
         "content-type": "application/json;charset=utf-8",
+        "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "origin": "https://cf-cp.buy.sixflags.com",
         "referer": "https://cf-cp.buy.sixflags.com/"
       },
@@ -133,40 +136,6 @@
           "SERVICE.MULTIPACKS.MP"
         ],
         "match": { "path": "name", "includes": "2026 Silver Pass" },
-        "value": { "path": "CT.retail_amount" }
-      }
-    },
-    {
-      "park": "Six Flags Discovery Kingdom",
-      "passType": "Gold",
-      "currency": "USD",
-      "url": "https://ecomm.api.sf.accessoticketing.com/static-api/bootstrap?m=SF-GC-DK",
-      "method": "GET",
-      "headers": {
-        "accept": "application/json, text/plain, */*",
-        "origin": "https://sf-gc-dk.store.sixflags.com",
-        "referer": "https://sf-gc-dk.store.sixflags.com/"
-      },
-      "extract": {
-        "type": "json-deep-search",
-        "match": { "path": "name", "includes": "2026 Gold Pass" },
-        "value": { "path": "CT.retail_amount" }
-      }
-    },
-    {
-      "park": "Six Flags Discovery Kingdom",
-      "passType": "Prestige",
-      "currency": "USD",
-      "url": "https://ecomm.api.sf.accessoticketing.com/static-api/bootstrap?m=SF-GC-DK",
-      "method": "GET",
-      "headers": {
-        "accept": "application/json, text/plain, */*",
-        "origin": "https://sf-gc-dk.store.sixflags.com",
-        "referer": "https://sf-gc-dk.store.sixflags.com/"
-      },
-      "extract": {
-        "type": "json-deep-search",
-        "match": { "path": "name", "includes": "2026 Prestige Pass" },
         "value": { "path": "CT.retail_amount" }
       }
     }
