@@ -78,17 +78,27 @@ function toIncludesNeedles(includesValue) {
   return single ? [single] : [];
 }
 
+function toMatchPaths(matchPath) {
+  if (Array.isArray(matchPath)) {
+    return matchPath.map((value) => String(value || "").trim()).filter(Boolean);
+  }
+  const single = String(matchPath || "").trim();
+  return single ? [single] : [];
+}
+
 function findFirstByIncludes(items, matchPath, includesValue) {
   if (!Array.isArray(items)) return null;
   const needles = toIncludesNeedles(includesValue);
   if (needles.length === 0) return null;
-  const pathStr = String(matchPath || "").trim();
-  if (!pathStr) return null;
+  const matchPaths = toMatchPaths(matchPath);
+  if (matchPaths.length === 0) return null;
 
   for (const item of items) {
-    const candidate = String(getByDotPath(item, pathStr) ?? "").toLowerCase();
-    if (needles.some((needle) => candidate.includes(needle))) {
-      return item;
+    for (const pathStr of matchPaths) {
+      const candidate = String(getByDotPath(item, pathStr) ?? "").toLowerCase();
+      if (needles.some((needle) => candidate.includes(needle))) {
+        return item;
+      }
     }
   }
   return null;
@@ -104,10 +114,11 @@ function findFirstByIncludesInAnyArray(arrays, matchPath, includesValue) {
   return null;
 }
 
-function deepFindFirstByIncludes(root, matchPath, includesValue) {
+function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valuePath) {
   const needles = toIncludesNeedles(includesValue);
-  const pathStr = String(matchPath || "").trim();
-  if (needles.length === 0 || !pathStr) {
+  const matchPaths = toMatchPaths(matchPath);
+  const valuePathStr = String(valuePath || "").trim();
+  if (needles.length === 0 || matchPaths.length === 0 || !valuePathStr) {
     return null;
   }
 
@@ -118,10 +129,14 @@ function deepFindFirstByIncludes(root, matchPath, includesValue) {
       continue;
     }
 
-    const candidateValue = getByDotPath(current, pathStr);
-    if (candidateValue != null) {
+    for (const pathStr of matchPaths) {
+      const candidateValue = getByDotPath(current, pathStr);
+      if (candidateValue == null) continue;
       const candidate = String(candidateValue ?? "").toLowerCase();
-      if (needles.some((needle) => candidate.includes(needle))) {
+      if (!needles.some((needle) => candidate.includes(needle))) continue;
+
+      const valueCandidate = parseAccessoRetailAmount(getByDotPath(current, valuePathStr));
+      if (valueCandidate) {
         return current;
       }
     }
@@ -369,10 +384,8 @@ async function main() {
       const matchPath = extract?.match?.path ?? extract?.matchPath;
       const includesValue = extract?.match?.includes ?? extract?.matchIncludes;
       const valuePath = extract?.value?.path ?? extract?.valuePath;
-      const item = deepFindFirstByIncludes(json, matchPath, includesValue);
-      extracted = item && valuePath
-        ? parseAccessoRetailAmount(getByDotPath(item, valuePath))
-        : "";
+      const item = deepFindFirstByIncludesWithValue(json, matchPath, includesValue, valuePath);
+      extracted = item ? parseAccessoRetailAmount(getByDotPath(item, valuePath)) : "";
     } else {
       const text = await fetchText(url.toString(), method, headers, body);
       extracted = extractViaRegex(text, extract?.pattern);

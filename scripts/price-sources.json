@@ -14,7 +14,7 @@
       },
       "extract": {
         "type": "json-deep-search",
-        "match": { "path": "name", "includes": "2026 Gold Pass" },
+        "match": { "path": ["name", "label"], "includes": "2026 Gold Pass" },
         "value": { "path": "CT.retail_amount" }
       }
     },
@@ -31,7 +31,7 @@
       },
       "extract": {
         "type": "json-deep-search",
-        "match": { "path": "name", "includes": "2026 Prestige Pass" },
+        "match": { "path": ["name", "label"], "includes": "2026 Prestige Pass" },
         "value": { "path": "CT.retail_amount" }
       }
     },
@@ -48,7 +48,7 @@
       },
       "extract": {
         "type": "json-deep-search",
-        "match": { "path": "name", "includes": "2026 Silver Pass" },
+        "match": { "path": ["name", "label"], "includes": "2026 Silver Pass" },
         "value": { "path": "CT.retail_amount" }
       }
     }

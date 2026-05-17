@@ -5,5 +5,3 @@
 // Keep overrides in this shape:
 // window.priceOverrides["Cedar Point"] = { Gold: { price: "$1" } };
 
-window.priceOverrides["Cedar Point"] = { Gold: { price: "$1" } };
-

@@ -191,7 +191,7 @@ const parkCatalog = {
         state: "Ohio",
         passes: {
           Gold: {
-            price: "$150",
+            price: "$149",
             access: "Six Flags Midwest",
             noParking: ["Canada's Wonderland"]
           },
