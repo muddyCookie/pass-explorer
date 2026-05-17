@@ -617,6 +617,8 @@ function expandSourcesFromConfig(config) {
         const passType = String(passEntry?.passType || "").trim();
         if (!passType) continue;
 
+        const passLabel = String(passEntry?.passLabel || passType).trim();
+
         const currency = String(
           passEntry?.currency || parkEntry?.currency || genDefaults?.currency || ""
         ).trim();
@@ -627,6 +629,7 @@ function expandSourcesFromConfig(config) {
         const vars = {
           park,
           passType,
+          passLabel,
           currency,
           merchant,
           merchantLower: merchant.toLowerCase(),
