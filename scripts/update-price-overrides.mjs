@@ -174,6 +174,38 @@ function findFirstByIncludesInAnyArray(arrays, matchPath, includesValue) {
   return null;
 }
 
+function deepFindFirstValueByKey(root, keyName) {
+  const needle = String(keyName || "").trim().toLowerCase();
+  if (!needle) return undefined;
+  if (!root || typeof root !== "object") return undefined;
+
+  const stack = [root];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current || typeof current !== "object") continue;
+
+    if (!Array.isArray(current)) {
+      const directKey = Object.keys(current).find((key) => key.toLowerCase() === needle);
+      if (directKey != null) {
+        return current[directKey];
+      }
+    }
+
+    if (Array.isArray(current)) {
+      for (const entry of current) stack.push(entry);
+      continue;
+    }
+
+    for (const value of Object.values(current)) {
+      if (value && typeof value === "object") {
+        stack.push(value);
+      }
+    }
+  }
+
+  return undefined;
+}
+
 function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valuePath) {
   const needles = toIncludesNeedles(includesValue);
   const matchPaths = toMatchPaths(matchPath);
@@ -195,7 +227,11 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
       const candidate = String(candidateValue ?? "").toLowerCase();
       if (!needles.some((needle) => candidate.includes(needle))) continue;
 
-      const valueCandidate = parseAccessoRetailAmount(getByDotPath(current, valuePathStr));
+      let valueAtPath = getByDotPath(current, valuePathStr);
+      if (!valueAtPath && !valuePathStr.includes(".")) {
+        valueAtPath = deepFindFirstValueByKey(current, valuePathStr);
+      }
+      const valueCandidate = parseAccessoRetailAmount(valueAtPath);
       if (valueCandidate) {
         return current;
       }
