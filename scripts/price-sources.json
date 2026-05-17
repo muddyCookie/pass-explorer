@@ -22,7 +22,7 @@
       "template": "sixFlagsAccessoBootstrap",
       "defaults": {
         "currency": "USD",
-        "apiHost": "ecomm.api.sf.accessoticketing.com"
+        "apiHost": "ecomm.api.cf.accessoticketing.com"
       },
       "parks": [
         {
@@ -51,11 +51,6 @@
           "storeHost": "cf-dp.buy.sixflags.com"
         },
         {
-          "park": "Frontier City",
-          "merchant": "SF-GC-FC",
-          "storeHost": "sf-gc-fc.store.sixflags.com"
-        },
-        {
           "park": "King's Dominion",
           "merchant": "CF-KD",
           "storeHost": "cf-kd.buy.sixflags.com"
@@ -69,6 +64,24 @@
           "park": "Knott's Berry Farm",
           "merchant": "CF-KBF",
           "storeHost": "cf-kbf.buy.sixflags.com"
+        }
+      ],
+      "passes": [
+        { "passType": "Gold", "passLabel": "2026 Gold Pass" },
+        { "passType": "Prestige", "passLabel": "2026 Prestige Pass" }
+      ]
+    },
+    {
+      "template": "sixFlagsAccessoBootstrap",
+      "defaults": {
+        "currency": "USD",
+        "apiHost": "ecomm.api.sf.accessoticketing.com"
+      },
+      "parks": [
+        {
+          "park": "Frontier City",
+          "merchant": "SF-GC-FC",
+          "storeHost": "sf-gc-fc.store.sixflags.com"
         },
         {
           "park": "Six Flags Darien Lake",

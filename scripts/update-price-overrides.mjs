@@ -333,19 +333,25 @@ function expandSourcesFromConfig(config) {
           passEntry?.currency || parkEntry?.currency || genDefaults?.currency || ""
         ).trim();
 
+        const merchant = String(parkEntry?.merchant ?? genDefaults?.merchant ?? "").trim();
+        const apiHost = String(parkEntry?.apiHost ?? genDefaults?.apiHost ?? "").trim();
+
         const vars = {
           park,
           passType,
           currency,
-          merchant: parkEntry?.merchant ?? genDefaults?.merchant ?? "",
-          merchantLower: String(parkEntry?.merchant ?? genDefaults?.merchant ?? "").toLowerCase(),
-          apiHost: parkEntry?.apiHost ?? genDefaults?.apiHost ?? "",
+          merchant,
+          merchantLower: merchant.toLowerCase(),
+          apiHost,
           storeHost: parkEntry?.storeHost ?? genDefaults?.storeHost ?? "",
           origin: parkEntry?.origin ?? genDefaults?.origin ?? "",
           referer: parkEntry?.referer ?? genDefaults?.referer ?? ""
         };
 
         const merged = deepMerge(template, deepMerge(genDefaults, deepMerge(parkEntry, passEntry)));
+        if (!merged.apiHost && apiHost) {
+          merged.apiHost = apiHost;
+        }
         const rendered = applyTemplatesDeep(merged, vars);
 
         expanded.push({
