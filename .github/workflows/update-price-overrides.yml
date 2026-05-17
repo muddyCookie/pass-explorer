@@ -6,6 +6,11 @@ on:
     # Daily at 9:15 AM UTC
     - cron: "15 9 * * *"
 
+env:
+  # GitHub Actions is deprecating Node.js 20 for JavaScript-based actions in 2026.
+  # This opts the workflow into Node.js 24 for action runtimes.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -23,7 +28,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
 
       - name: Generate price-overrides.js
         run: node scripts/update-price-overrides.mjs
@@ -39,4 +44,3 @@ jobs:
           git add price-overrides.js
           git commit -m "Update price overrides"
           git push
-

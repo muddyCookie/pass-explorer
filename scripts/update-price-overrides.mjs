@@ -59,16 +59,24 @@ function collectAllArraysByDotPaths(obj, dotPaths) {
   return arrays;
 }
 
+function toIncludesNeedles(includesValue) {
+  if (Array.isArray(includesValue)) {
+    return includesValue.map((value) => String(value || "").toLowerCase()).filter(Boolean);
+  }
+  const single = String(includesValue || "").toLowerCase().trim();
+  return single ? [single] : [];
+}
+
 function findFirstByIncludes(items, matchPath, includesValue) {
   if (!Array.isArray(items)) return null;
-  const needle = String(includesValue || "").toLowerCase();
-  if (!needle) return null;
+  const needles = toIncludesNeedles(includesValue);
+  if (needles.length === 0) return null;
   const pathStr = String(matchPath || "").trim();
   if (!pathStr) return null;
 
   for (const item of items) {
     const candidate = String(getByDotPath(item, pathStr) ?? "").toLowerCase();
-    if (candidate.includes(needle)) {
+    if (needles.some((needle) => candidate.includes(needle))) {
       return item;
     }
   }
@@ -86,9 +94,9 @@ function findFirstByIncludesInAnyArray(arrays, matchPath, includesValue) {
 }
 
 function deepFindFirstByIncludes(root, matchPath, includesValue) {
-  const needle = String(includesValue || "").toLowerCase();
+  const needles = toIncludesNeedles(includesValue);
   const pathStr = String(matchPath || "").trim();
-  if (!needle || !pathStr) {
+  if (needles.length === 0 || !pathStr) {
     return null;
   }
 
@@ -102,7 +110,7 @@ function deepFindFirstByIncludes(root, matchPath, includesValue) {
     const candidateValue = getByDotPath(current, pathStr);
     if (candidateValue != null) {
       const candidate = String(candidateValue ?? "").toLowerCase();
-      if (candidate.includes(needle)) {
+      if (needles.some((needle) => candidate.includes(needle))) {
         return current;
       }
     }
@@ -188,6 +196,25 @@ function fillBodyPlaceholders(body, replacements) {
   return result;
 }
 
+function parseAccessoRetailAmount(value) {
+  if (value == null) return "";
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value).trim();
+  }
+  if (Array.isArray(value)) {
+    for (const entry of value) {
+      const candidate = parseAccessoRetailAmount(entry);
+      if (candidate) return candidate;
+    }
+    return "";
+  }
+  if (typeof value === "object") {
+    if (value.retail_amount != null) return String(value.retail_amount).trim();
+    if (value.retailAmount != null) return String(value.retailAmount).trim();
+  }
+  return "";
+}
+
 async function fetchText(url, method = "GET", headers = {}, body = null) {
   const normalizedBody = normalizeRequestBody(body);
   const normalizedHeaders = normalizedBody ? ensureJsonContentType(headers) : headers;
@@ -260,6 +287,7 @@ async function main() {
   const sources = Array.isArray(config?.sources) ? config.sources : [];
   const overrides = {};
   const updatedAt = formatTodayYmdUtc();
+  let missingCount = 0;
 
   for (const source of sources) {
     const park = String(source?.park || "").trim();
@@ -299,27 +327,42 @@ async function main() {
       const includesValue = extract?.match?.includes ?? extract?.matchIncludes;
       const valuePath = extract?.value?.path ?? extract?.valuePath;
       const item = findFirstByIncludesInAnyArray(arrays, matchPath, includesValue);
-      extracted = item && valuePath ? String(getByDotPath(item, valuePath) ?? "").trim() : "";
+      extracted = item && valuePath
+        ? parseAccessoRetailAmount(getByDotPath(item, valuePath))
+        : "";
     } else if (extractType === "json-deep-search") {
       const json = await fetchJson(url.toString(), method, headers, body);
       const matchPath = extract?.match?.path ?? extract?.matchPath;
       const includesValue = extract?.match?.includes ?? extract?.matchIncludes;
       const valuePath = extract?.value?.path ?? extract?.valuePath;
       const item = deepFindFirstByIncludes(json, matchPath, includesValue);
-      extracted = item && valuePath ? String(getByDotPath(item, valuePath) ?? "").trim() : "";
+      extracted = item && valuePath
+        ? parseAccessoRetailAmount(getByDotPath(item, valuePath))
+        : "";
     } else {
       const text = await fetchText(url.toString(), method, headers, body);
       extracted = extractViaRegex(text, extract?.pattern);
     }
 
     const normalized = normalizePriceString(extracted);
-    if (!normalized) continue;
+    if (!normalized) {
+      missingCount += 1;
+      console.warn(`No price extracted for ${park} / ${passType} (${url.toString()})`);
+      continue;
+    }
 
     overrides[park] ??= {};
     overrides[park][passType] = {
       price: normalized,
       updatedAt
     };
+  }
+
+  if (sources.length > 0 && Object.keys(overrides).length === 0) {
+    throw new Error("No overrides generated (all sources failed). Refusing to overwrite price-overrides.js.");
+  }
+  if (missingCount > 0) {
+    throw new Error(`${missingCount} price source(s) failed to extract. Refusing to overwrite price-overrides.js.`);
   }
 
   const output = `// AUTO-GENERATED by scripts/update-price-overrides.mjs\n// Do not edit by hand (edit scripts/price-sources.json instead).\n\nwindow.priceOverrides = ${stableStringify(overrides)};\n`;

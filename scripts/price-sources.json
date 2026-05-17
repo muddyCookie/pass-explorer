@@ -87,7 +87,7 @@
           "SERVICE.GROUPS.GROUP",
           "SERVICE.MULTIPACKS.MP"
         ],
-        "match": { "path": "name", "includes": "2026 Prestige Pass" },
+        "match": { "path": "name", "includes": ["2026 Prestige Pass", "Prestige Pass"] },
         "value": { "path": "CT.retail_amount" }
       }
     },
