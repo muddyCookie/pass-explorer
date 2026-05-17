@@ -146,17 +146,58 @@ function toMatchPaths(matchPath) {
   return single ? [single] : [];
 }
 
+function buildMatchPredicate(match) {
+  const matchObj = match && typeof match === "object" ? match : {};
+  const includes = matchObj.includes ?? matchObj.contains ?? null;
+  const equals = matchObj.equals ?? matchObj.eq ?? null;
+  const regex = matchObj.regex ?? matchObj.pattern ?? null;
+  const caseSensitive = Boolean(matchObj.caseSensitive ?? false);
+
+  if (regex != null && String(regex).trim()) {
+    const flags = String(matchObj.flags || (caseSensitive ? "" : "i"));
+    const re = new RegExp(String(regex), flags.includes("i") || caseSensitive ? flags : `${flags}i`);
+    return (candidate) => {
+      const value = String(candidate ?? "");
+      return re.test(value);
+    };
+  }
+
+  if (equals != null && (Array.isArray(equals) ? equals.length > 0 : String(equals).trim())) {
+    const needles = Array.isArray(equals) ? equals : [equals];
+    const normalizedNeedles = needles
+      .map((value) => String(value ?? "").trim())
+      .filter(Boolean)
+      .map((value) => caseSensitive ? value : value.toLowerCase());
+    return (candidate) => {
+      const value = String(candidate ?? "").trim();
+      if (!value) return false;
+      const normalizedValue = caseSensitive ? value : value.toLowerCase();
+      return normalizedNeedles.some((needle) => normalizedValue === needle);
+    };
+  }
+
+  const needles = toIncludesNeedles(includes);
+  if (needles.length > 0) {
+    return (candidate) => {
+      const value = String(candidate ?? "").toLowerCase();
+      return needles.some((needle) => value.includes(needle));
+    };
+  }
+
+  return null;
+}
+
 function findFirstByIncludes(items, matchPath, includesValue) {
   if (!Array.isArray(items)) return null;
-  const needles = toIncludesNeedles(includesValue);
-  if (needles.length === 0) return null;
   const matchPaths = toMatchPaths(matchPath);
   if (matchPaths.length === 0) return null;
+  const predicate = buildMatchPredicate({ includes: includesValue });
+  if (!predicate) return null;
 
   for (const item of items) {
     for (const pathStr of matchPaths) {
-      const candidate = String(getByDotPath(item, pathStr) ?? "").toLowerCase();
-      if (needles.some((needle) => candidate.includes(needle))) {
+      const candidate = getByDotPath(item, pathStr);
+      if (predicate(candidate)) {
         return item;
       }
     }
@@ -206,11 +247,58 @@ function deepFindFirstValueByKey(root, keyName) {
   return undefined;
 }
 
+function deepFindFirstByKeyEqualsWithValue(root, keyName, keyValue, valuePath) {
+  const keyNeedle = String(keyName || "").trim().toLowerCase();
+  if (!keyNeedle) return null;
+  if (keyValue == null || keyValue === "") return null;
+  const valuePathStr = String(valuePath || "").trim();
+  if (!valuePathStr) return null;
+
+  const normalizedKeyValue = String(keyValue).trim().toLowerCase();
+  if (!normalizedKeyValue) return null;
+
+  const stack = [root];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current || typeof current !== "object") continue;
+
+    if (!Array.isArray(current)) {
+      const matchingKey = Object.keys(current).find((key) => key.toLowerCase() === keyNeedle);
+      if (matchingKey != null) {
+        const candidateId = String(current[matchingKey] ?? "").trim().toLowerCase();
+        if (candidateId && candidateId === normalizedKeyValue) {
+          let valueAtPath = getByDotPath(current, valuePathStr);
+          if (!valueAtPath && !valuePathStr.includes(".")) {
+            valueAtPath = deepFindFirstValueByKey(current, valuePathStr);
+          }
+          const valueCandidate = parseAccessoRetailAmount(valueAtPath);
+          if (valueCandidate) {
+            return current;
+          }
+        }
+      }
+    }
+
+    if (Array.isArray(current)) {
+      for (const entry of current) stack.push(entry);
+      continue;
+    }
+
+    for (const value of Object.values(current)) {
+      if (value && typeof value === "object") {
+        stack.push(value);
+      }
+    }
+  }
+
+  return null;
+}
+
 function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valuePath) {
-  const needles = toIncludesNeedles(includesValue);
   const matchPaths = toMatchPaths(matchPath);
   const valuePathStr = String(valuePath || "").trim();
-  if (needles.length === 0 || matchPaths.length === 0 || !valuePathStr) {
+  const predicate = buildMatchPredicate(includesValue);
+  if (!predicate || matchPaths.length === 0 || !valuePathStr) {
     return null;
   }
 
@@ -224,8 +312,7 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
     for (const pathStr of matchPaths) {
       const candidateValue = getByDotPath(current, pathStr);
       if (candidateValue == null) continue;
-      const candidate = String(candidateValue ?? "").toLowerCase();
-      if (!needles.some((needle) => candidate.includes(needle))) continue;
+      if (!predicate(candidateValue)) continue;
 
       let valueAtPath = getByDotPath(current, valuePathStr);
       if (!valueAtPath && !valuePathStr.includes(".")) {
@@ -234,6 +321,20 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
       const valueCandidate = parseAccessoRetailAmount(valueAtPath);
       if (valueCandidate) {
         return current;
+      }
+
+      // Some bootstrap payloads include "alias" objects with the right name/label but without pricing.
+      // Try to resolve the "real" package by common id keys and then read the pricing from there.
+      const idKeys = ["id", "package_id", "packageId", "vendor_product_id", "vendorProductId"];
+      for (const idKey of idKeys) {
+        const idValue = getByDotPath(current, idKey);
+        if (typeof idValue !== "string" && typeof idValue !== "number") {
+          continue;
+        }
+        const resolved = deepFindFirstByKeyEqualsWithValue(root, idKey, idValue, valuePathStr);
+        if (resolved) {
+          return resolved;
+        }
       }
     }
 
@@ -594,9 +695,9 @@ async function main() {
       jsonForDebug = json;
       const arrays = collectAllArraysByDotPaths(json, extract?.arrayPath ?? extract?.arrayPaths);
       const matchPath = extract?.match?.path ?? extract?.matchPath;
-      const includesValue = extract?.match?.includes ?? extract?.matchIncludes;
+      const matchSpec = extract?.match ?? extract?.matchSpec ?? { includes: extract?.matchIncludes };
       const valuePath = extract?.value?.path ?? extract?.valuePath;
-      const item = findFirstByIncludesInAnyArray(arrays, matchPath, includesValue);
+      const item = findFirstByIncludesInAnyArray(arrays, matchPath, matchSpec?.includes ?? matchSpec);
       extracted = item && valuePath
         ? parseAccessoRetailAmount(getByDotPath(item, valuePath))
         : "";
@@ -604,9 +705,9 @@ async function main() {
       const json = await fetchJson(url.toString(), method, headers, body);
       jsonForDebug = json;
       const matchPath = extract?.match?.path ?? extract?.matchPath;
-      const includesValue = extract?.match?.includes ?? extract?.matchIncludes;
+      const matchSpec = extract?.match ?? extract?.matchSpec ?? { includes: extract?.matchIncludes };
       const valuePath = extract?.value?.path ?? extract?.valuePath;
-      const item = deepFindFirstByIncludesWithValue(json, matchPath, includesValue, valuePath);
+      const item = deepFindFirstByIncludesWithValue(json, matchPath, matchSpec, valuePath);
       extracted = item ? parseAccessoRetailAmount(getByDotPath(item, valuePath)) : "";
     } else {
       const text = await fetchText(url.toString(), method, headers, body);

@@ -67,8 +67,8 @@
         }
       ],
       "passes": [
-        { "passType": "Gold", "passLabel": "2026 Gold Pass" },
-        { "passType": "Prestige", "passLabel": "2026 Prestige Pass" }
+        { "passType": "Gold", "passLabel": "2026 GOLD PASS", "extract": { "match": { "equals": "{passLabel}" } } },
+        { "passType": "Prestige", "passLabel": "2026 PRESTIGE PASS", "extract": { "match": { "equals": "{passLabel}" } } }
       ]
     },
     {
@@ -135,9 +135,9 @@
         }
       ],
       "passes": [
-        { "passType": "Gold", "passLabel": "2026 Gold Pass" },
+        { "passType": "Gold", "passLabel": "2026 GOLD PASS", "extract": { "match": { "equals": "{passLabel}" } } },
         { "passType": "Gold Membership", "passLabel": "Gold Membership", "target": "pricing.monthly" },
-        { "passType": "Prestige", "passLabel": "2026 Prestige Pass" },
+        { "passType": "Prestige", "passLabel": "2026 PRESTIGE PASS", "extract": { "match": { "equals": "{passLabel}" } } },
         { "passType": "Prestige Membership", "passLabel": "Prestige Membership", "target": "pricing.monthly" }
       ]
     }
