@@ -191,11 +191,6 @@
       } else {
         unlockPageScroll();
       }
-
-      // Let other modules (like the disclaimer banner) react without fighting layout.
-      if (typeof window.PassExplorer?.onSidebarToggle === "function") {
-        window.PassExplorer.onSidebarToggle(isOpen);
-      }
     }
 
     function setDesktopCollapsed(collapsed) {

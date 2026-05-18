@@ -11,7 +11,6 @@
   const pricingNoticeBannerDetails = document.getElementById("pricingNoticeBannerDetails");
   const pricingNoticeBannerDismiss = document.getElementById("pricingNoticeBannerDismiss");
   const pricingNoticeFooterDetails = document.getElementById("pricingNoticeFooterDetails");
-  const resultsDisclaimerBtn = document.getElementById("resultsDisclaimerBtn");
   const pricingNoticeDialog = document.getElementById("pricingNoticeDialog");
   const pricingNoticeDialogClose = document.getElementById("pricingNoticeDialogClose");
 
@@ -108,7 +107,6 @@
 
     pricingNoticeBannerDetails?.addEventListener("click", openDialog);
     pricingNoticeFooterDetails?.addEventListener("click", openDialog);
-    resultsDisclaimerBtn?.addEventListener("click", openDialog);
     pricingNoticeBannerDismiss?.addEventListener("click", dismissBanner);
     pricingNoticeDialogClose?.addEventListener("click", closeDialog);
 
@@ -132,9 +130,6 @@
     } else {
       window.addEventListener("resize", () => updateNoticeOffset(), { passive: true });
     }
-
-    // When the mobile sidebar opens/closes we can lose sticky behavior; keep offsets in sync.
-    pe.onSidebarToggle = () => updateNoticeOffset();
 
     pe.openPricingNotice = openDialog;
     pe.dismissPricingNoticeBanner = dismissBanner;

@@ -136,18 +136,13 @@ body.is-scroll-locked {
 .notice-banner {
   position: sticky;
   top: 0.75rem;
-  z-index: 201;
+  z-index: 10;
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--border);
   background: var(--surface);
   border-radius: 16px;
   box-shadow: var(--shadow);
   margin-top: 1rem;
-}
-
-/* Keep the disclaimer banner visible above filters and dropdown overlays while still remaining in normal flow. */
-:root.pe-sidebar-open .notice-banner {
-  z-index: 201;
 }
 
 .notice-banner__content {
@@ -491,17 +486,6 @@ h1 {
   backface-visibility: hidden;
 }
 
-/* Firefox (esp. Android) can "jitter" fixed-position elements when GPU transforms are applied. */
-@supports (-moz-appearance: none) {
-  .filter-toggle {
-    will-change: auto;
-    -webkit-transform: none;
-    transform: none;
-    backface-visibility: visible;
-    contain: paint;
-  }
-}
-
 .filter-toggle[aria-expanded="true"] {
   opacity: 0;
   pointer-events: none;
@@ -742,44 +726,6 @@ input[type="search"]::-webkit-search-cancel-button {
   font-size: 1.2rem;
 }
 
-.results-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.results-header .section-title {
-  margin: 1.4rem 0 0.9rem;
-}
-
-.results-disclaimer-btn {
-  border: 1px solid var(--btn-border);
-  background: linear-gradient(180deg, var(--btn-surface) 0%, var(--btn-surface-2) 100%);
-  color: var(--btn-ink);
-  border-radius: 999px;
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  padding: 0.35rem 0.75rem;
-  cursor: pointer;
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
-  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease, color 160ms ease;
-  align-self: center;
-  white-space: nowrap;
-}
-
-.results-disclaimer-btn:hover,
-.results-disclaimer-btn:focus-visible {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--btn-hover-ink);
-  outline: none;
-  transform: translateY(-1px);
-  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.14);
-}
-
 .pass-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -830,6 +776,37 @@ input[type="search"]::-webkit-search-cancel-button {
   align-items: flex-end;
   gap: 0.15rem;
   text-align: right;
+}
+
+.pass-price-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.price-info-btn {
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted-ink);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.price-info-btn:hover,
+.price-info-btn:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .pass-price-sub {
