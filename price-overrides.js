@@ -61,11 +61,11 @@ window.priceOverrides = {
   "Canada's Wonderland": {
     "Gold": {
       "updatedAt": "2026-05-18",
-      "price": "$135.00"
+      "price": "$89.00"
     },
     "Prestige": {
       "updatedAt": "2026-05-18",
-      "price": "$215.00"
+      "price": "$210.00"
     }
   },
   "Carowinds": {
@@ -115,7 +115,7 @@ window.priceOverrides = {
     },
     "Prestige": {
       "updatedAt": "2026-05-18",
-      "price": "$325.00"
+      "price": "$275.00"
     }
   },
   "Knott's Berry Farm": {
@@ -175,7 +175,7 @@ window.priceOverrides = {
   "Six Flags Discovery Kingdom": {
     "Gold": {
       "updatedAt": "2026-05-18",
-      "price": "$85.00"
+      "price": "$0.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-05-18",
@@ -224,7 +224,7 @@ window.priceOverrides = {
     "Gold Membership": {
       "updatedAt": "2026-05-18",
       "pricing": {
-        "monthly": "$8.00"
+        "monthly": "$7.25"
       }
     },
     "Prestige": {
@@ -263,7 +263,7 @@ window.priceOverrides = {
   "Six Flags Magic Mountain": {
     "Gold": {
       "updatedAt": "2026-05-18",
-      "price": "$115.00"
+      "price": "$0.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-05-18",
@@ -312,7 +312,7 @@ window.priceOverrides = {
     "Gold Membership": {
       "updatedAt": "2026-05-18",
       "pricing": {
-        "monthly": "$7.00"
+        "monthly": "$6.25"
       }
     },
     "Prestige": {
