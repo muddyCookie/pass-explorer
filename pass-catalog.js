@@ -239,11 +239,44 @@ function getPriceOverride(parkName, passType) {
   if (!catalog || typeof catalog !== "object") {
     return null;
   }
-  const parkOverrides = catalog[parkName];
-  if (!parkOverrides || typeof parkOverrides !== "object") {
+  const safeParkName = String(parkName || "").trim();
+  const safePassType = String(passType || "").trim();
+
+  const parkOverrides = catalog[safeParkName];
+  const resolvedParkOverrides = parkOverrides && typeof parkOverrides === "object"
+    ? parkOverrides
+    : (() => {
+      const normalize = (value) => String(value || "")
+        .toLowerCase()
+        .replace(/[’']/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      const normalized = normalize(safeParkName);
+      if (!normalized) return null;
+
+      // Build a lookup map once so we can tolerate small naming differences
+      // (ex: "Kings Island" vs "King's Island") across data sources.
+      if (!getPriceOverride._normalizedParkMap || getPriceOverride._normalizedParkMapCatalog !== catalog) {
+        const map = new Map();
+        for (const key of Object.keys(catalog)) {
+          map.set(normalize(key), key);
+        }
+        getPriceOverride._normalizedParkMap = map;
+        getPriceOverride._normalizedParkMapCatalog = catalog;
+      }
+
+      const mappedKey = getPriceOverride._normalizedParkMap.get(normalized);
+      if (!mappedKey) return null;
+      const candidate = catalog[mappedKey];
+      return candidate && typeof candidate === "object" ? candidate : null;
+    })();
+
+  if (!resolvedParkOverrides) {
     return null;
   }
-  const override = parkOverrides[passType];
+
+  const override = resolvedParkOverrides[safePassType];
   return override && typeof override === "object" ? override : null;
 }
 

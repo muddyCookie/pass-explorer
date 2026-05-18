@@ -10,6 +10,7 @@
   const pricingNoticeBanner = document.getElementById("pricingNoticeBanner");
   const pricingNoticeBannerDetails = document.getElementById("pricingNoticeBannerDetails");
   const pricingNoticeBannerDismiss = document.getElementById("pricingNoticeBannerDismiss");
+  const pricingNoticeHeaderDetails = document.getElementById("pricingNoticeHeaderDetails");
   const pricingNoticeFooterDetails = document.getElementById("pricingNoticeFooterDetails");
   const pricingNoticeDialog = document.getElementById("pricingNoticeDialog");
   const pricingNoticeDialogClose = document.getElementById("pricingNoticeDialogClose");
@@ -64,6 +65,13 @@
       setNoticeOffset(rect.height + 12);
     }
 
+    function updateHeaderDetailsButton() {
+      if (!pricingNoticeHeaderDetails) return;
+      // While the banner is visible, we already have a "Details" button up top.
+      // After dismissing, surface the details button next to the results title.
+      pricingNoticeHeaderDetails.hidden = !pricingNoticeBanner.hidden;
+    }
+
     function openDialog() {
       if (supportsDialog) {
         if (!pricingNoticeDialog.open) pricingNoticeDialog.showModal();
@@ -87,6 +95,7 @@
     function dismissBanner() {
       pricingNoticeBanner.hidden = true;
       updateNoticeOffset();
+      updateHeaderDetailsButton();
       try {
         window.localStorage.setItem(storageKey, "1");
       } catch {
@@ -104,8 +113,10 @@
 
     pricingNoticeBanner.hidden = !bannerShouldShow();
     updateNoticeOffset();
+    updateHeaderDetailsButton();
 
     pricingNoticeBannerDetails?.addEventListener("click", openDialog);
+    pricingNoticeHeaderDetails?.addEventListener("click", openDialog);
     pricingNoticeFooterDetails?.addEventListener("click", openDialog);
     pricingNoticeBannerDismiss?.addEventListener("click", dismissBanner);
     pricingNoticeDialogClose?.addEventListener("click", closeDialog);

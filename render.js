@@ -326,15 +326,6 @@
       const passNameEl = node.querySelector(".pass-name");
       passNameEl.textContent = formatPassCardTitle(offer);
       node.querySelector(".pass-price").textContent = formatOfferPrice(offer);
-      const infoBtn = node.querySelector(".price-info-btn");
-      if (infoBtn) {
-        infoBtn.addEventListener("click", () => {
-          const open = typeof pe.openPricingNotice === "function" ? pe.openPricingNotice : null;
-          if (open) {
-            open();
-          }
-        });
-      }
 
       const priceSubEl = node.querySelector(".pass-price-sub");
       const priceNoteEl = node.querySelector(".pass-price-note");

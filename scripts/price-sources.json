@@ -30,7 +30,7 @@
       "extract": {
         "type": "json-deep-search",
         "match": { "path": ["name", "label"], "includes": "{passLabel}" },
-        "value": { "path": "CT" }
+        "value": { "path": "CT", "pick": "min" }
       }
     }
   },

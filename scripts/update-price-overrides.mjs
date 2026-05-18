@@ -310,6 +310,49 @@ function findFirstByIncludes(items, matchPath, matchSpecOrIncludes) {
   return null;
 }
 
+function parsePriceNumber(raw) {
+  const value = String(raw ?? "").trim();
+  if (!value) return NaN;
+  const match = /([0-9]+(?:[.,][0-9]{1,2})?)/.exec(value);
+  if (!match) return NaN;
+  return Number.parseFloat(match[1].replace(/,/g, ""));
+}
+
+function findBestByIncludes(items, matchPath, matchSpecOrIncludes, valuePath, pick) {
+  if (pick !== "min" && pick !== "max") {
+    return findFirstByIncludes(items, matchPath, matchSpecOrIncludes);
+  }
+  if (!Array.isArray(items)) return null;
+  const matchPaths = toMatchPaths(matchPath);
+  const valuePathStr = String(valuePath || "").trim();
+  if (matchPaths.length === 0 || !valuePathStr) return null;
+  const matchSpec = normalizeMatchSpec(matchSpecOrIncludes);
+  const predicate = buildMatchPredicate(matchSpec);
+  if (!predicate) return null;
+
+  const pickMin = pick === "min";
+  let best = null;
+  let bestAmount = pickMin ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+
+  for (const item of items) {
+    for (const pathStr of matchPaths) {
+      const candidate = getByDotPath(item, pathStr);
+      if (!predicate(candidate)) continue;
+      const rawAmount = parseAccessoRetailAmount(getByDotPath(item, valuePathStr));
+      if (!rawAmount) continue;
+      const amountNum = parsePriceNumber(rawAmount);
+      if (!Number.isFinite(amountNum)) continue;
+      const better = pickMin ? amountNum < bestAmount : amountNum > bestAmount;
+      if (better) {
+        bestAmount = amountNum;
+        best = item;
+      }
+    }
+  }
+
+  return best;
+}
+
 function findFirstByIncludesInAnyArray(arrays, matchPath, includesValue) {
   for (const items of arrays) {
     const match = findFirstByIncludes(items, matchPath, includesValue);
@@ -419,7 +462,7 @@ function extractAccessoAmountFromNode(node, valuePathStr) {
   return valueCandidate || "";
 }
 
-function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valuePath) {
+function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valuePath, pick) {
   const matchPaths = toMatchPaths(matchPath);
   const valuePathStr = String(valuePath || "").trim();
   const matchSpec = normalizeMatchSpec(includesValue);
@@ -427,6 +470,12 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
   if (!predicate || matchPaths.length === 0 || !valuePathStr) {
     return null;
   }
+
+  const pickMin = pick === "min";
+  const pickMax = pick === "max";
+  const shouldPick = pickMin || pickMax;
+  let bestNode = null;
+  let bestAmount = pickMin ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
 
   const stack = [root];
   while (stack.length > 0) {
@@ -449,23 +498,44 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
         matchValue: String(candidateValue ?? "").slice(0, 120)
       };
 
+      let resolvedNode = null;
       let valueCandidate = extractAccessoAmountFromNode(current, valuePathStr);
       if (valueCandidate) {
-        return current;
+        resolvedNode = current;
       }
 
       // Some bootstrap payloads include "alias" objects with the right name/label but without pricing.
       // Try to resolve the "real" package by common id keys and then read the pricing from there.
       const idKeys = ["id", "package_id", "packageId", "vendor_product_id", "vendorProductId"];
-      for (const idKey of idKeys) {
-        const idValue = getByDotPath(current, idKey);
-        if (typeof idValue !== "string" && typeof idValue !== "number") {
-          continue;
+      if (!resolvedNode) {
+        for (const idKey of idKeys) {
+          const idValue = getByDotPath(current, idKey);
+          if (typeof idValue !== "string" && typeof idValue !== "number") {
+            continue;
+          }
+          const resolved = deepFindFirstByKeyEqualsWithValue(root, idKey, idValue, valuePathStr);
+          if (!resolved) continue;
+          const resolvedValue = extractAccessoAmountFromNode(resolved, valuePathStr);
+          if (!resolvedValue) continue;
+          resolvedNode = resolved;
+          valueCandidate = resolvedValue;
+          break;
         }
-        const resolved = deepFindFirstByKeyEqualsWithValue(root, idKey, idValue, valuePathStr);
-        if (resolved) {
-          return resolved;
+      }
+
+      if (resolvedNode && valueCandidate) {
+        if (!shouldPick) {
+          return resolvedNode;
         }
+        const amountNum = parsePriceNumber(valueCandidate);
+        if (Number.isFinite(amountNum)) {
+          const better = pickMin ? amountNum < bestAmount : amountNum > bestAmount;
+          if (better) {
+            bestAmount = amountNum;
+            bestNode = resolvedNode;
+          }
+        }
+        continue;
       }
 
       // If we got here, we matched a node but could not find pricing. Expose a small hint upstream by
@@ -498,7 +568,7 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
     }
   }
 
-  return null;
+  return bestNode;
 }
 
 function deepCollectMatchCandidates(root, matchPath, limit = 20) {
@@ -922,7 +992,26 @@ async function main() {
       const matchPath = extract?.match?.path ?? extract?.matchPath;
       const matchSpec = extract?.match ?? extract?.matchSpec ?? { includes: extract?.matchIncludes };
       const valuePath = extract?.value?.path ?? extract?.valuePath;
-      const item = findFirstByIncludesInAnyArray(arrays, matchPath, matchSpec);
+      const pick = extract?.value?.pick ?? extract?.pick ?? null;
+      const item = (pick === "min" || pick === "max") && valuePath
+        ? (() => {
+          let best = null;
+          const pickMin = pick === "min";
+          let bestAmount = pickMin ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+          for (const items of arrays) {
+            const candidate = findBestByIncludes(items, matchPath, matchSpec, valuePath, pick);
+            if (!candidate) continue;
+            const amount = parsePriceNumber(parseAccessoRetailAmount(getByDotPath(candidate, valuePath)));
+            if (!Number.isFinite(amount)) continue;
+            const better = pickMin ? amount < bestAmount : amount > bestAmount;
+            if (better) {
+              bestAmount = amount;
+              best = candidate;
+            }
+          }
+          return best;
+        })()
+        : findFirstByIncludesInAnyArray(arrays, matchPath, matchSpec);
       extracted = item && valuePath
         ? parseAccessoRetailAmount(getByDotPath(item, valuePath))
         : "";
@@ -932,7 +1021,8 @@ async function main() {
       const matchPath = extract?.match?.path ?? extract?.matchPath;
       const matchSpec = extract?.match ?? extract?.matchSpec ?? { includes: extract?.matchIncludes };
       const valuePath = extract?.value?.path ?? extract?.valuePath;
-      const item = deepFindFirstByIncludesWithValue(json, matchPath, matchSpec, valuePath);
+      const pick = extract?.value?.pick ?? extract?.pick ?? null;
+      const item = deepFindFirstByIncludesWithValue(json, matchPath, matchSpec, valuePath, pick);
       extracted = item ? extractAccessoAmountFromNode(item, valuePath) : "";
     } else {
       const text = await fetchText(url.toString(), method, headers, body);

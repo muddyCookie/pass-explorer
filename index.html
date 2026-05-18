@@ -47,7 +47,10 @@
 
     <div class="content-layout">
       <section class="results-panel">
-        <h2 class="section-title">Available Season Passes</h2>
+        <div class="section-title-row">
+          <h2 class="section-title">Available Season Passes</h2>
+          <button id="pricingNoticeHeaderDetails" class="app-footer__link pricing-notice-header-btn" type="button" hidden>Disclaimer</button>
+        </div>
         <div id="passGrid" class="pass-grid" aria-live="polite"></div>
       </section>
 
@@ -150,8 +153,8 @@
 
     <footer class="app-footer" aria-label="Site information">
       <p class="app-footer__text">
-        Not a ticket seller • Prices may be out of date •
-        <button id="pricingNoticeFooterDetails" class="app-footer__link" type="button">Disclaimer</button>
+        <button id="pricingNoticeFooterDetails" class="app-footer__link" type="button">Disclaimer:</button>
+         Not a Ticket Seller | Prices are Estimates | No Affiliation | Contains External Links 
       </p>
     </footer>
   </main>
@@ -162,10 +165,10 @@
       <button id="pricingNoticeDialogClose" class="pe-dialog__close" type="button" aria-label="Close">Close</button>
     </div>
     <div id="pricingNoticeBody" class="pe-dialog__body">
-      <p><strong>Not a ticket seller:</strong> Pass Explorer does not sell tickets or passes. “Buy” links take you to the park’s official site (or its ticketing provider) to complete any purchase.</p>
-      <p><strong>Prices are estimates:</strong> Prices shown are for comparison only and may be out of date or incorrect. Always confirm the final price on the official checkout page before purchasing.</p>
-      <p><strong>No affiliation:</strong> Pass Explorer is not affiliated with, endorsed by, or sponsored by any park or ticket vendor.</p>
-      <p><strong>External links:</strong> Links open third‑party sites with their own terms and privacy policies.</p>
+      <p><strong>Not a Ticket Seller:</strong> Pass Explorer does not sell tickets or passes. “Buy This Pass” links take you to the park’s official site (or its ticketing provider) to complete any purchase.</p>
+      <p><strong>Prices are Estimates:</strong> Prices shown are for comparison only and may be out of date or incorrect. Always confirm the final price on the official checkout page before purchasing.</p>
+      <p><strong>No Affiliation:</strong> Pass Explorer is not affiliated with, endorsed by, or sponsored by any park or ticket vendor.</p>
+      <p><strong>Contains External Links:</strong> Links open third‑party sites with their own terms and privacy policies.</p>
     </div>
   </dialog>
 
@@ -176,7 +179,6 @@
         <div class="pass-price-stack">
           <div class="pass-price-row">
             <p class="pass-price"></p>
-            <button type="button" class="price-info-btn" aria-label="Disclaimer details" title="Disclaimer details">i</button>
           </div>
           <p class="pass-price-sub" hidden></p>
         </div>

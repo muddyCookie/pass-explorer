@@ -5,3 +5,4 @@
 // Keep overrides in this shape:
 // window.priceOverrides["Cedar Point"] = { Gold: { price: "$1" } };
 
+// Add local-only overrides below (optional).
