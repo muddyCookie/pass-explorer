@@ -948,7 +948,7 @@ async function main() {
         const hasEnchantedSection =
           /###(?:\\s|&nbsp;|&#160;)*Enchanted(?:\\s|&nbsp;|&#160;)+Passes/i.test(text) ||
           /Enchanted(?:\\s|&nbsp;|&#160;)+Passes/i.test(text);
-        const hasDollar = /(?:\\$|&#36;|&dollar;)\\s*[0-9]+\\.[0-9]{2}/i.test(text);
+        const hasDollar = /(?:\\$|&#36;|&dollar;)\\s*[0-9]+(?:\\.[0-9]{2})?/i.test(text);
         console.warn(
           `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
         );
