@@ -829,8 +829,13 @@ function extractViaRegex(text, pattern) {
     .replace(/<!--[\s\S]*?-->/g, "")
     // Normalize common HTML whitespace entities so `\s`-ish patterns work.
     .replace(/&nbsp;|&#160;/gi, " ");
+  const flattenedText = cleanedText
+    // Help regexes that expect "text flows" by reducing tags to spaces.
+    // (We keep the raw HTML available via `cleanedText` since some patterns may rely on markup.)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ");
   const regex = new RegExp(String(pattern), "i");
-  const match = regex.exec(cleanedText);
+  const match = regex.exec(cleanedText) || regex.exec(flattenedText);
   return match?.[1] ?? "";
 }
 
@@ -946,6 +951,11 @@ async function main() {
       }
       if (textForDebug && url.host.toLowerCase().includes("ticketspice.com")) {
         const text = String(textForDebug);
+        const flattened = text
+          .replace(/<!--[\s\S]*?-->/g, "")
+          .replace(/&nbsp;|&#160;/gi, " ")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ");
         const snippet = text.slice(0, 400).replace(/\s+/g, " ").trim();
         const tail = text.slice(Math.max(0, text.length - 400)).replace(/\s+/g, " ").trim();
         const hasHero = /Enchanted(?:\\s|&nbsp;|&#160;)+Hero(?:\\s|&nbsp;|&#160;)+Pass/i.test(text);
@@ -953,7 +963,7 @@ async function main() {
         const hasEnchantedSection =
           /###(?:\\s|&nbsp;|&#160;)*Enchanted(?:\\s|&nbsp;|&#160;)+Passes/i.test(text) ||
           /Enchanted(?:\\s|&nbsp;|&#160;)+Passes/i.test(text);
-        const hasDollar = /(?:\\$|&#36;|&dollar;)\\s*[0-9]+(?:\\.[0-9]{2})?/i.test(text);
+        const hasDollar = /(?:\\$|&#36;|&dollar;)\\s*[0-9]+(?:\\.[0-9]{2})?/i.test(flattened);
         console.warn(
           `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
         );
