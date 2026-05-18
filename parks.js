@@ -562,11 +562,11 @@ const parkCatalog = {
         state: "Michigan",
         passes: {
           Hero: {
-            price: "$65",
+            price: "$129.99",
             access: "Enchanted Parks"
           },
           Legend: {
-            price: "$90",
+            price: "$189.99",
             access: "Enchanted Parks"
           }
         }
@@ -577,11 +577,11 @@ const parkCatalog = {
         state: "New York",
         passes: {
           Hero: {
-            price: "$65",
+            price: "$65.99",
             access: "Enchanted Parks"
           },
           Legend: {
-            price: "$90",
+            price: "$90.99",
             access: "Enchanted Parks"
           }
         }
@@ -592,11 +592,11 @@ const parkCatalog = {
         state: "Missouri",
         passes: {
           Hero: {
-            price: "$65",
+            price: "$65.99",
             access: "Enchanted Parks"
           },
           Legend: {
-            price: "$90",
+            price: "$90.99",
             access: "Enchanted Parks"
           }
         }
@@ -607,11 +607,11 @@ const parkCatalog = {
         state: "Minnesota",
         passes: {
           Hero: {
-            price: "$65",
+            price: "$65.99",
             access: "Enchanted Parks"
           },
           Legend: {
-            price: "$90",
+            price: "$90.99",
             access: "Enchanted Parks"
           }
         }
@@ -622,11 +622,11 @@ const parkCatalog = {
         state: "Missouri",
         passes: {
           Hero: {
-            price: "$90",
+            price: "$65.99",
             access: "Enchanted Parks"
           },
           Legend: {
-            price: "$180",
+            price: "$90.99",
             access: "Enchanted Parks"
           }
         }

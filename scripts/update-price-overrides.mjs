@@ -945,6 +945,18 @@ async function main() {
         console.warn(
           `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
         );
+
+        const idx = text.search(/Enchanted/i);
+        if (idx >= 0) {
+          const around = text.slice(Math.max(0, idx - 250), Math.min(text.length, idx + 600)).replace(/\s+/g, " ").trim();
+          console.warn(`TicketSpice debug: enchantedAround=${JSON.stringify(around)}`);
+        } else {
+          const headingIdx = text.search(/####/);
+          if (headingIdx >= 0) {
+            const around = text.slice(Math.max(0, headingIdx - 250), Math.min(text.length, headingIdx + 600)).replace(/\s+/g, " ").trim();
+            console.warn(`TicketSpice debug: headingAround=${JSON.stringify(around)}`);
+          }
+        }
       }
       if (jsonForDebug && (extractType === "json-search" || extractType === "json-deep-search")) {
         const matchPath = extract?.match?.path ?? extract?.matchPath;
