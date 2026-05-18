@@ -934,7 +934,7 @@ async function main() {
       }
       if (textForDebug && url.host.toLowerCase().includes("ticketspice.com")) {
         const snippet = String(textForDebug).slice(0, 400).replace(/\s+/g, " ").trim();
-        console.warn(`TicketSpice debug: hasHero=${/Enchanted\\s+Hero\\s+Pass/i.test(textForDebug)} hasLegend=${/Enchanted\\s+Legend\\s+Pass/i.test(textForDebug)} hasDollar=${/\\$\\s*[0-9]+\\.[0-9]{2}/.test(textForDebug)} snippet=${JSON.stringify(snippet)}`);
+        console.warn(`TicketSpice debug: hasHero=${/Enchanted\\s+Hero\\s+Pass/i.test(textForDebug)} hasLegend=${/Enchanted\\s+Legend\\s+Pass/i.test(textForDebug)} hasDollar=${/(?:\\$|&#36;|&dollar;)\\s*[0-9]+\\.[0-9]{2}/i.test(textForDebug)} snippet=${JSON.stringify(snippet)}`);
       }
       if (jsonForDebug && (extractType === "json-search" || extractType === "json-deep-search")) {
         const matchPath = extract?.match?.path ?? extract?.matchPath;
