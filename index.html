@@ -26,6 +26,19 @@
         Compare pass prices and find which amusement parks are included!
       </p>
     </header>
+
+    <section id="pricingNoticeBanner" class="notice-banner" role="region" aria-label="Pricing notice" hidden>
+      <div class="notice-banner__content">
+        <p class="notice-banner__text">
+          Pass Explorer does not sell tickets. Prices are for comparison only and may be out of date—confirm on the official checkout page.
+        </p>
+        <div class="notice-banner__actions">
+          <button id="pricingNoticeBannerDetails" class="notice-banner__btn" type="button">Details</button>
+          <button id="pricingNoticeBannerDismiss" class="notice-banner__btn notice-banner__btn--quiet" type="button">Dismiss</button>
+        </div>
+      </div>
+    </section>
+
     <button id="toggleBtn" class="filter-toggle" aria-expanded="false" aria-label="Open filters">Filters</button>
     <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
@@ -131,14 +144,37 @@
         <p id="resultsMeta" class="results-meta"></p>
       </section>
     </div>
+
+    <footer class="app-footer" aria-label="Site information">
+      <p class="app-footer__text">
+        Not a ticket seller • Prices may be out of date •
+        <button id="pricingNoticeFooterDetails" class="app-footer__link" type="button">Details</button>
+      </p>
+    </footer>
   </main>
+
+  <dialog id="pricingNoticeDialog" class="pe-dialog" aria-labelledby="pricingNoticeTitle" aria-describedby="pricingNoticeBody">
+    <div class="pe-dialog__header">
+      <h2 id="pricingNoticeTitle" class="pe-dialog__title">Pricing notice</h2>
+      <button id="pricingNoticeDialogClose" class="pe-dialog__close" type="button" aria-label="Close">Close</button>
+    </div>
+    <div id="pricingNoticeBody" class="pe-dialog__body">
+      <p><strong>Not a ticket seller:</strong> Pass Explorer does not sell tickets or passes. “Buy” links take you to the park’s official site (or its ticketing provider) to complete any purchase.</p>
+      <p><strong>Prices are estimates:</strong> Prices shown are for comparison only and may be out of date or incorrect. Always confirm the final price on the official checkout page before purchasing.</p>
+      <p><strong>No affiliation:</strong> Pass Explorer is not affiliated with, endorsed by, or sponsored by any park or ticket vendor.</p>
+      <p><strong>External links:</strong> Links open third‑party sites with their own terms and privacy policies.</p>
+    </div>
+  </dialog>
 
   <template id="passCardTemplate">
     <article class="pass-card">
       <div class="card-top">
         <h3 class="pass-name"></h3>
         <div class="pass-price-stack">
-          <p class="pass-price"></p>
+          <div class="pass-price-row">
+            <p class="pass-price"></p>
+            <button type="button" class="price-info-btn" aria-label="Pricing notice details" title="Pricing notice details">i</button>
+          </div>
           <p class="pass-price-sub" hidden></p>
         </div>
       </div>
