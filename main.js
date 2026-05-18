@@ -49,6 +49,21 @@
       pricingNoticeDialog.style.display = "none";
     }
 
+    function setNoticeOffset(px) {
+      const value = Number.isFinite(px) && px > 0 ? `${Math.round(px)}px` : "0px";
+      document.documentElement.style.setProperty("--pe-notice-offset", value);
+    }
+
+    function updateNoticeOffset() {
+      if (pricingNoticeBanner.hidden) {
+        setNoticeOffset(0);
+        return;
+      }
+      const rect = pricingNoticeBanner.getBoundingClientRect();
+      // Add a small buffer so the sticky filters never visually touch the banner.
+      setNoticeOffset(rect.height + 12);
+    }
+
     function openDialog() {
       if (supportsDialog) {
         if (!pricingNoticeDialog.open) pricingNoticeDialog.showModal();
@@ -71,6 +86,7 @@
 
     function dismissBanner() {
       pricingNoticeBanner.hidden = true;
+      updateNoticeOffset();
       try {
         window.localStorage.setItem(storageKey, "1");
       } catch {
@@ -87,6 +103,7 @@
     }
 
     pricingNoticeBanner.hidden = !bannerShouldShow();
+    updateNoticeOffset();
 
     pricingNoticeBannerDetails?.addEventListener("click", openDialog);
     pricingNoticeFooterDetails?.addEventListener("click", openDialog);
@@ -105,6 +122,13 @@
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") closeDialog();
       });
+    }
+
+    if (typeof ResizeObserver !== "undefined") {
+      const ro = new ResizeObserver(() => updateNoticeOffset());
+      ro.observe(pricingNoticeBanner);
+    } else {
+      window.addEventListener("resize", () => updateNoticeOffset(), { passive: true });
     }
 
     pe.openPricingNotice = openDialog;
