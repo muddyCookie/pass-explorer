@@ -719,7 +719,7 @@ function expandSourcesFromConfig(config) {
         if (excludedPassTypes.includes(passType)) continue;
 
         const passLabel = String(passEntry?.passLabel || passType).trim();
-        const passLabelRegex = escapeRegexLiteral(passLabel).replace(/\s+/g, "\\s+");
+        const passLabelRegex = escapeRegexLiteral(passLabel).replace(/\s+/g, "(?:\\\\s|&nbsp;|&#160;)+");
 
         const currency = String(
           passEntry?.currency || parkEntry?.currency || genDefaults?.currency || ""
@@ -936,9 +936,11 @@ async function main() {
         const text = String(textForDebug);
         const snippet = text.slice(0, 400).replace(/\s+/g, " ").trim();
         const tail = text.slice(Math.max(0, text.length - 400)).replace(/\s+/g, " ").trim();
-        const hasHero = /Enchanted\\s+Hero\\s+Pass/i.test(text);
-        const hasLegend = /Enchanted\\s+Legend\\s+Pass/i.test(text);
-        const hasEnchantedSection = /###\\s*Enchanted\\s+Passes/i.test(text) || /Enchanted\\s+Passes/i.test(text);
+        const hasHero = /Enchanted(?:\\s|&nbsp;|&#160;)+Hero(?:\\s|&nbsp;|&#160;)+Pass/i.test(text);
+        const hasLegend = /Enchanted(?:\\s|&nbsp;|&#160;)+Legend(?:\\s|&nbsp;|&#160;)+Pass/i.test(text);
+        const hasEnchantedSection =
+          /###(?:\\s|&nbsp;|&#160;)*Enchanted(?:\\s|&nbsp;|&#160;)+Passes/i.test(text) ||
+          /Enchanted(?:\\s|&nbsp;|&#160;)+Passes/i.test(text);
         const hasDollar = /(?:\\$|&#36;|&dollar;)\\s*[0-9]+\\.[0-9]{2}/i.test(text);
         console.warn(
           `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
@@ -962,9 +964,9 @@ async function main() {
       const targetPath = String(source?.target || "price").trim() || "price";
       const fallback = getByDotPath(existingOverrides?.[park]?.[passType], targetPath);
       const baseFallback = getBaseFallbackValue(passByParkName, park, passType, targetPath);
-      const resolvedFallback = (fallback != null && String(fallback).trim())
-        ? String(fallback).trim()
-        : (baseFallback ? String(baseFallback).trim() : "");
+      const resolvedFallback = baseFallback
+        ? String(baseFallback).trim()
+        : ((fallback != null && String(fallback).trim()) ? String(fallback).trim() : "");
 
       if (resolvedFallback) {
         overrides[park] ??= {};

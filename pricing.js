@@ -16,10 +16,12 @@ function convertToUsd(amount, currency = "USD") {
 }
 
 function formatUsd(amount) {
+  const fractionDigits = Number.isFinite(amount) && Math.abs(amount % 1) > 1e-9 ? 2 : 0;
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    maximumFractionDigits: 0
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits
   }).format(amount);
 }
 
@@ -29,16 +31,18 @@ function formatCurrency(amount, code = "USD") {
     return "";
   }
 
+  const fractionDigits = Math.abs(amount % 1) > 1e-9 ? 2 : 0;
   try {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency,
-      maximumFractionDigits: 0
+      minimumFractionDigits: fractionDigits,
+      maximumFractionDigits: fractionDigits
     }).format(amount);
   } catch {
     return currency === "USD"
-      ? `$${Math.round(amount)}`
-      : `${currency} ${Math.round(amount)}`;
+      ? `$${amount.toFixed(fractionDigits)}`
+      : `${currency} ${amount.toFixed(fractionDigits)}`;
   }
 }
 
