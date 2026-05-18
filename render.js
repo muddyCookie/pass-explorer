@@ -1,21 +1,6 @@
 (function initRenderModule() {
   const pe = window.PassExplorer = window.PassExplorer || {};
 
-  function parseDateOnlyYmdToUtcDate(value) {
-    const ymd = String(value || "").trim();
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd);
-    if (!match) {
-      return null;
-    }
-    const year = Number(match[1]);
-    const monthIndex = Number(match[2]) - 1;
-    const day = Number(match[3]);
-    if (!Number.isFinite(year) || !Number.isFinite(monthIndex) || !Number.isFinite(day)) {
-      return null;
-    }
-    return new Date(Date.UTC(year, monthIndex, day));
-  }
-
   function formatDurationMonths(months) {
     const numeric = Number(months);
     if (!Number.isFinite(numeric) || numeric <= 0) {
@@ -50,62 +35,6 @@
     const lastDayOfTargetMonth = new Date(Date.UTC(tentative.getUTCFullYear(), tentative.getUTCMonth() + 1, 0)).getUTCDate();
     const clampedDay = Math.min(day, lastDayOfTargetMonth);
     return new Date(Date.UTC(tentative.getUTCFullYear(), tentative.getUTCMonth(), clampedDay));
-  }
-
-  function formatAccessThroughTag(accessEndYmd) {
-    const endDate = parseDateOnlyYmdToUtcDate(accessEndYmd);
-    if (!endDate) {
-      return "";
-    }
-    const longDate = new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      timeZone: "UTC"
-    }).format(endDate);
-    return `thru ${longDate}`;
-  }
-
-  function formatAccessThroughDateTag(dateUtc) {
-    if (!(dateUtc instanceof Date) || !Number.isFinite(dateUtc.getTime())) {
-      return "";
-    }
-    const longDate = new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      timeZone: "UTC"
-    }).format(dateUtc);
-    return `thru ${longDate}`;
-  }
-
-  function setupParkExpiryToggle(cardEl) {
-    const toggle = cardEl.querySelector(".park-access-toggle");
-    if (!toggle) {
-      return;
-    }
-
-    const setExpanded = (expanded) => {
-      toggle.setAttribute("aria-expanded", String(expanded));
-      for (const el of cardEl.querySelectorAll(".park-tag-expiry")) {
-        el.hidden = !expanded;
-      }
-    };
-
-    setExpanded(false);
-    toggle.addEventListener("click", () => {
-      const expanded = toggle.getAttribute("aria-expanded") === "true";
-      setExpanded(!expanded);
-    });
-
-    toggle.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" && event.key !== " ") {
-        return;
-      }
-      event.preventDefault();
-      const expanded = toggle.getAttribute("aria-expanded") === "true";
-      setExpanded(!expanded);
-    });
   }
 
   function getOfferNumericPrice(offer) {
@@ -420,11 +349,6 @@
 
       const sortedParksToDisplay = [...offer.expandedParks].sort((a, b) => a.localeCompare(b));
       const parkList = node.querySelector(".park-list");
-      const isMembership = offer?.pricing?.type === "membership";
-      const membershipDurationMonths = offer?.accessDurationMonths ?? offer?.pricing?.minMonths ?? 12;
-      const membershipThroughDate = isMembership && !offer?.accessEndOverride
-        ? addMonthsUtc(getTodayUtcDateOnly(), membershipDurationMonths)
-        : null;
       for (const parkName of sortedParksToDisplay) {
         const li = document.createElement("li");
         const parkLink = document.createElement("a");
@@ -434,20 +358,6 @@
         parkLink.rel = "noopener noreferrer";
         parkLink.textContent = parkName;
         li.appendChild(parkLink);
-
-        const accessEnd = parkByName?.[parkName]?.accessEnd || "";
-        const expiryText = isMembership
-          ? (offer?.accessEndOverride
-              ? formatAccessThroughTag(offer.accessEndOverride)
-              : formatAccessThroughDateTag(membershipThroughDate))
-          : formatAccessThroughTag(accessEnd);
-        if (expiryText) {
-          const expiryEl = document.createElement("span");
-          expiryEl.className = "park-tag-expiry";
-          expiryEl.textContent = expiryText;
-          expiryEl.hidden = true;
-          li.appendChild(expiryEl);
-        }
         parkList.appendChild(li);
       }
 
@@ -467,7 +377,6 @@
       }
 
       passGrid.appendChild(node);
-      setupParkExpiryToggle(cardEl);
       setupParkToggle(cardEl);
     });
   }

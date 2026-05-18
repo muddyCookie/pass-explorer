@@ -80,15 +80,13 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
   const parkGroup = normalizeGroupName(parkConfig.group);
   const links = buildParkLinksForCompany(company, parkConfig);
   const location = getParkLocationForConfig(parkName, parkConfig);
-  const accessEnd = normalizeAccessEnd(parkConfig?.accessEnd ?? parkConfig?.seasonEnd ?? parkConfig?.seasonEnds);
   const parkEntry = {
     name: parkName,
     company,
     website: links.website,
     passPurchaseUrl: links.passPurchaseUrl,
     country: location.country,
-    state: location.state,
-    accessEnd
+    state: location.state
   };
 
   parkDirectory.push(parkEntry);
@@ -560,8 +558,6 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       disclaimer: String(passDefinition.disclaimer || parkConfig.disclaimer || "").trim(),
       passPurchaseUrl: resolvedTierPassUrl || resolvedFallbackUrl,
       accessibleParks,
-      accessEnd: normalizeAccessEnd(parkConfig?.accessEnd ?? parkConfig?.seasonEnd ?? parkConfig?.seasonEnds),
-      accessEndOverride: normalizeAccessEnd(passDefinition?.accessEnd ?? passDefinition?.seasonEnd ?? passDefinition?.seasonEnds),
       accessDurationMonths: normalizeAccessDurationMonths(passDefinition?.accessDurationMonths ?? passDefinition?.durationMonths),
       explicitParkingIncludedParks: hasExplicitParkingConfig
         ? resolveExplicitParkingIncludedParks(expandedAccessibleParks, passParkingConfig, parkName)

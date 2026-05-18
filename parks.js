@@ -45,7 +45,7 @@ const parkCatalog = {
         state: "California",
         passes: {
           Gold: {
-            price: "$85",
+            price: "$130",
             access: "Six Flags West",
             noParking: "Knott's Berry Farm"
           }
@@ -55,15 +55,14 @@ const parkCatalog = {
         park: "Knott's Berry Farm",
         slug: "knotts",
         state: "California",
-        accessEnd: "2026-12-31",
         passes: {
           Gold: {
-            price: "$150",
+            price: "$240",
             access: "Six Flags West",
             noParking: "Knott's Berry Farm"
           },
           Prestige: {
-            price: "$300",
+            price: "$399",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -73,10 +72,9 @@ const parkCatalog = {
         park: "Six Flags Discovery Kingdom",
         slug: "discoverykingdom",
         state: "California",
-        accessEnd: "2026-12-31",
         passes: {
           Gold: {
-            price: "$85",
+            price: "$130",
             access: "Six Flags West",
             noParking: "Knott's Berry Farm"
           },
@@ -91,7 +89,7 @@ const parkCatalog = {
             noParking: "Knott's Berry Farm"
           },
           Prestige: {
-            price: "$145",
+            price: "$200",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
@@ -113,7 +111,7 @@ const parkCatalog = {
         state: "California",
         passes: {
           Gold: {
-            price: "$115",
+            price: "$135",
             access: "Six Flags West",
             noParking: "Knott's Berry Farm"
           },
@@ -128,7 +126,7 @@ const parkCatalog = {
             noParking: "Knott's Berry Farm"
           },
           Prestige: {
-            price: "$250",
+            price: "$299",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
@@ -157,7 +155,7 @@ const parkCatalog = {
             noParking: "Knott's Berry Farm"
           },
           Prestige: {
-            price: "$1999",
+            price: "$2900",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -168,7 +166,6 @@ const parkCatalog = {
       {
         park: "Canada's Wonderland",
         slug: "canadaswonderland",
-        accessEnd: "2026-09-07",
         currency: "CAD",
         country: "Canada",
         state: "Ontario",
@@ -187,16 +184,15 @@ const parkCatalog = {
       {
         park: "Cedar Point",
         slug: "cedarpoint",
-        accessEnd: "2026-10-31",
         state: "Ohio",
         passes: {
           Gold: {
-            price: "$149",
+            price: "$195",
             access: "Six Flags Midwest",
             noParking: ["Canada's Wonderland"]
           },
           Prestige: {
-            price: "$300",
+            price: "$350",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -208,12 +204,12 @@ const parkCatalog = {
         state: "Ohio",
         passes: {
           Gold: {
-            price: "$145",
+            price: "$180",
             access: "Six Flags Midwest",
             noParking: ["Canada's Wonderland"]
           },
           Prestige: {
-            price: "$275",
+            price: "$350",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -225,7 +221,7 @@ const parkCatalog = {
         state: "New York",
         passes: {
           Gold: {
-            price: "$75",
+            price: "$95",
             access: "Six Flags Midwest",
             noParking: ["Canada's Wonderland"]
           },
@@ -240,7 +236,7 @@ const parkCatalog = {
             noParking: ["Canada's Wonderland"]
           },
           Prestige: {
-            price: "$135",
+            price: "$200",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
@@ -262,7 +258,7 @@ const parkCatalog = {
         state: "Illinois",
         passes: {
           Gold: {
-            price: "$99",
+            price: "$110",
             access: "Six Flags Midwest",
             noParking: ["Canada's Wonderland"]
           },
@@ -277,7 +273,7 @@ const parkCatalog = {
             noParking: ["Canada's Wonderland"]
           },
           Prestige: {
-            price: "$145",
+            price: "$200",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
@@ -301,11 +297,11 @@ const parkCatalog = {
         state: "North Carolina",
         passes: {
           Gold: {
-            price: "$110",
+            price: "$160",
             access: "Six Flags East"
           },
           Prestige: {
-            price: "$225",
+            price: "$165",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -317,11 +313,11 @@ const parkCatalog = {
         state: "Pennsylvania",
         passes: {
           Gold: {
-            price: "$105",
+            price: "$160",
             access: "Six Flags East"
           },
           Prestige: {
-            price: "$145",
+            price: "$180",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -333,11 +329,11 @@ const parkCatalog = {
         state: "Virginia",
         passes: {
           Gold: {
-            price: "$110",
+            price: "$150",
             access: "Six Flags East"
           },
           Prestige: {
-            price: "$199",
+            price: "$225",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -349,7 +345,7 @@ const parkCatalog = {
         state: "New Jersey",
         passes: {
           Gold: {
-            price: "$89",
+            price: "$115",
             access: "Six Flags East"
           },
           "Gold Membership": {
@@ -362,7 +358,7 @@ const parkCatalog = {
             access: "Six Flags East"
           },
           Prestige: {
-            price: "$155",
+            price: "$200",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
@@ -384,7 +380,7 @@ const parkCatalog = {
         state: "Massachusetts",
         passes: {
           Gold: {
-            price: "$89",
+            price: "$100",
             access: "Six Flags East"
           },
           "Gold Membership": {
@@ -397,7 +393,7 @@ const parkCatalog = {
             access: "Six Flags East"
           },
           Prestige: {
-            price: "$145",
+            price: "$200",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
@@ -420,7 +416,7 @@ const parkCatalog = {
         membershipPurchaseUrl: "memberships",
         passes: {
           Gold: {
-            price: "$89",
+            price: "$99",
             access: "Six Flags East"
           },
           "Gold Membership": {
@@ -433,7 +429,7 @@ const parkCatalog = {
             access: "Six Flags East"
           },
           Prestige: {
-            price: "$145",
+            price: "$200",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
@@ -457,7 +453,7 @@ const parkCatalog = {
         state: "Oklahoma",
         passes: {
           Gold: {
-            price: "$79",
+            price: "$94",
             access: "Six Flags Texas"
           },
           "Gold Membership": {
@@ -470,7 +466,7 @@ const parkCatalog = {
             access: "Six Flags Texas"
           },
           Prestige: {
-            price: "$125",
+            price: "$150",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
@@ -492,7 +488,7 @@ const parkCatalog = {
         state: "Texas",
         passes: {
           Gold: {
-            price: "$99",
+            price: "$114",
             access: "Six Flags Texas"
           },
           "Gold Membership": {
@@ -505,7 +501,7 @@ const parkCatalog = {
             access: "Six Flags Texas"
           },
           Prestige: {
-            price: "$145",
+            price: "$200",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
@@ -527,7 +523,7 @@ const parkCatalog = {
         state: "Texas",
         passes: {
           Gold: {
-            price: "$99",
+            price: "$114",
             access: "Six Flags Texas"
           },
           "Gold Membership": {
@@ -540,7 +536,7 @@ const parkCatalog = {
             access: "Six Flags Texas"
           },
           Prestige: {
-            price: "$155",
+            price: "$200",
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           },
