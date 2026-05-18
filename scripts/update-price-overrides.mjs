@@ -958,15 +958,28 @@ async function main() {
           .replace(/\s+/g, " ");
         const snippet = text.slice(0, 400).replace(/\s+/g, " ").trim();
         const tail = text.slice(Math.max(0, text.length - 400)).replace(/\s+/g, " ").trim();
-        const hasHero = /Enchanted\\s+Hero\\s+Pass/i.test(flattened);
-        const hasLegend = /Enchanted\\s+Legend\\s+Pass/i.test(flattened);
+        const hasHero = /Enchanted\s+Hero\s+Pass/i.test(flattened);
+        const hasLegend = /Enchanted\s+Legend\s+Pass/i.test(flattened);
         const hasEnchantedSection =
-          /###\\s*Enchanted\\s+Passes/i.test(flattened) ||
-          /Enchanted\\s+Passes/i.test(flattened);
-        const hasDollar = /(?:\\$|&#36;|&dollar;)\\s*[0-9]+(?:\\.[0-9]{2})?/i.test(flattened);
+          /###\s*Enchanted\s+Passes/i.test(flattened) ||
+          /Enchanted\s+Passes/i.test(flattened);
+        const hasDollar = /(?:\$|&#36;|&dollar;)\s*[0-9]+(?:\.[0-9]{2})?/i.test(flattened);
         console.warn(
           `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
         );
+
+        const patternForDebug = String(extract?.pattern || "");
+        if (patternForDebug) {
+          try {
+            const re = new RegExp(patternForDebug, "i");
+            const hit = re.exec(text) || re.exec(flattened);
+            console.warn(
+              `TicketSpice debug: regexHit=${hit ? "true" : "false"} captured=${hit?.[1] ? JSON.stringify(hit[1]) : "null"}`
+            );
+          } catch (error) {
+            console.warn(`TicketSpice debug: regexError=${JSON.stringify(error?.message || String(error))}`);
+          }
+        }
 
         const idx = text.search(/Enchanted/i);
         if (idx >= 0) {
