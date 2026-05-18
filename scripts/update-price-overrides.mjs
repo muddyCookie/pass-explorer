@@ -824,8 +824,13 @@ async function resolveAccessoSessionTokens(sourceUrl, sourceHeaders, sourceBody)
 }
 
 function extractViaRegex(text, pattern) {
+  const cleanedText = String(text ?? "")
+    // TicketSpice (and others) often inject noop React comments between tokens: `<!-- -->`
+    .replace(/<!--[\s\S]*?-->/g, "")
+    // Normalize common HTML whitespace entities so `\s`-ish patterns work.
+    .replace(/&nbsp;|&#160;/gi, " ");
   const regex = new RegExp(String(pattern), "i");
-  const match = regex.exec(text);
+  const match = regex.exec(cleanedText);
   return match?.[1] ?? "";
 }
 
