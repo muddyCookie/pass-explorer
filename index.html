@@ -47,7 +47,10 @@
 
     <div class="content-layout">
       <section class="results-panel">
-        <h2 class="section-title">Available Season Passes</h2>
+        <div class="results-header">
+          <h2 class="section-title">Available Season Passes</h2>
+          <button id="resultsDisclaimerBtn" class="results-disclaimer-btn" type="button" aria-label="Open disclaimer">Disclaimer</button>
+        </div>
         <div id="passGrid" class="pass-grid" aria-live="polite"></div>
       </section>
 
@@ -174,10 +177,7 @@
       <div class="card-top">
         <h3 class="pass-name"></h3>
         <div class="pass-price-stack">
-          <div class="pass-price-row">
-            <p class="pass-price"></p>
-            <button type="button" class="price-info-btn" aria-label="Disclaimer details" title="Disclaimer details">i</button>
-          </div>
+          <p class="pass-price"></p>
           <p class="pass-price-sub" hidden></p>
         </div>
       </div>
