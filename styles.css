@@ -136,28 +136,13 @@ body.is-scroll-locked {
 .notice-banner {
   position: sticky;
   top: 0.75rem;
-  z-index: 40;
+  z-index: 10;
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--border);
   background: var(--surface);
   border-radius: 16px;
   box-shadow: var(--shadow);
   margin-top: 1rem;
-}
-
-/* Keep the notice visible when the mobile sidebar locks page scroll. */
-:root.pe-sidebar-open .notice-banner {
-  position: fixed;
-  top: 0.75rem;
-  left: 1rem;
-  right: 1rem;
-  margin-top: 0;
-  z-index: 60;
-}
-
-:root.pe-sidebar-open .controls {
-  top: calc(0px + var(--pe-notice-offset, 0px));
-  height: calc(100dvh - var(--pe-notice-offset, 0px));
 }
 
 .notice-banner__content {
@@ -168,6 +153,20 @@ body.is-scroll-locked {
 }
 
 .notice-banner__text {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.notice-banner__title {
+  margin: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.notice-banner__summary {
   margin: 0;
   font-size: 0.92rem;
   line-height: 1.35;
@@ -394,7 +393,7 @@ h1 {
   overflow-y: auto;
   transform: translateX(calc(100% + 12px));
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  z-index: 30;
+  z-index: 50;
   box-shadow: 10px 0 20px rgba(22, 37, 33, 0.18);
 }
 
@@ -451,7 +450,7 @@ h1 {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
-  z-index: 20;
+  z-index: 45;
 }
 
 .sidebar-backdrop.active {
@@ -463,6 +462,8 @@ h1 {
   position: fixed;
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   right: calc(1rem + env(safe-area-inset-right, 0px));
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
   width: .74rem;
   height: .74rem;
   border-radius: 10px;
@@ -479,7 +480,7 @@ h1 {
   transition: background 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease, color 160ms ease, opacity 160ms ease;
   display: grid;
   place-content: center;
-  z-index: 40;
+  z-index: 60;
   will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;

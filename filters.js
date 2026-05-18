@@ -123,7 +123,7 @@
     const closeBtn = document.getElementById("closeFiltersBtn");
     const mobileViewport = window.matchMedia("(max-width: 979px)");
 
-    const SWIPE_CLOSE_MIN_X = 60;
+    const SWIPE_CLOSE_MIN_X = 45;
     const SWIPE_MAX_Y = 40;
     let touchStartX = 0;
     let touchStartY = 0;
@@ -232,7 +232,7 @@
       setDesktopCollapsed(false);
     });
 
-    const SWIPE_OPEN_EDGE_PX = 28;
+    const SWIPE_OPEN_EDGE_PX = 72;
 
     const onTouchStart = (event) => {
       if (!mobileViewport.matches) return;
