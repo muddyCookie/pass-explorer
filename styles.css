@@ -145,6 +145,21 @@ body.is-scroll-locked {
   margin-top: 1rem;
 }
 
+/* Keep the notice visible when the mobile sidebar locks page scroll. */
+:root.pe-sidebar-open .notice-banner {
+  position: fixed;
+  top: 0.75rem;
+  left: 1rem;
+  right: 1rem;
+  margin-top: 0;
+  z-index: 60;
+}
+
+:root.pe-sidebar-open .controls {
+  top: calc(0px + var(--pe-notice-offset, 0px));
+  height: calc(100dvh - var(--pe-notice-offset, 0px));
+}
+
 .notice-banner__content {
   display: flex;
   gap: 0.75rem;
@@ -465,6 +480,9 @@ h1 {
   display: grid;
   place-content: center;
   z-index: 40;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .filter-toggle[aria-expanded="true"] {

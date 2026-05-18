@@ -178,12 +178,14 @@
       if (!mobileViewport.matches) {
         controls.classList.remove("open");
         syncSidebarAccessibility(false);
+        document.documentElement.classList.remove("pe-sidebar-open");
         unlockPageScroll();
         return;
       }
 
       controls.classList.toggle("open", isOpen);
       syncSidebarAccessibility(isOpen);
+      document.documentElement.classList.toggle("pe-sidebar-open", isOpen);
       if (isOpen) {
         lockPageScroll();
       } else {
@@ -230,11 +232,12 @@
       setDesktopCollapsed(false);
     });
 
+    const SWIPE_OPEN_EDGE_PX = 28;
+
     const onTouchStart = (event) => {
       if (!mobileViewport.matches) return;
       if (!controls) return;
       touchStartedWhenOpen = controls.classList.contains("open");
-      if (!touchStartedWhenOpen) return;
 
       const touch = event.touches && event.touches[0];
       if (!touch) return;
@@ -245,8 +248,6 @@
     const onTouchEnd = (event) => {
       if (!mobileViewport.matches) return;
       if (!controls) return;
-      if (!touchStartedWhenOpen) return;
-      touchStartedWhenOpen = false;
 
       const touch = event.changedTouches && event.changedTouches[0];
       if (!touch) return;
@@ -254,8 +255,22 @@
       const dx = touch.clientX - touchStartX;
       const dy = touch.clientY - touchStartY;
       const isHorizontal = Math.abs(dy) <= SWIPE_MAX_Y && Math.abs(dx) >= SWIPE_CLOSE_MIN_X;
-      if (isHorizontal && dx > 0) {
+
+      const wasOpen = touchStartedWhenOpen;
+      touchStartedWhenOpen = false;
+
+      if (isHorizontal && wasOpen && dx > 0) {
+        // Swipe right to close.
         setSidebarOpen(false);
+        return;
+      }
+
+      if (isHorizontal && !wasOpen && dx < 0) {
+        // Swipe left from the right edge to open.
+        const edgeStart = touchStartX >= (window.innerWidth - SWIPE_OPEN_EDGE_PX);
+        if (edgeStart) {
+          setSidebarOpen(true);
+        }
       }
     };
 
@@ -263,6 +278,8 @@
     controls?.addEventListener("touchend", onTouchEnd, { passive: true });
     backdrop?.addEventListener("touchstart", onTouchStart, { passive: true });
     backdrop?.addEventListener("touchend", onTouchEnd, { passive: true });
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchend", onTouchEnd, { passive: true });
 
     // Desktop starts expanded by default.
     setDesktopCollapsed(false);
