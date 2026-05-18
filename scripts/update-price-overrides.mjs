@@ -789,6 +789,7 @@ async function main() {
 
     let extracted = "";
     let jsonForDebug = null;
+    let textForDebug = null;
     if (extractType === "json") {
       const json = await fetchJson(url.toString(), method, headers, body);
       jsonForDebug = json;
@@ -814,6 +815,7 @@ async function main() {
       extracted = item ? extractAccessoAmountFromNode(item, valuePath) : "";
     } else {
       const text = await fetchText(url.toString(), method, headers, body);
+      textForDebug = text;
       extracted = extractViaRegex(text, extract?.pattern);
     }
 
@@ -825,6 +827,10 @@ async function main() {
         const matchSpecDebug = extract?.match ?? extract?.matchSpec ?? null;
         const valuePathDebug = extract?.value?.path ?? extract?.valuePath ?? null;
         console.warn(`Debug match spec: ${matchSpecDebug ? JSON.stringify(matchSpecDebug) : "null"}; valuePath: ${valuePathDebug ? JSON.stringify(valuePathDebug) : "null"}`);
+      }
+      if (textForDebug && url.host.toLowerCase().includes("ticketspice.com")) {
+        const snippet = String(textForDebug).slice(0, 400).replace(/\s+/g, " ").trim();
+        console.warn(`TicketSpice debug: hasHero=${/Enchanted\\s+Hero\\s+Pass/i.test(textForDebug)} hasLegend=${/Enchanted\\s+Legend\\s+Pass/i.test(textForDebug)} hasDollar=${/\\$\\s*[0-9]+\\.[0-9]{2}/.test(textForDebug)} snippet=${JSON.stringify(snippet)}`);
       }
       if (jsonForDebug && (extractType === "json-search" || extractType === "json-deep-search")) {
         const matchPath = extract?.match?.path ?? extract?.matchPath;
