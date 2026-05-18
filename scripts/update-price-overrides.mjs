@@ -958,11 +958,11 @@ async function main() {
           .replace(/\s+/g, " ");
         const snippet = text.slice(0, 400).replace(/\s+/g, " ").trim();
         const tail = text.slice(Math.max(0, text.length - 400)).replace(/\s+/g, " ").trim();
-        const hasHero = /Enchanted(?:\\s|&nbsp;|&#160;)+Hero(?:\\s|&nbsp;|&#160;)+Pass/i.test(text);
-        const hasLegend = /Enchanted(?:\\s|&nbsp;|&#160;)+Legend(?:\\s|&nbsp;|&#160;)+Pass/i.test(text);
+        const hasHero = /Enchanted\\s+Hero\\s+Pass/i.test(flattened);
+        const hasLegend = /Enchanted\\s+Legend\\s+Pass/i.test(flattened);
         const hasEnchantedSection =
-          /###(?:\\s|&nbsp;|&#160;)*Enchanted(?:\\s|&nbsp;|&#160;)+Passes/i.test(text) ||
-          /Enchanted(?:\\s|&nbsp;|&#160;)+Passes/i.test(text);
+          /###\\s*Enchanted\\s+Passes/i.test(flattened) ||
+          /Enchanted\\s+Passes/i.test(flattened);
         const hasDollar = /(?:\\$|&#36;|&dollar;)\\s*[0-9]+(?:\\.[0-9]{2})?/i.test(flattened);
         console.warn(
           `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
@@ -972,11 +972,20 @@ async function main() {
         if (idx >= 0) {
           const around = text.slice(Math.max(0, idx - 250), Math.min(text.length, idx + 600)).replace(/\s+/g, " ").trim();
           console.warn(`TicketSpice debug: enchantedAround=${JSON.stringify(around)}`);
+          const flatAround = flattened.slice(Math.max(0, flattened.search(/Enchanted/i) - 120), Math.min(flattened.length, flattened.search(/Enchanted/i) + 500)).trim();
+          if (flatAround) {
+            console.warn(`TicketSpice debug: enchantedAroundFlat=${JSON.stringify(flatAround)}`);
+          }
         } else {
           const headingIdx = text.search(/####/);
           if (headingIdx >= 0) {
             const around = text.slice(Math.max(0, headingIdx - 250), Math.min(text.length, headingIdx + 600)).replace(/\s+/g, " ").trim();
             console.warn(`TicketSpice debug: headingAround=${JSON.stringify(around)}`);
+            const flatIdx = flattened.search(/####/);
+            if (flatIdx >= 0) {
+              const flatAround = flattened.slice(Math.max(0, flatIdx - 120), Math.min(flattened.length, flatIdx + 500)).trim();
+              console.warn(`TicketSpice debug: headingAroundFlat=${JSON.stringify(flatAround)}`);
+            }
           }
         }
       }
