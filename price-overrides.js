@@ -2,14 +2,54 @@
 // Do not edit by hand (edit scripts/price-sources.json instead).
 
 window.priceOverrides = {
-  "Michigan's Adventure": {
+  "Worlds of Fun": {
     "Hero": {
       "updatedAt": "2026-05-18",
-      "price": "$65.99"
+      "price": "$90.00"
     },
     "Legend": {
       "updatedAt": "2026-05-18",
-      "price": "$17.99"
+      "price": "$180.00"
+    }
+  },
+  "Six Flags St. Louis": {
+    "Hero": {
+      "updatedAt": "2026-05-18",
+      "price": "$65.00"
+    },
+    "Legend": {
+      "updatedAt": "2026-05-18",
+      "price": "$90.00"
+    }
+  },
+  "Valleyfair": {
+    "Hero": {
+      "updatedAt": "2026-05-18",
+      "price": "$65.00"
+    },
+    "Legend": {
+      "updatedAt": "2026-05-18",
+      "price": "$90.00"
+    }
+  },
+  "Michigan's Adventure": {
+    "Hero": {
+      "updatedAt": "2026-05-18",
+      "price": "$65.00"
+    },
+    "Legend": {
+      "updatedAt": "2026-05-18",
+      "price": "$90.00"
+    }
+  },
+  "Six Flags Great Escape": {
+    "Hero": {
+      "updatedAt": "2026-05-18",
+      "price": "$65.00"
+    },
+    "Legend": {
+      "updatedAt": "2026-05-18",
+      "price": "$90.00"
     }
   },
   "California's Great America": {
