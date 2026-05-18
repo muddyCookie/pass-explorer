@@ -720,7 +720,7 @@ function expandSourcesFromConfig(config) {
         if (excludedPassTypes.includes(passType)) continue;
 
         const passLabel = String(passEntry?.passLabel || passType).trim();
-        const passLabelRegex = escapeRegexLiteral(passLabel).replace(/\s+/g, "(?:\\\\s|&nbsp;|&#160;)+");
+        const passLabelRegex = escapeRegexLiteral(passLabel).replace(/\s+/g, "(?:\\s|&nbsp;|&#160;)+");
 
         const currency = String(
           passEntry?.currency || parkEntry?.currency || genDefaults?.currency || ""
