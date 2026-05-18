@@ -28,7 +28,8 @@
         {
           "park": "California's Great America",
           "merchant": "CF-GA",
-          "storeHost": "cf-ga.buy.sixflags.com"
+          "storeHost": "cf-ga.buy.sixflags.com",
+          "excludePassTypes": ["Prestige"]
         },
         {
           "park": "Canada's Wonderland",
@@ -116,7 +117,8 @@
         {
           "park": "Six Flags Mexico",
           "merchant": "SF-GC-CDMX",
-          "storeHost": "sf-gc-cdmx.store.sixflags.com"
+          "storeHost": "sf-gc-cdmx.store.sixflags.com",
+          "excludePassTypes": ["Gold", "Prestige", "Gold Membership", "Prestige Membership"]
         },
         {
           "park": "Six Flags New England",
@@ -139,6 +141,24 @@
         { "passType": "Gold Membership", "passLabel": "Gold Membership", "target": "pricing.monthly" },
         { "passType": "Prestige", "passLabel": "2026 PRESTIGE PASS", "extract": { "match": { "equals": "{passLabel}" } } },
         { "passType": "Prestige Membership", "passLabel": "Prestige Membership", "target": "pricing.monthly" }
+      ]
+    },
+    {
+      "template": "sixFlagsAccessoBootstrap",
+      "defaults": {
+        "currency": "MXN",
+        "apiHost": "ecomm.api.sf.accessoticketing.com"
+      },
+      "parks": [
+        {
+          "park": "Six Flags Mexico",
+          "merchant": "SF-GC-CDMX",
+          "storeHost": "sf-gc-cdmx.store.sixflags.com"
+        }
+      ],
+      "passes": [
+        { "passType": "Gold", "passLabel": "Gold Pass 2026", "extract": { "match": { "equals": "{passLabel}" } } },
+        { "passType": "Prestige", "passLabel": "Prestige Pass 2026", "extract": { "match": { "equals": "{passLabel}" } } }
       ]
     }
   ]

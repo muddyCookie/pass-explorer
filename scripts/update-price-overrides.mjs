@@ -613,9 +613,14 @@ function expandSourcesFromConfig(config) {
       const park = String(parkEntry?.park || "").trim();
       if (!park) continue;
 
+      const excludedPassTypes = Array.isArray(parkEntry?.excludePassTypes)
+        ? parkEntry.excludePassTypes.map((value) => String(value || "").trim()).filter(Boolean)
+        : [];
+
       for (const passEntry of passes) {
         const passType = String(passEntry?.passType || "").trim();
         if (!passType) continue;
+        if (excludedPassTypes.includes(passType)) continue;
 
         const passLabel = String(passEntry?.passLabel || passType).trim();
 
