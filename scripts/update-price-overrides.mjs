@@ -1,8 +1,100 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import vm from "node:vm";
 
 function stableStringify(value) {
   return JSON.stringify(value, null, 2) + "\n";
+}
+
+async function loadBasePassFallbacks(repoRoot) {
+  const parksPath = path.join(repoRoot, "parks.js");
+  let sourceText = "";
+  try {
+    sourceText = await fs.readFile(parksPath, "utf8");
+  } catch {
+    return { parkCatalog: null, passByParkName: {} };
+  }
+
+  const context = vm.createContext({});
+  try {
+    // Run the file in a sandbox and then read `parkCatalog` out of it.
+    // The file is trusted (repo-local) and this is only used to derive fallback prices.
+    vm.runInContext(`${sourceText}\n;globalThis.__parkCatalog = (typeof parkCatalog !== "undefined" ? parkCatalog : null);`, context, {
+      filename: "parks.js",
+      timeout: 500
+    });
+  } catch {
+    return { parkCatalog: null, passByParkName: {} };
+  }
+
+  const parkCatalog = context.__parkCatalog ?? null;
+  if (!parkCatalog || typeof parkCatalog !== "object") {
+    return { parkCatalog: null, passByParkName: {} };
+  }
+
+  const passByParkName = {};
+
+  const companies = Object.values(parkCatalog);
+  for (const companyGroups of companies) {
+    if (!companyGroups || typeof companyGroups !== "object") continue;
+    for (const groupConfig of Object.values(companyGroups)) {
+      if (Array.isArray(groupConfig)) {
+        for (const parkConfig of groupConfig) {
+          const parkName = String(parkConfig?.park || "").trim();
+          if (!parkName) continue;
+          const passes = parkConfig?.passes && typeof parkConfig.passes === "object" ? parkConfig.passes : null;
+          if (!passes) continue;
+          passByParkName[parkName] = passes;
+        }
+        continue;
+      }
+
+      const defaults = groupConfig?.defaults && typeof groupConfig.defaults === "object" ? groupConfig.defaults : {};
+      const parks = Array.isArray(groupConfig?.parks) ? groupConfig.parks : [];
+      for (const parkConfig of parks) {
+        const parkName = String(parkConfig?.park || "").trim();
+        if (!parkName) continue;
+        const merged = { ...defaults, ...parkConfig };
+        const passes = merged?.passes && typeof merged.passes === "object" ? merged.passes : null;
+        if (!passes) continue;
+        passByParkName[parkName] = passes;
+      }
+    }
+  }
+
+  return { parkCatalog, passByParkName };
+}
+
+function getBaseFallbackValue(passByParkName, park, passType, targetPath) {
+  const passes = passByParkName?.[park];
+  if (!passes || typeof passes !== "object") return "";
+
+  const raw = passes[passType];
+  if (raw == null) return "";
+
+  const target = String(targetPath || "price").trim() || "price";
+
+  if (target === "price") {
+    if (typeof raw === "string" || typeof raw === "number") return String(raw).trim();
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      const price = raw.price ?? raw.cost ?? raw.value ?? "";
+      return String(price || "").trim();
+    }
+    return "";
+  }
+
+  // Membership support (e.g. pricing.monthly, pricing.downPayment)
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    const pricing = raw.pricing ?? raw.membership ?? null;
+    if (pricing && typeof pricing === "object" && !Array.isArray(pricing)) {
+      if (target.startsWith("pricing.")) {
+        const key = target.slice("pricing.".length);
+        return String(pricing?.[key] ?? "").trim();
+      }
+    }
+  }
+
+  return "";
 }
 
 function deepMerge(base, override) {
@@ -42,6 +134,10 @@ function applyTemplatesDeep(value, vars) {
     return result;
   }
   return value;
+}
+
+function escapeRegexLiteral(value) {
+  return String(value ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function tryLoadExistingOverrides(fileText) {
@@ -623,6 +719,7 @@ function expandSourcesFromConfig(config) {
         if (excludedPassTypes.includes(passType)) continue;
 
         const passLabel = String(passEntry?.passLabel || passType).trim();
+        const passLabelRegex = escapeRegexLiteral(passLabel).replace(/\s+/g, "\\s+");
 
         const currency = String(
           passEntry?.currency || parkEntry?.currency || genDefaults?.currency || ""
@@ -635,11 +732,14 @@ function expandSourcesFromConfig(config) {
           park,
           passType,
           passLabel,
+          passLabelRegex,
           currency,
           merchant,
           merchantLower: merchant.toLowerCase(),
           apiHost,
           storeHost: parkEntry?.storeHost ?? genDefaults?.storeHost ?? "",
+          ticketspiceHost: parkEntry?.ticketspiceHost ?? genDefaults?.ticketspiceHost ?? "",
+          ticketspicePath: parkEntry?.ticketspicePath ?? genDefaults?.ticketspicePath ?? "",
           origin: parkEntry?.origin ?? genDefaults?.origin ?? "",
           referer: parkEntry?.referer ?? genDefaults?.referer ?? ""
         };
@@ -734,7 +834,9 @@ function normalizePriceString(raw) {
   const match = /(\$|USD|CAD|MXN|EUR|GBP)?\s*([0-9]+(?:[.,][0-9]{1,2})?)/i.exec(value);
   if (!match) return value;
   const symbol = match[1] || "$";
-  const amount = match[2].replace(/,/g, "");
+  const amountRaw = match[2].replace(/,/g, "");
+  const amountNum = Number.parseFloat(amountRaw);
+  const amount = Number.isFinite(amountNum) ? amountNum.toFixed(2) : amountRaw;
   return symbol.toUpperCase() === "USD" || symbol.toUpperCase() === "CAD"
     ? `$${amount}`
     : `${symbol}${amount}`;
@@ -745,6 +847,8 @@ async function main() {
   const configPath = path.join(repoRoot, "scripts", "price-sources.json");
   const raw = await fs.readFile(configPath, "utf8");
   const config = JSON.parse(raw);
+
+  const { passByParkName } = await loadBasePassFallbacks(repoRoot);
 
   const sources = expandSourcesFromConfig(config);
   const overrides = {};
@@ -849,10 +953,15 @@ async function main() {
       }
       const targetPath = String(source?.target || "price").trim() || "price";
       const fallback = getByDotPath(existingOverrides?.[park]?.[passType], targetPath);
-      if (fallback != null && String(fallback).trim()) {
+      const baseFallback = getBaseFallbackValue(passByParkName, park, passType, targetPath);
+      const resolvedFallback = (fallback != null && String(fallback).trim())
+        ? String(fallback).trim()
+        : (baseFallback ? String(baseFallback).trim() : "");
+
+      if (resolvedFallback) {
         overrides[park] ??= {};
         overrides[park][passType] ??= { updatedAt: existingOverrides?.[park]?.[passType]?.updatedAt || updatedAt };
-        setByDotPath(overrides[park][passType], targetPath, String(fallback).trim());
+        setByDotPath(overrides[park][passType], targetPath, normalizePriceString(resolvedFallback));
         overrides[park][passType].updatedAt = existingOverrides?.[park]?.[passType]?.updatedAt || updatedAt;
       }
       continue;

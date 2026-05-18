@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "sources": [
     {
       "park": "Canada's Wonderland",
@@ -11,12 +11,11 @@
         "type": "regex",
         "pattern": "\\\"gold\\\"\\s*:\\s*\\{[^}]*?\\\"price\\\"\\s*:\\s*\\\"(\\$[0-9,.]+)\\\""
       }
-    },
-    {
-      "park": "Michigan's Adventure",
-      "passType": "Hero",
-      "currency": "USD",
-      "url": "https://michigans-adventure.ticketspice.com/admission-2026",
+    }
+  ],
+  "templates": {
+    "enchantedTicketSpice": {
+      "parkGroup": "Enchanted Parks",
       "method": "GET",
       "headers": {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -24,13 +23,12 @@
         "accept-encoding": "identity",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
       },
+      "url": "https://{ticketspiceHost}/{ticketspicePath}",
       "extract": {
         "type": "regex",
-        "pattern": "Enchanted Hero Pass[\\s\\S]{0,1200}?\\$?\\s*([0-9]+\\.[0-9]{2})"
+        "pattern": "####\\s+{passLabelRegex}[\\s\\S]{0,2500}?\\n\\s*\\$\\s*([0-9]+\\.[0-9]{2})\\s*\\n\\s*\\(\\$"
       }
-    }
-  ],
-  "templates": {
+    },
     "sixFlagsAccessoBootstrap": {
       "method": "GET",
       "headers": {
@@ -47,6 +45,20 @@
     }
   },
   "generatedSources": [
+    {
+      "template": "enchantedTicketSpice",
+      "defaults": {
+        "currency": "USD",
+        "ticketspicePath": "admission-2026"
+      },
+      "parks": [
+        { "park": "Michigan's Adventure", "ticketspiceHost": "michigans-adventure.ticketspice.com" }
+      ],
+      "passes": [
+        { "passType": "Hero", "passLabel": "Enchanted Hero Pass" },
+        { "passType": "Legend", "passLabel": "Enchanted Legend Pass" }
+      ]
+    },
     {
       "template": "sixFlagsAccessoBootstrap",
       "defaults": {
