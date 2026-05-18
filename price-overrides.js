@@ -35,11 +35,11 @@ window.priceOverrides = {
   "Michigan's Adventure": {
     "Hero": {
       "updatedAt": "2026-05-18",
-      "price": "$129.99"
+      "price": "$65.99"
     },
     "Legend": {
       "updatedAt": "2026-05-18",
-      "price": "$189.99"
+      "price": "$90.99"
     }
   },
   "Six Flags Great Escape": {
