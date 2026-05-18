@@ -933,8 +933,16 @@ async function main() {
         console.warn(`Debug match spec: ${matchSpecDebug ? JSON.stringify(matchSpecDebug) : "null"}; valuePath: ${valuePathDebug ? JSON.stringify(valuePathDebug) : "null"}`);
       }
       if (textForDebug && url.host.toLowerCase().includes("ticketspice.com")) {
-        const snippet = String(textForDebug).slice(0, 400).replace(/\s+/g, " ").trim();
-        console.warn(`TicketSpice debug: hasHero=${/Enchanted\\s+Hero\\s+Pass/i.test(textForDebug)} hasLegend=${/Enchanted\\s+Legend\\s+Pass/i.test(textForDebug)} hasDollar=${/(?:\\$|&#36;|&dollar;)\\s*[0-9]+\\.[0-9]{2}/i.test(textForDebug)} snippet=${JSON.stringify(snippet)}`);
+        const text = String(textForDebug);
+        const snippet = text.slice(0, 400).replace(/\s+/g, " ").trim();
+        const tail = text.slice(Math.max(0, text.length - 400)).replace(/\s+/g, " ").trim();
+        const hasHero = /Enchanted\\s+Hero\\s+Pass/i.test(text);
+        const hasLegend = /Enchanted\\s+Legend\\s+Pass/i.test(text);
+        const hasEnchantedSection = /###\\s*Enchanted\\s+Passes/i.test(text) || /Enchanted\\s+Passes/i.test(text);
+        const hasDollar = /(?:\\$|&#36;|&dollar;)\\s*[0-9]+\\.[0-9]{2}/i.test(text);
+        console.warn(
+          `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
+        );
       }
       if (jsonForDebug && (extractType === "json-search" || extractType === "json-deep-search")) {
         const matchPath = extract?.match?.path ?? extract?.matchPath;
