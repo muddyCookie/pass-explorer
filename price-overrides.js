@@ -5,51 +5,51 @@ window.priceOverrides = {
   "Worlds of Fun": {
     "Hero": {
       "updatedAt": "2026-05-18",
-      "price": "$90.00"
+      "price": "$65.99"
     },
     "Legend": {
       "updatedAt": "2026-05-18",
-      "price": "$180.00"
+      "price": "$90.99"
     }
   },
   "Six Flags St. Louis": {
     "Hero": {
       "updatedAt": "2026-05-18",
-      "price": "$65.00"
+      "price": "$65.99"
     },
     "Legend": {
       "updatedAt": "2026-05-18",
-      "price": "$90.00"
+      "price": "$90.99"
     }
   },
   "Valleyfair": {
     "Hero": {
       "updatedAt": "2026-05-18",
-      "price": "$65.00"
+      "price": "$65.99"
     },
     "Legend": {
       "updatedAt": "2026-05-18",
-      "price": "$90.00"
+      "price": "$90.99"
     }
   },
   "Michigan's Adventure": {
     "Hero": {
       "updatedAt": "2026-05-18",
-      "price": "$65.00"
+      "price": "$129.99"
     },
     "Legend": {
       "updatedAt": "2026-05-18",
-      "price": "$90.00"
+      "price": "$189.99"
     }
   },
   "Six Flags Great Escape": {
     "Hero": {
       "updatedAt": "2026-05-18",
-      "price": "$65.00"
+      "price": "$65.99"
     },
     "Legend": {
       "updatedAt": "2026-05-18",
-      "price": "$90.00"
+      "price": "$90.99"
     }
   },
   "California's Great America": {
