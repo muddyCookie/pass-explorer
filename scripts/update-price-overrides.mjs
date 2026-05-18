@@ -21,9 +21,10 @@ async function loadBasePassFallbacks(repoRoot) {
     // The file is trusted (repo-local) and this is only used to derive fallback prices.
     vm.runInContext(`${sourceText}\n;globalThis.__parkCatalog = (typeof parkCatalog !== "undefined" ? parkCatalog : null);`, context, {
       filename: "parks.js",
-      timeout: 500
+      timeout: 2000
     });
-  } catch {
+  } catch (error) {
+    console.warn(`Base fallback: failed to evaluate parks.js (${error?.message || String(error)})`);
     return { parkCatalog: null, passByParkName: {} };
   }
 
@@ -849,6 +850,12 @@ async function main() {
   const config = JSON.parse(raw);
 
   const { passByParkName } = await loadBasePassFallbacks(repoRoot);
+  const baseFallbackParkCount = Object.keys(passByParkName || {}).length;
+  if (baseFallbackParkCount === 0) {
+    console.warn("Base fallback: no parks loaded from parks.js (fallbacks disabled).");
+  } else {
+    console.log(`Base fallback: loaded ${baseFallbackParkCount} parks from parks.js`);
+  }
 
   const sources = expandSourcesFromConfig(config);
   const overrides = {};
@@ -974,17 +981,20 @@ async function main() {
         }
       }
       const targetPath = String(source?.target || "price").trim() || "price";
-      const fallback = getByDotPath(existingOverrides?.[park]?.[passType], targetPath);
       const baseFallback = getBaseFallbackValue(passByParkName, park, passType, targetPath);
-      const resolvedFallback = baseFallback
-        ? String(baseFallback).trim()
-        : ((fallback != null && String(fallback).trim()) ? String(fallback).trim() : "");
+      const resolvedFallback = baseFallback ? String(baseFallback).trim() : "";
 
       if (resolvedFallback) {
         overrides[park] ??= {};
-        overrides[park][passType] ??= { updatedAt: existingOverrides?.[park]?.[passType]?.updatedAt || updatedAt };
+        overrides[park][passType] ??= { updatedAt };
         setByDotPath(overrides[park][passType], targetPath, normalizePriceString(resolvedFallback));
-        overrides[park][passType].updatedAt = existingOverrides?.[park]?.[passType]?.updatedAt || updatedAt;
+        overrides[park][passType].updatedAt = updatedAt;
+      } else {
+        if (missingCount <= 3) {
+          console.warn(
+            `No fallback available for ${park} / ${passType} (parks.js=${baseFallback ? JSON.stringify(baseFallback) : "null"})`
+          );
+        }
       }
       continue;
     }
@@ -1005,7 +1015,7 @@ async function main() {
   console.log(`Wrote ${Object.keys(overrides).length} parks to price-overrides.js`);
 
   if (missingCount > 0) {
-    console.warn(`${missingCount} source(s) failed to extract; kept existing values where available.`);
+    console.warn(`${missingCount} source(s) failed to extract; fell back to parks.js where available.`);
   }
 }
 
