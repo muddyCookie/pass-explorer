@@ -4,6 +4,7 @@
 //  {
 //    name: "United Parks",
 //    defaultCurrency: "USD",
+//    defaultDate: "2026-12-31",
 //    tierOrder: ["Season", "Platinum"],
 //    defaultUrl: "",
 //    defaultUrlPass: "annual-pass",
@@ -41,6 +42,7 @@ const companyCatalog = [
     name: "Six Flags",
     defaultCurrency: "USD",
     defaultCountry: "United States",
+    defaultDate: "2026-12-31",
     defaultUrl: "sixflags",
     defaultUrlPass: "season-passes",
     defaultMembershipUrlPass: "memberships"
@@ -49,6 +51,7 @@ const companyCatalog = [
     name: "Enchanted Parks",
     defaultCurrency: "USD",
     defaultCountry: "United States",
+    defaultDate: "2026-12-31",
     defaultUrlPass: "passes-and-tickets/park-admission/season-passes/",
     urlRules: {
       parkTemplate: "https://{hostSlug}.enchantedparks.com",
@@ -59,6 +62,7 @@ const companyCatalog = [
     name: "Herschend",
     defaultCurrency: "USD",
     defaultCountry: "United States",
+    defaultDate: "2026-12-31",
     defaultSlug: "buy-tickets",
     defaultUrlPass: "season-passes"
   },
@@ -66,6 +70,7 @@ const companyCatalog = [
   name: "Fun Spot America",
   defaultCurrency: "USD",
   defaultCountry: "United States",
+  defaultDate: "2026-12-31",
   defaultUrl: "fun-spot",
   defaultUrlPass: "buy-tickets"
   },
@@ -73,6 +78,7 @@ const companyCatalog = [
     name: "Merlin Entertainments",
     defaultCurrency: "USD",
     defaultCountry: "United States",
+    defaultDate: "2026-12-31",
     defaultUrl: "legoland",
     defaultUrlPass: "tickets-passes/annual-passes"
   },
@@ -80,8 +86,9 @@ const companyCatalog = [
     name: "United Parks",
     defaultCurrency: "USD",
     defaultCountry: "United States",
+    defaultDate: "today+1y",
     defaultUrl: "seaworld",
-    defaultUrlPass: "annual-pass"
+    defaultUrlPass: "annual-pass"    
   },
   {
     name: "Walt Disney",
@@ -133,6 +140,28 @@ function getCompanyDefaultCurrency(companyName) {
 
 function getCompanyDefaultCountry(companyName) {
   return getCompanyConfig(companyName)?.defaultCountry || "United States";
+}
+
+function getCompanyDefaultDate(companyName) {
+  const rawDate = String(getCompanyConfig(companyName)?.defaultDate || "").trim();
+  
+  // Handle dynamic date expressions like "today+1y"
+  const todayMatch = /^today\+([0-9]+)y$/.exec(rawDate);
+  if (todayMatch) {
+    const years = Number(todayMatch[1]);
+    const now = new Date();
+    const target = new Date(Date.UTC(now.getUTCFullYear() + years, now.getUTCMonth(), now.getUTCDate()));
+    const lastDayOfMonth = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+    if (target.getUTCDate() !== now.getUTCDate()) {
+      target.setUTCDate(Math.min(now.getUTCDate(), lastDayOfMonth));
+    }
+    const year = target.getUTCFullYear();
+    const month = String(target.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(target.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+  
+  return rawDate;
 }
 
 // Builds website + buy URLs for a park using company-level URL rules and optional park-level `urlPass`.
@@ -261,6 +290,7 @@ const companyConfig = Object.fromEntries(
     {
       defaultCurrency: company.defaultCurrency || "USD",
       defaultCountry: company.defaultCountry || "United States",
+      defaultDate: String(company.defaultDate || "").trim(),
       tierOrder: company.tierOrder || [],
       passDisplayRules: company.passDisplayRules || {},
       defaultSlug: String(company.defaultSlug || "").trim(),

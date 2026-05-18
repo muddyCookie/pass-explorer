@@ -333,17 +333,39 @@
       const priceSub = typeof formatOfferPriceSub === "function" ? formatOfferPriceSub(offer) : "";
 
       if (priceSubEl) {
-        // For memberships, keep the native currency line under the total price (if present).
-        // For standard non-USD passes, show the native currency price on the Park Access row instead.
+        // Only show the native-currency line under the main price for membership pricing.
         const showSub = Boolean(priceSub) && Boolean(membershipNote);
         priceSubEl.textContent = showSub ? priceSub : "";
         priceSubEl.hidden = !showSub;
       }
 
-      const priceNote = membershipNote || (!membershipNote ? priceSub : "");
+      const accessThruRaw = String(offer?.accessThru || "").trim();
+      let accessThruText = "";
+      if (accessThruRaw) {
+        const isoYmd = /^(\d{4})-(\d{2})-(\d{2})$/.exec(accessThruRaw);
+        const parsed = isoYmd
+          ? new Date(Date.UTC(Number(isoYmd[1]), Number(isoYmd[2]) - 1, Number(isoYmd[3])))
+          : new Date(accessThruRaw);
+
+        if (!Number.isNaN(parsed.getTime())) {
+          const month = parsed.toLocaleString("en-US", { month: "short", timeZone: "UTC" }).toUpperCase();
+          const day = parsed.toLocaleString("en-US", { day: "2-digit", timeZone: "UTC" });
+          const year = parsed.toLocaleString("en-US", { year: "numeric", timeZone: "UTC" });
+          accessThruText = `PARK ACCESS THRU ${month}. ${day}, ${year}`;
+        } else {
+          accessThruText = `PARK ACCESS THRU ${accessThruRaw}`;
+        }
+      }
+
+      const detailLabel = node.querySelector(".detail-label");
+      if (detailLabel) {
+        detailLabel.textContent = accessThruText || "Park Access";
+      }
+
       if (priceNoteEl) {
-        priceNoteEl.textContent = priceNote;
-        priceNoteEl.hidden = !priceNote;
+        const detailNote = membershipNote || priceSub;
+        priceNoteEl.textContent = detailNote;
+        priceNoteEl.hidden = !detailNote;
       }
       const cardEl = node.querySelector(".pass-card");
 

@@ -217,6 +217,14 @@ function normalizePassDefinition(rawPassDefinition) {
     const price = rawPassDefinition.price ?? rawPassDefinition.cost ?? rawPassDefinition.value ?? "";
     const membershipPricing = normalizeMembershipPricing(rawPassDefinition.membership ?? rawPassDefinition.pricing ?? null);
     const rawAccess = rawPassDefinition.access ?? rawPassDefinition.accessibleParks ?? rawPassDefinition.parkAccess ?? null;
+    const accessThru = rawPassDefinition.accessThru
+      ?? rawPassDefinition.accessThrough
+      ?? rawPassDefinition.accessThroughDate
+      ?? rawPassDefinition.accessThroughOn
+      ?? rawPassDefinition.parkAccessThru
+      ?? rawPassDefinition.parkAccessThrough
+      ?? rawPassDefinition.date
+      ?? null;
     const access = Array.isArray(rawAccess)
       ? rawAccess
       : (typeof rawAccess === "string" && rawAccess.trim() ? [rawAccess.trim()] : null);
@@ -227,6 +235,7 @@ function normalizePassDefinition(rawPassDefinition) {
         ? { exclude: rawPassDefinition.noParking }
         : (rawPassDefinition.parking ?? null),
       disclaimer: rawPassDefinition.disclaimer ?? "",
+      accessThru: accessThru == null ? "" : String(accessThru || "").trim(),
       pricing: membershipPricing
     };
   }
@@ -289,6 +298,13 @@ function applyPassOverride(passDefinition, override) {
   }
 
   const price = override.price != null ? String(override.price || "").trim() : passDefinition.price;
+  const accessThru = override.accessThru != null
+    ? String(override.accessThru || "").trim()
+    : (
+      override.accessThrough != null
+        ? String(override.accessThrough || "").trim()
+        : (override.date != null ? String(override.date || "").trim() : passDefinition.accessThru)
+    );
   const basePricing = passDefinition.pricing;
   const overridePricing = override.pricing;
   const pricing = overridePricing != null
@@ -305,6 +321,7 @@ function applyPassOverride(passDefinition, override) {
   return {
     ...passDefinition,
     price,
+    accessThru,
     pricing
   };
 }
@@ -580,6 +597,7 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
           : (/^https?:\/\//i.test(links.website) ? joinUrl(links.website, trimSlashes(resolvedFallbackUrlRaw)) : String(resolvedFallbackUrlRaw))
       )
       : null;
+
     passOffers.push({
       id: `${slugify(parkName)}-${slugify(passType)}-${slugify(company)}`,
       homePark: parkName,
@@ -591,6 +609,7 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       disclaimer: String(passDefinition.disclaimer || parkConfig.disclaimer || "").trim(),
       passPurchaseUrl: resolvedTierPassUrl || resolvedFallbackUrl,
       accessibleParks,
+      accessThru: String(passDefinition.accessThru || getCompanyDefaultDate(company) || "").trim(),
       accessDurationMonths: normalizeAccessDurationMonths(passDefinition?.accessDurationMonths ?? passDefinition?.durationMonths),
       explicitParkingIncludedParks: hasExplicitParkingConfig
         ? resolveExplicitParkingIncludedParks(expandedAccessibleParks, passParkingConfig, parkName)
