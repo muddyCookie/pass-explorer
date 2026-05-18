@@ -2,6 +2,16 @@
 // Do not edit by hand (edit scripts/price-sources.json instead).
 
 window.priceOverrides = {
+  "Michigan's Adventure": {
+    "Hero": {
+      "updatedAt": "2026-05-18",
+      "price": "$65.99"
+    },
+    "Legend": {
+      "updatedAt": "2026-05-18",
+      "price": "$17.99"
+    }
+  },
   "California's Great America": {
     "Gold": {
       "updatedAt": "2026-05-18",
