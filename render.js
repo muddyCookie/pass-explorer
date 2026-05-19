@@ -348,10 +348,10 @@
           : new Date(accessThruRaw);
 
         if (!Number.isNaN(parsed.getTime())) {
-          const month = parsed.toLocaleString("en-US", { month: "short", timeZone: "UTC" }).toUpperCase();
-          const day = parsed.toLocaleString("en-US", { day: "2-digit", timeZone: "UTC" });
+          const month = parsed.toLocaleString("en-US", { month: "long", timeZone: "UTC" }).toUpperCase();
+          const day = parsed.toLocaleString("en-US", { day: "numeric", timeZone: "UTC" });
           const year = parsed.toLocaleString("en-US", { year: "numeric", timeZone: "UTC" });
-          accessThruText = `PARK ACCESS THRU ${month}. ${day}, ${year}`;
+          accessThruText = `PARK ACCESS THRU ${month} ${day}, ${year}`;
         } else {
           accessThruText = `PARK ACCESS THRU ${accessThruRaw}`;
         }
