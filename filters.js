@@ -1,18 +1,21 @@
 (function initFiltersModule() {
   const pe = window.PassExplorer = window.PassExplorer || {};
 
-  // Central filter state. All UI handlers write here, and render reads from here.
   pe.state = pe.state || {
-    selectedParkFilterValue: "all",
-    highlightedParkOptionIndex: 0,
-    selectedCompanyFilterValue: "all",
-    highlightedCompanyOptionIndex: 0,
-    selectedCountryFilterValue: "all",
-    highlightedCountryOptionIndex: 0,
-    selectedStateFilterValue: "all",
-    highlightedStateOptionIndex: 0,
-    selectedTypeFilterValue: "all",
-    highlightedTypeOptionIndex: 0
+    activeFilters: {
+      company: [],
+      park: [],
+      country: [],
+      state: [],
+      type: []
+    },
+    highlightedOptionIndexByCategory: {
+      company: 0,
+      park: 0,
+      country: 0,
+      state: 0,
+      type: 0
+    }
   };
 
   const dropdownPortalState = new WeakMap();
@@ -21,12 +24,65 @@
   let pendingDropdownReposition = false;
   let sidebarListenersBound = false;
 
-  function setSelectOptions(selectElement, options, selectedValue) {
+  const filterConfig = {
+    company: {
+      label: "Company",
+      inputKey: "companyFilterInput",
+      listKey: "companyFilterList",
+      selectKey: "companyFilterSelect",
+      emptyText: "No matching companies",
+      selectLabel: "Add Company Tag",
+      matchMode: "any"
+    },
+    park: {
+      label: "Park",
+      inputKey: "parkFilterInput",
+      listKey: "parkFilterList",
+      selectKey: "parkFilterSelect",
+      emptyText: "No matching parks",
+      selectLabel: "Add Park Tag",
+      matchMode: "all"
+    },
+    country: {
+      label: "Country",
+      inputKey: "countryFilterInput",
+      listKey: "countryFilterList",
+      selectKey: "countryFilterSelect",
+      emptyText: "No matching countries",
+      selectLabel: "Add Country Tag",
+      matchMode: "all"
+    },
+    state: {
+      label: "State",
+      inputKey: "stateFilterInput",
+      listKey: "stateFilterList",
+      selectKey: "stateFilterSelect",
+      emptyText: "No matching states / provinces",
+      selectLabel: "Add State / Province Tag",
+      matchMode: "all"
+    },
+    type: {
+      label: "Tier",
+      inputKey: "typeFilterInput",
+      listKey: "typeFilterList",
+      selectKey: "typeFilterSelect",
+      emptyText: "No matching tiers",
+      selectLabel: "Add Tier Tag",
+      matchMode: "any"
+    }
+  };
+
+  function setSelectOptions(selectElement, options, placeholderLabel) {
     if (!selectElement) {
       return;
     }
 
     const fragment = document.createDocumentFragment();
+    const placeholderOption = document.createElement("option");
+    placeholderOption.value = "";
+    placeholderOption.textContent = placeholderLabel;
+    fragment.appendChild(placeholderOption);
+
     for (const option of options) {
       const optionEl = document.createElement("option");
       optionEl.value = option.value;
@@ -36,7 +92,7 @@
 
     selectElement.innerHTML = "";
     selectElement.appendChild(fragment);
-    selectElement.value = selectedValue;
+    selectElement.value = "";
   }
 
   function portalDropdown(listElement) {
@@ -71,10 +127,8 @@
 
     const rect = inputElement.getBoundingClientRect();
     const gap = 6;
-    const top = rect.bottom + gap;
-
     listElement.style.left = `${rect.left}px`;
-    listElement.style.top = `${top}px`;
+    listElement.style.top = `${rect.bottom + gap}px`;
     listElement.style.width = `${rect.width}px`;
   }
 
@@ -235,8 +289,7 @@
     const SWIPE_OPEN_EDGE_PX = 72;
 
     const onTouchStart = (event) => {
-      if (!mobileViewport.matches) return;
-      if (!controls) return;
+      if (!mobileViewport.matches || !controls) return;
       touchStartedWhenOpen = controls.classList.contains("open");
 
       const touch = event.touches && event.touches[0];
@@ -246,8 +299,7 @@
     };
 
     const onTouchEnd = (event) => {
-      if (!mobileViewport.matches) return;
-      if (!controls) return;
+      if (!mobileViewport.matches || !controls) return;
 
       const touch = event.changedTouches && event.changedTouches[0];
       if (!touch) return;
@@ -255,18 +307,15 @@
       const dx = touch.clientX - touchStartX;
       const dy = touch.clientY - touchStartY;
       const isHorizontal = Math.abs(dy) <= SWIPE_MAX_Y && Math.abs(dx) >= SWIPE_CLOSE_MIN_X;
-
       const wasOpen = touchStartedWhenOpen;
       touchStartedWhenOpen = false;
 
       if (isHorizontal && wasOpen && dx > 0) {
-        // Swipe right to close.
         setSidebarOpen(false);
         return;
       }
 
       if (isHorizontal && !wasOpen && dx < 0) {
-        // Swipe left from the right edge to open.
         const edgeStart = touchStartX >= (window.innerWidth - SWIPE_OPEN_EDGE_PX);
         if (edgeStart) {
           setSidebarOpen(true);
@@ -281,1359 +330,505 @@
     document.addEventListener("touchstart", onTouchStart, { passive: true });
     document.addEventListener("touchend", onTouchEnd, { passive: true });
 
-    // Desktop starts expanded by default.
     setDesktopCollapsed(false);
     setSidebarOpen(false);
   }
 
-  function getVisibleOffersForFilters(companyName = "all", parkName = "all") {
-    return passOffers.filter((offer) => {
-      const matchesCompany = companyName === "all" || offer.company === companyName;
-      const matchesPark = parkName === "all" || expandAccessibleParks(offer.accessibleParks).includes(parkName);
-      return matchesCompany && matchesPark;
-    });
-  }
-
-  function getCompanyTierOptions(companyName, parkName = "all") {
-    const companyTierSet = new Set(
-      getVisibleOffersForFilters(companyName, parkName).map((offer) => offer.passType)
-    );
-    return Array.from(companyTierSet).sort((a, b) => a.localeCompare(b));
-  }
-
-  function getPassTypeOrderMap(selectedCompany, selectedPark = "all") {
-    return new Map(getCompanyTierOptions(selectedCompany, selectedPark).map((tierName, index) => [tierName, index]));
-  }
-
-  function getTypeFilterOptions(selectedCompany, selectedPark = "all") {
-    const availableTiers = getCompanyTierOptions(selectedCompany, selectedPark);
-    return [
-      { value: "all", label: "All Tiers" },
-      ...availableTiers.map((tierName) => ({ value: tierName, label: tierName }))
-    ];
-  }
-
-  function ensureTypeSelectionIsVisible(selectedCompany, selectedPark = "all") {
-    const options = getTypeFilterOptions(selectedCompany, selectedPark);
-    const selectionExists = options.some((option) => option.value === pe.state.selectedTypeFilterValue);
-    if (!selectionExists) {
-      pe.state.selectedTypeFilterValue = "all";
-    }
-  }
-
-  function syncTypeInputWithSelection() {
-    const { typeFilterInput } = pe.dom;
-    if (!typeFilterInput) {
-      return;
-    }
-
-    if (pe.state.selectedTypeFilterValue === "all") {
-      typeFilterInput.value = "";
-      if (pe.dom.typeFilterSelect) {
-        pe.dom.typeFilterSelect.value = "all";
-      }
-      return;
-    }
-
-    const options = getTypeFilterOptions(pe.state.selectedCompanyFilterValue, pe.state.selectedParkFilterValue);
-    const selectedOption = options.find((option) => option.value === pe.state.selectedTypeFilterValue);
-    typeFilterInput.value = selectedOption ? selectedOption.label : "";
-    if (pe.dom.typeFilterSelect) {
-      pe.dom.typeFilterSelect.value = pe.state.selectedTypeFilterValue;
-    }
-  }
-
-  function getFilteredTypeOptions(query) {
-    const normalizedQuery = String(query || "").trim().toLowerCase();
-    const options = getTypeFilterOptions(pe.state.selectedCompanyFilterValue, pe.state.selectedParkFilterValue);
-    if (!normalizedQuery) {
-      return options;
-    }
-
-    const matchingOptions = options.filter(
-      (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-    );
-    const allOption = options.find((option) => option.value === "all");
-    return allOption ? [...matchingOptions, allOption] : matchingOptions;
-  }
-
-  function closeTypeFilterDropdown() {
-    const { typeFilterList, typeFilterInput } = pe.dom;
-    if (!typeFilterList || !typeFilterInput) {
-      return;
-    }
-    typeFilterList.hidden = true;
-    typeFilterInput.setAttribute("aria-expanded", "false");
-    if (activeDropdown?.listElement === typeFilterList) {
-      setActiveDropdown(null, null);
-    }
-    restoreDropdown(typeFilterList);
-  }
-
-  function openTypeFilterDropdown() {
-    const { typeFilterList, typeFilterInput } = pe.dom;
-    if (!typeFilterList || !typeFilterInput) {
-      return;
-    }
-    bindDropdownPositionListeners();
-    portalDropdown(typeFilterList);
-    setActiveDropdown(typeFilterList, typeFilterInput);
-    typeFilterList.hidden = false;
-    typeFilterInput.setAttribute("aria-expanded", "true");
-  }
-
-  function renderTypeFilterDropdownOptions(query = "") {
-    const { typeFilterList } = pe.dom;
-    if (!typeFilterList) {
-      return;
-    }
-
-    const filteredOptions = getFilteredTypeOptions(query);
-    typeFilterList.innerHTML = "";
-
-    if (filteredOptions.length === 0) {
-      const emptyOption = document.createElement("li");
-      emptyOption.className = "park-combobox-option is-empty";
-      emptyOption.textContent = "No matching tiers";
-      typeFilterList.appendChild(emptyOption);
-      return;
-    }
-
-    pe.state.highlightedTypeOptionIndex = Math.min(pe.state.highlightedTypeOptionIndex, filteredOptions.length - 1);
-
-    filteredOptions.forEach((option, index) => {
-      const item = document.createElement("li");
-      item.className = "park-combobox-option";
-      item.setAttribute("role", "option");
-      item.dataset.value = option.value;
-      item.textContent = option.label;
-      if (option.value === pe.state.selectedTypeFilterValue) {
-        item.classList.add("is-selected");
-      }
-      if (index === pe.state.highlightedTypeOptionIndex) {
-        item.classList.add("is-highlighted");
-      }
-      item.addEventListener("mousedown", (event) => {
-        event.preventDefault();
-        pe.state.selectedTypeFilterValue = option.value;
-        syncTypeInputWithSelection();
-        closeTypeFilterDropdown();
-        applyFilters();
-      });
-      typeFilterList.appendChild(item);
-    });
-  }
-
-  // Keeps the type combobox in sync with the active Company/Park scope.
-  function renderTypeFilterOptions(selectedCompany, selectedPark = "all") {
-    ensureTypeSelectionIsVisible(selectedCompany, selectedPark);
-
-    setSelectOptions(
-      pe.dom.typeFilterSelect,
-      getTypeFilterOptions(selectedCompany, selectedPark),
-      pe.state.selectedTypeFilterValue
-    );
-
-    syncTypeInputWithSelection();
-
-    const { typeFilterInput, typeFilterList } = pe.dom;
-    if (typeFilterInput && typeFilterList && typeFilterList.hidden === false) {
-      renderTypeFilterDropdownOptions(typeFilterInput.value);
-      openTypeFilterDropdown();
-    }
-  }
-
-  function syncCompanyInputWithSelection() {
-    const { companyFilterInput } = pe.dom;
-    const { selectedCompanyFilterValue } = pe.state;
-
-    if (!companyFilterInput) {
-      return;
-    }
-    if (selectedCompanyFilterValue === "all") {
-      companyFilterInput.value = "";
-      if (pe.dom.companyFilterSelect) {
-        pe.dom.companyFilterSelect.value = "all";
-      }
-      return;
-    }
-
-    const selectedOption = companyFilterOptions.find((option) => option.value === selectedCompanyFilterValue);
-    companyFilterInput.value = selectedOption ? selectedOption.label : "";
-    if (pe.dom.companyFilterSelect) {
-      pe.dom.companyFilterSelect.value = selectedCompanyFilterValue;
-    }
-  }
-
-  function getFilteredCompanyOptions(query) {
-    const normalizedQuery = String(query || "").trim().toLowerCase();
-    if (!normalizedQuery) {
-      return companyFilterOptions;
-    }
-
-    const matchingOptions = companyFilterOptions.filter(
-      (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-    );
-    const allCompaniesOption = companyFilterOptions.find((option) => option.value === "all");
-    return allCompaniesOption ? [...matchingOptions, allCompaniesOption] : matchingOptions;
-  }
-
-  function closeCompanyFilterDropdown() {
-    const { companyFilterList, companyFilterInput } = pe.dom;
-    if (!companyFilterList || !companyFilterInput) {
-      return;
-    }
-    companyFilterList.hidden = true;
-    companyFilterInput.setAttribute("aria-expanded", "false");
-    if (activeDropdown?.listElement === companyFilterList) {
-      setActiveDropdown(null, null);
-    }
-    restoreDropdown(companyFilterList);
-  }
-
-  function openCompanyFilterDropdown() {
-    const { companyFilterList, companyFilterInput } = pe.dom;
-    if (!companyFilterList || !companyFilterInput) {
-      return;
-    }
-    bindDropdownPositionListeners();
-    portalDropdown(companyFilterList);
-    setActiveDropdown(companyFilterList, companyFilterInput);
-    companyFilterList.hidden = false;
-    companyFilterInput.setAttribute("aria-expanded", "true");
-  }
-
-  function renderCompanyFilterOptions(query = "") {
-    const { companyFilterList } = pe.dom;
-    const { selectedCompanyFilterValue } = pe.state;
-
-    setSelectOptions(pe.dom.companyFilterSelect, companyFilterOptions, selectedCompanyFilterValue);
-
-    if (!companyFilterList) {
-      return;
-    }
-    const filteredOptions = getFilteredCompanyOptions(query);
-    companyFilterList.innerHTML = "";
-
-    if (filteredOptions.length === 0) {
-      const emptyOption = document.createElement("li");
-      emptyOption.className = "park-combobox-option is-empty";
-      emptyOption.textContent = "No matching companies";
-      companyFilterList.appendChild(emptyOption);
-      return;
-    }
-
-    pe.state.highlightedCompanyOptionIndex = Math.min(
-      pe.state.highlightedCompanyOptionIndex,
-      filteredOptions.length - 1
-    );
-
-    filteredOptions.forEach((option, index) => {
-      const item = document.createElement("li");
-      item.className = "park-combobox-option";
-      item.setAttribute("role", "option");
-      item.dataset.value = option.value;
-      item.textContent = option.label;
-      if (option.value === selectedCompanyFilterValue) {
-        item.classList.add("is-selected");
-      }
-      if (index === pe.state.highlightedCompanyOptionIndex) {
-        item.classList.add("is-highlighted");
-      }
-      item.addEventListener("mousedown", (event) => {
-        event.preventDefault();
-        pe.state.selectedCompanyFilterValue = option.value;
-        syncCompanyInputWithSelection();
-        closeCompanyFilterDropdown();
-        handleCompanyFilterChange();
-        applyFilters();
-      });
-      companyFilterList.appendChild(item);
-    });
-  }
-
-  function getScopedParkOptions() {
-    const { selectedCompanyFilterValue } = pe.state;
-    const { selectedCountryFilterValue, selectedStateFilterValue } = pe.state;
-
-    const matchesLocation = (parkName) => {
-      const location = parkByName[parkName] || null;
-      if (!location) {
-        return selectedCountryFilterValue === "all" && selectedStateFilterValue === "all";
-      }
-
-      const matchesCountry = selectedCountryFilterValue === "all"
-        || location.country === selectedCountryFilterValue;
-      const matchesState = selectedStateFilterValue === "all"
-        || location.state === selectedStateFilterValue;
-      return matchesCountry && matchesState;
+  function getCategoryElements(categoryKey) {
+    const config = filterConfig[categoryKey];
+    return {
+      input: pe.dom[config.inputKey],
+      list: pe.dom[config.listKey],
+      select: pe.dom[config.selectKey]
     };
-
-    const baseOptions = selectedCompanyFilterValue === "all"
-      ? allParkFilterOptions
-      : (() => {
-        const parksForCompany = new Set(
-          passOffers
-            .filter((offer) => offer.company === selectedCompanyFilterValue)
-            .flatMap((offer) => expandAccessibleParks(offer.accessibleParks))
-        );
-        return allParkFilterOptions.filter((option) => option.value === "all" || parksForCompany.has(option.value));
-      })();
-
-    if (selectedCountryFilterValue === "all" && selectedStateFilterValue === "all") {
-      return baseOptions;
-    }
-
-    return baseOptions.filter((option) => option.value === "all" || matchesLocation(option.value));
   }
 
-  function ensureParkSelectionIsVisible() {
-    if (pe.state.selectedParkFilterValue === "all") {
-      return;
-    }
-    const scopedOptions = getScopedParkOptions();
-    const selectionExists = scopedOptions.some((option) => option.value === pe.state.selectedParkFilterValue);
-    if (!selectionExists) {
-      pe.state.selectedParkFilterValue = "all";
-    }
+  function getActiveFilters() {
+    return pe.state.activeFilters;
   }
 
-  function syncParkInputWithSelection() {
-    const { parkFilterInput } = pe.dom;
-    const { selectedParkFilterValue } = pe.state;
-
-    if (selectedParkFilterValue === "all") {
-      parkFilterInput.value = "";
-      if (pe.dom.parkFilterSelect) {
-        pe.dom.parkFilterSelect.value = "all";
-      }
-      return;
-    }
-
-    const selectedOption = getScopedParkOptions().find((option) => option.value === selectedParkFilterValue);
-    parkFilterInput.value = selectedOption ? selectedOption.label : "";
-    if (pe.dom.parkFilterSelect) {
-      pe.dom.parkFilterSelect.value = selectedParkFilterValue;
-    }
+  function getFilterValues(categoryKey) {
+    return Array.isArray(getActiveFilters()[categoryKey]) ? getActiveFilters()[categoryKey] : [];
   }
 
-  function getFilteredParkOptions(query) {
-    const scopedParkOptions = getScopedParkOptions();
-    const normalizedQuery = String(query || "").trim().toLowerCase();
-    if (!normalizedQuery) {
-      return scopedParkOptions;
-    }
-
-    const matchingParkOptions = scopedParkOptions.filter(
-      (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-    );
-    const allParksOption = scopedParkOptions.find((option) => option.value === "all");
-    return allParksOption ? [...matchingParkOptions, allParksOption] : matchingParkOptions;
+  function normalizeQuery(value) {
+    return String(value || "").trim().toLowerCase();
   }
 
-  function closeParkFilterDropdown() {
-    const { parkFilterList, parkFilterInput } = pe.dom;
-    parkFilterList.hidden = true;
-    parkFilterInput.setAttribute("aria-expanded", "false");
-    if (activeDropdown?.listElement === parkFilterList) {
-      setActiveDropdown(null, null);
-    }
-    restoreDropdown(parkFilterList);
+  function getOfferParkNames(offer) {
+    return expandAccessibleParks(offer.accessibleParks);
   }
 
-  function openParkFilterDropdown() {
-    const { parkFilterList, parkFilterInput } = pe.dom;
-    bindDropdownPositionListeners();
-    portalDropdown(parkFilterList);
-    setActiveDropdown(parkFilterList, parkFilterInput);
-    parkFilterList.hidden = false;
-    parkFilterInput.setAttribute("aria-expanded", "true");
-  }
-
-  function renderParkFilterOptions(query = "") {
-    const { parkFilterList } = pe.dom;
-
-    ensureParkSelectionIsVisible();
-    setSelectOptions(pe.dom.parkFilterSelect, getScopedParkOptions(), pe.state.selectedParkFilterValue);
-
-    const filteredOptions = getFilteredParkOptions(query);
-    parkFilterList.innerHTML = "";
-
-    if (filteredOptions.length === 0) {
-      const emptyOption = document.createElement("li");
-      emptyOption.className = "park-combobox-option is-empty";
-      emptyOption.textContent = "No matching parks";
-      parkFilterList.appendChild(emptyOption);
-      return;
-    }
-
-    pe.state.highlightedParkOptionIndex = Math.min(pe.state.highlightedParkOptionIndex, filteredOptions.length - 1);
-
-    filteredOptions.forEach((option, index) => {
-      const item = document.createElement("li");
-      item.className = "park-combobox-option";
-      item.setAttribute("role", "option");
-      item.dataset.value = option.value;
-      item.textContent = option.label;
-      if (option.value === pe.state.selectedParkFilterValue) {
-        item.classList.add("is-selected");
-      }
-      if (index === pe.state.highlightedParkOptionIndex) {
-        item.classList.add("is-highlighted");
-      }
-      item.addEventListener("mousedown", (event) => {
-        event.preventDefault();
-        pe.state.selectedParkFilterValue = option.value;
-        syncParkInputWithSelection();
-        closeParkFilterDropdown();
-        applyFilters();
-      });
-      parkFilterList.appendChild(item);
-    });
-  }
-
-  function applyFilters() {
-    pe.renderPasses(
-      pe.state.selectedCompanyFilterValue,
-      pe.state.selectedParkFilterValue,
-      pe.state.selectedTypeFilterValue,
-      pe.dom.priceSort.value,
-      pe.state.selectedCountryFilterValue,
-      pe.state.selectedStateFilterValue
-    );
-  }
-
-  function handleCompanyFilterChange() {
-    renderTypeFilterOptions(pe.state.selectedCompanyFilterValue, pe.state.selectedParkFilterValue);
-    ensureParkSelectionIsVisible();
-    syncParkInputWithSelection();
-    renderParkFilterOptions(pe.dom.parkFilterInput.value);
-    renderCountryFilterOptions();
-    handleCountryFilterChange();
-  }
-
-  function handleParkFilterChange() {
-    renderTypeFilterOptions(pe.state.selectedCompanyFilterValue, pe.state.selectedParkFilterValue);
-  }
-
-  function syncCountryInputWithSelection() {
-    const { countryFilterInput } = pe.dom;
-    if (!countryFilterInput) {
-      return;
-    }
-
-    if (pe.state.selectedCountryFilterValue === "all") {
-      countryFilterInput.value = "";
-      if (pe.dom.countryFilterSelect) {
-        pe.dom.countryFilterSelect.value = "all";
-      }
-      return;
-    }
-
-    const selectedOption = getScopedCountryOptions().find((option) => option.value === pe.state.selectedCountryFilterValue);
-    countryFilterInput.value = selectedOption ? selectedOption.label : "";
-    if (pe.dom.countryFilterSelect) {
-      pe.dom.countryFilterSelect.value = pe.state.selectedCountryFilterValue;
-    }
-  }
-
-  function getScopedCountryOptions() {
-    const companyValue = pe.state.selectedCompanyFilterValue;
-    if (companyValue === "all") {
-      return countryFilterOptions;
-    }
-
-    const countriesForCompany = new Set(
-      passOffers
-        .filter((offer) => offer.company === companyValue)
-        .flatMap((offer) => [offer.homePark, ...expandAccessibleParks(offer.accessibleParks)])
-        .map((parkName) => parkByName[parkName]?.country)
-        .filter(Boolean)
-    );
-
-    const allOption = countryFilterOptions.find((option) => option.value === "all")
-      || { value: "all", label: "All Countries" };
-    const scoped = countryFilterOptions.filter(
-      (option) => option.value !== "all" && countriesForCompany.has(option.value)
-    );
-    return [allOption, ...scoped];
-  }
-
-  function getFilteredCountryOptions(query) {
-    const normalizedQuery = String(query || "").trim().toLowerCase();
-    if (!normalizedQuery) {
-      return getScopedCountryOptions();
-    }
-
-    const scopedOptions = getScopedCountryOptions();
-    const matchingOptions = scopedOptions.filter(
-      (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-    );
-    const allOption = scopedOptions.find((option) => option.value === "all");
-    return allOption ? [...matchingOptions, allOption] : matchingOptions;
-  }
-
-  function closeCountryFilterDropdown() {
-    const { countryFilterList, countryFilterInput } = pe.dom;
-    if (!countryFilterList || !countryFilterInput) {
-      return;
-    }
-    countryFilterList.hidden = true;
-    countryFilterInput.setAttribute("aria-expanded", "false");
-    if (activeDropdown?.listElement === countryFilterList) {
-      setActiveDropdown(null, null);
-    }
-    restoreDropdown(countryFilterList);
-  }
-
-  function openCountryFilterDropdown() {
-    const { countryFilterList, countryFilterInput } = pe.dom;
-    if (!countryFilterList || !countryFilterInput) {
-      return;
-    }
-    bindDropdownPositionListeners();
-    portalDropdown(countryFilterList);
-    setActiveDropdown(countryFilterList, countryFilterInput);
-    countryFilterList.hidden = false;
-    countryFilterInput.setAttribute("aria-expanded", "true");
-  }
-
-  function renderCountryFilterDropdownOptions(query = "") {
-    const { countryFilterList } = pe.dom;
-    if (!countryFilterList) {
-      return;
-    }
-
-    const filteredOptions = getFilteredCountryOptions(query);
-    countryFilterList.innerHTML = "";
-
-    if (filteredOptions.length === 0) {
-      const emptyOption = document.createElement("li");
-      emptyOption.className = "park-combobox-option is-empty";
-      emptyOption.textContent = "No matching countries";
-      countryFilterList.appendChild(emptyOption);
-      return;
-    }
-
-    pe.state.highlightedCountryOptionIndex = Math.min(pe.state.highlightedCountryOptionIndex, filteredOptions.length - 1);
-
-    filteredOptions.forEach((option, index) => {
-      const item = document.createElement("li");
-      item.className = "park-combobox-option";
-      item.setAttribute("role", "option");
-      item.dataset.value = option.value;
-      item.textContent = option.label;
-      if (option.value === pe.state.selectedCountryFilterValue) {
-        item.classList.add("is-selected");
-      }
-      if (index === pe.state.highlightedCountryOptionIndex) {
-        item.classList.add("is-highlighted");
-      }
-      item.addEventListener("mousedown", (event) => {
-        event.preventDefault();
-        pe.state.selectedCountryFilterValue = option.value;
-        syncCountryInputWithSelection();
-        closeCountryFilterDropdown();
-        handleCountryFilterChange();
-        applyFilters();
-      });
-      countryFilterList.appendChild(item);
-    });
-  }
-
-  function renderCountryFilterOptions() {
-    const scopedOptions = getScopedCountryOptions();
-    const selectionExists = scopedOptions.some((option) => option.value === pe.state.selectedCountryFilterValue);
-    if (!selectionExists) {
-      pe.state.selectedCountryFilterValue = "all";
-    }
-
-    setSelectOptions(pe.dom.countryFilterSelect, scopedOptions, pe.state.selectedCountryFilterValue);
-    syncCountryInputWithSelection();
-
-    const { countryFilterInput, countryFilterList } = pe.dom;
-    if (countryFilterInput && countryFilterList && countryFilterList.hidden === false) {
-      renderCountryFilterDropdownOptions(countryFilterInput.value);
-      openCountryFilterDropdown();
-    }
-  }
-
-  function ensureStateSelectionIsVisible() {
-    if (pe.state.selectedStateFilterValue === "all") {
-      return;
-    }
-
-    const options = getScopedStateOptions(pe.state.selectedCountryFilterValue);
-    const selectionExists = options.some((option) => option.value === pe.state.selectedStateFilterValue);
-    if (!selectionExists) {
-      pe.state.selectedStateFilterValue = "all";
-    }
-  }
-
-  function getScopedStateOptions(countryValue = "all") {
-    const companyValue = pe.state.selectedCompanyFilterValue;
-    const scopedOffers = companyValue === "all"
-      ? passOffers
-      : passOffers.filter((offer) => offer.company === companyValue);
-
+  function getOfferStateSet(offer) {
     const states = new Set();
-    for (const offer of scopedOffers) {
-      const parkNames = [offer.homePark, ...expandAccessibleParks(offer.accessibleParks)];
-      for (const parkName of parkNames) {
-        const park = parkByName[parkName];
-        if (!park) continue;
-        if (countryValue !== "all" && park.country !== countryValue) continue;
-        const state = park.state;
-        if (!state || state === "Unknown") continue;
+    for (const parkName of getOfferParkNames(offer)) {
+      const state = String(parkByName[parkName]?.state || "").trim();
+      if (state && state !== "Unknown") {
         states.add(state);
       }
     }
-
-    const stateList = Array.from(states).sort((a, b) => a.localeCompare(b));
-    return [
-      { value: "all", label: "All States / Provinces" },
-      ...stateList.map((state) => ({ value: state, label: state }))
-    ];
+    return states;
   }
 
-  function syncStateInputWithSelection() {
-    const { stateFilterInput } = pe.dom;
-    if (!stateFilterInput) {
-      return;
-    }
-
-    if (pe.state.selectedStateFilterValue === "all") {
-      stateFilterInput.value = "";
-      if (pe.dom.stateFilterSelect) {
-        pe.dom.stateFilterSelect.value = "all";
+  function getOfferCountrySet(offer) {
+    const countries = new Set();
+    for (const parkName of getOfferParkNames(offer)) {
+      const country = String(parkByName[parkName]?.country || "").trim();
+      if (country && country !== "Unknown") {
+        countries.add(country);
       }
-      return;
     }
-
-    const options = getScopedStateOptions(pe.state.selectedCountryFilterValue);
-    const selectedOption = options.find((option) => option.value === pe.state.selectedStateFilterValue);
-    stateFilterInput.value = selectedOption ? selectedOption.label : "";
-    if (pe.dom.stateFilterSelect) {
-      pe.dom.stateFilterSelect.value = pe.state.selectedStateFilterValue;
-    }
+    return countries;
   }
 
-  function getFilteredStateOptions(query) {
-    const normalizedQuery = String(query || "").trim().toLowerCase();
-    const options = getScopedStateOptions(pe.state.selectedCountryFilterValue);
+  function offerMatchesCategory(offer, categoryKey, values) {
+    if (!values || values.length === 0) {
+      return true;
+    }
+
+    if (categoryKey === "company") {
+      return values.includes(offer.company);
+    }
+
+    if (categoryKey === "type") {
+      return values.includes(offer.passType);
+    }
+
+    if (categoryKey === "park") {
+      const parks = getOfferParkNames(offer);
+      return values.every((value) => parks.includes(value));
+    }
+
+    if (categoryKey === "state") {
+      const states = getOfferStateSet(offer);
+      return values.every((value) => states.has(value));
+    }
+
+    if (categoryKey === "country") {
+      const countries = getOfferCountrySet(offer);
+      return values.every((value) => countries.has(value));
+    }
+
+    return true;
+  }
+
+  function offerMatchesFilters(offer, filters = getActiveFilters(), ignoredCategoryKey = "") {
+    return Object.keys(filterConfig).every((categoryKey) => {
+      if (categoryKey === ignoredCategoryKey) {
+        return true;
+      }
+      return offerMatchesCategory(offer, categoryKey, filters[categoryKey]);
+    });
+  }
+
+  function getOffersMatchingFilters(ignoredCategoryKey = "") {
+    return passOffers.filter((offer) => offerMatchesFilters(offer, getActiveFilters(), ignoredCategoryKey));
+  }
+
+  function getOptionsForCategory(categoryKey) {
+    const selectedValues = getFilterValues(categoryKey);
+    const shouldKeepCurrentCategoryScope = selectedValues.length > 0
+      && filterConfig[categoryKey].matchMode === "all";
+    const offers = shouldKeepCurrentCategoryScope
+      ? getOffersMatchingFilters()
+      : getOffersMatchingFilters(categoryKey);
+
+    if (categoryKey === "company") {
+      return Array.from(new Set(offers.map((offer) => offer.company)))
+        .sort((a, b) => a.localeCompare(b))
+        .map((value) => ({ value, label: value }));
+    }
+
+    if (categoryKey === "type") {
+      return Array.from(new Set(offers.map((offer) => offer.passType)))
+        .sort((a, b) => a.localeCompare(b))
+        .map((value) => ({ value, label: value }));
+    }
+
+    if (categoryKey === "park") {
+      return Array.from(
+        new Set(offers.flatMap((offer) => getOfferParkNames(offer)))
+      )
+        .sort((a, b) => a.localeCompare(b))
+        .map((value) => ({ value, label: value }));
+    }
+
+    if (categoryKey === "country") {
+      return Array.from(
+        new Set(offers.flatMap((offer) => Array.from(getOfferCountrySet(offer))))
+      )
+        .sort((a, b) => a.localeCompare(b))
+        .map((value) => ({ value, label: value }));
+    }
+
+    if (categoryKey === "state") {
+      return Array.from(
+        new Set(offers.flatMap((offer) => Array.from(getOfferStateSet(offer))))
+      )
+        .sort((a, b) => a.localeCompare(b))
+        .map((value) => ({ value, label: value }));
+    }
+
+    return [];
+  }
+
+  function getFilteredOptions(categoryKey, query = "") {
+    const options = getOptionsForCategory(categoryKey);
+    const normalizedQuery = normalizeQuery(query);
     if (!normalizedQuery) {
       return options;
     }
 
-    const matchingOptions = options.filter(
-      (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-    );
-    const allOption = options.find((option) => option.value === "all");
-    return allOption ? [...matchingOptions, allOption] : matchingOptions;
+    return options.filter((option) => option.label.toLowerCase().includes(normalizedQuery));
   }
 
-  function closeStateFilterDropdown() {
-    const { stateFilterList, stateFilterInput } = pe.dom;
-    if (!stateFilterList || !stateFilterInput) {
+  function clearAllInputQueries() {
+    for (const categoryKey of Object.keys(filterConfig)) {
+      const { input, select } = getCategoryElements(categoryKey);
+      if (input) {
+        input.value = "";
+      }
+      if (select) {
+        select.value = "";
+      }
+    }
+  }
+
+  function closeDropdown(categoryKey) {
+    const { input, list } = getCategoryElements(categoryKey);
+    if (!input || !list) {
       return;
     }
-    stateFilterList.hidden = true;
-    stateFilterInput.setAttribute("aria-expanded", "false");
-    if (activeDropdown?.listElement === stateFilterList) {
+
+    list.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    if (activeDropdown?.listElement === list) {
       setActiveDropdown(null, null);
     }
-    restoreDropdown(stateFilterList);
+    restoreDropdown(list);
   }
 
-  function openStateFilterDropdown() {
-    const { stateFilterList, stateFilterInput } = pe.dom;
-    if (!stateFilterList || !stateFilterInput) {
+  function closeAllDropdowns() {
+    for (const categoryKey of Object.keys(filterConfig)) {
+      closeDropdown(categoryKey);
+    }
+  }
+
+  function openDropdown(categoryKey) {
+    const { input, list } = getCategoryElements(categoryKey);
+    if (!input || !list) {
       return;
     }
+
     bindDropdownPositionListeners();
-    portalDropdown(stateFilterList);
-    setActiveDropdown(stateFilterList, stateFilterInput);
-    stateFilterList.hidden = false;
-    stateFilterInput.setAttribute("aria-expanded", "true");
+    portalDropdown(list);
+    setActiveDropdown(list, input);
+    list.hidden = false;
+    input.setAttribute("aria-expanded", "true");
   }
 
-  function renderStateFilterDropdownOptions(query = "") {
-    const { stateFilterList } = pe.dom;
-    if (!stateFilterList) {
+  function renderDropdownOptions(categoryKey, query = "") {
+    const config = filterConfig[categoryKey];
+    const { list } = getCategoryElements(categoryKey);
+    if (!list) {
       return;
     }
 
-    const filteredOptions = getFilteredStateOptions(query);
-    stateFilterList.innerHTML = "";
+    const options = getFilteredOptions(categoryKey, query);
+    const selectedValues = new Set(getFilterValues(categoryKey));
+    list.innerHTML = "";
 
-    if (filteredOptions.length === 0) {
+    if (options.length === 0) {
       const emptyOption = document.createElement("li");
       emptyOption.className = "park-combobox-option is-empty";
-      emptyOption.textContent = "No matching states / provinces";
-      stateFilterList.appendChild(emptyOption);
+      emptyOption.textContent = config.emptyText;
+      list.appendChild(emptyOption);
       return;
     }
 
-    pe.state.highlightedStateOptionIndex = Math.min(pe.state.highlightedStateOptionIndex, filteredOptions.length - 1);
+    const highlightedIndex = Math.min(
+      pe.state.highlightedOptionIndexByCategory[categoryKey] || 0,
+      Math.max(options.length - 1, 0)
+    );
+    pe.state.highlightedOptionIndexByCategory[categoryKey] = highlightedIndex;
 
-    filteredOptions.forEach((option, index) => {
+    options.forEach((option, index) => {
       const item = document.createElement("li");
       item.className = "park-combobox-option";
       item.setAttribute("role", "option");
       item.dataset.value = option.value;
       item.textContent = option.label;
-      if (option.value === pe.state.selectedStateFilterValue) {
+
+      if (selectedValues.has(option.value)) {
         item.classList.add("is-selected");
       }
-      if (index === pe.state.highlightedStateOptionIndex) {
+      if (index === highlightedIndex) {
         item.classList.add("is-highlighted");
       }
+
       item.addEventListener("mousedown", (event) => {
         event.preventDefault();
-        pe.state.selectedStateFilterValue = option.value;
-        syncStateInputWithSelection();
-        closeStateFilterDropdown();
-        handleStateFilterChange();
-        applyFilters();
+        toggleFilterValue(categoryKey, option.value);
       });
-      stateFilterList.appendChild(item);
+
+      list.appendChild(item);
     });
   }
 
-  function renderStateFilterOptions() {
-    ensureStateSelectionIsVisible();
-    setSelectOptions(
-      pe.dom.stateFilterSelect,
-      getScopedStateOptions(pe.state.selectedCountryFilterValue),
-      pe.state.selectedStateFilterValue
-    );
-    syncStateInputWithSelection();
+  function refreshFilterControls() {
+    for (const categoryKey of Object.keys(filterConfig)) {
+      const config = filterConfig[categoryKey];
+      const { input, list, select } = getCategoryElements(categoryKey);
+      const options = getOptionsForCategory(categoryKey);
 
-    const { stateFilterInput, stateFilterList } = pe.dom;
-    if (stateFilterInput && stateFilterList && stateFilterList.hidden === false) {
-      renderStateFilterDropdownOptions(stateFilterInput.value);
-      openStateFilterDropdown();
+      setSelectOptions(select, options, config.selectLabel);
+
+      if (input && list && list.hidden === false) {
+        renderDropdownOptions(categoryKey, input.value);
+        openDropdown(categoryKey);
+      }
     }
   }
 
-  function handleCountryFilterChange() {
-    renderStateFilterOptions();
-    renderParkFilterOptions(pe.dom.parkFilterInput.value);
-    ensureParkSelectionIsVisible();
-    syncParkInputWithSelection();
+  function renderActiveFilterTags() {
+    const { activeFilterBar, activeFilterTags, clearActiveFiltersBtn } = pe.dom;
+    if (!activeFilterBar || !activeFilterTags || !clearActiveFiltersBtn) {
+      return;
+    }
+
+    const entries = [];
+    for (const categoryKey of Object.keys(filterConfig)) {
+      for (const value of getFilterValues(categoryKey)) {
+        entries.push({
+          categoryKey,
+          label: `${filterConfig[categoryKey].label}: ${value}`,
+          value
+        });
+      }
+    }
+
+    activeFilterTags.innerHTML = "";
+
+    if (entries.length === 0) {
+      activeFilterBar.hidden = true;
+      clearActiveFiltersBtn.hidden = true;
+      return;
+    }
+
+    for (const entry of entries) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "active-filter-tag";
+      button.dataset.category = entry.categoryKey;
+      button.dataset.value = entry.value;
+      button.textContent = `${entry.label} x`;
+      button.setAttribute("aria-label", `Remove filter ${entry.label}`);
+      button.addEventListener("click", () => {
+        removeFilterValue(entry.categoryKey, entry.value);
+      });
+      activeFilterTags.appendChild(button);
+    }
+
+    activeFilterBar.hidden = false;
+    clearActiveFiltersBtn.hidden = false;
   }
 
-  function handleStateFilterChange() {
-    renderParkFilterOptions(pe.dom.parkFilterInput.value);
-    ensureParkSelectionIsVisible();
-    syncParkInputWithSelection();
+  function applyFilters() {
+    renderActiveFilterTags();
+    refreshFilterControls();
+    pe.renderPasses(getActiveFilters());
+  }
+
+  function addFilterValue(categoryKey, value) {
+    const normalizedValue = String(value || "").trim();
+    if (!normalizedValue) {
+      return;
+    }
+
+    const activeValues = getFilterValues(categoryKey);
+    if (!activeValues.includes(normalizedValue)) {
+      activeValues.push(normalizedValue);
+    }
+
+    const { input, select } = getCategoryElements(categoryKey);
+    if (input) {
+      input.value = "";
+    }
+    if (select) {
+      select.value = "";
+    }
+
+    closeDropdown(categoryKey);
+    applyFilters();
+  }
+
+  function removeFilterValue(categoryKey, value) {
+    pe.state.activeFilters[categoryKey] = getFilterValues(categoryKey)
+      .filter((entry) => entry !== value);
+    applyFilters();
+  }
+
+  function toggleFilterValue(categoryKey, value) {
+    if (getFilterValues(categoryKey).includes(value)) {
+      removeFilterValue(categoryKey, value);
+      return;
+    }
+    addFilterValue(categoryKey, value);
+  }
+
+  function clearAllFilters() {
+    for (const categoryKey of Object.keys(filterConfig)) {
+      pe.state.activeFilters[categoryKey] = [];
+    }
+    clearAllInputQueries();
+    closeAllDropdowns();
+    applyFilters();
+  }
+
+  function chooseHighlightedOrBestOption(categoryKey) {
+    const { input } = getCategoryElements(categoryKey);
+    const options = getFilteredOptions(categoryKey, input?.value || "");
+    if (options.length === 0) {
+      return null;
+    }
+
+    const normalizedQuery = normalizeQuery(input?.value || "");
+    const exactMatch = options.find((option) => option.label.toLowerCase() === normalizedQuery);
+    if (exactMatch) {
+      return exactMatch;
+    }
+
+    const highlightedIndex = pe.state.highlightedOptionIndexByCategory[categoryKey] || 0;
+    return options[Math.min(highlightedIndex, options.length - 1)] || options[0];
+  }
+
+  function bindCategoryEvents(categoryKey) {
+    const { input, list, select } = getCategoryElements(categoryKey);
+    if (!input || !list) {
+      return;
+    }
+
+    select?.addEventListener("change", () => {
+      const value = String(select.value || "").trim();
+      if (!value) {
+        return;
+      }
+      addFilterValue(categoryKey, value);
+    });
+
+    input.addEventListener("focus", () => {
+      pe.state.highlightedOptionIndexByCategory[categoryKey] = 0;
+      renderDropdownOptions(categoryKey, input.value);
+      openDropdown(categoryKey);
+    });
+
+    input.addEventListener("click", () => {
+      renderDropdownOptions(categoryKey, input.value);
+      openDropdown(categoryKey);
+    });
+
+    input.addEventListener("input", () => {
+      pe.state.highlightedOptionIndexByCategory[categoryKey] = 0;
+      renderDropdownOptions(categoryKey, input.value);
+      openDropdown(categoryKey);
+    });
+
+    input.addEventListener("keydown", (event) => {
+      const options = getFilteredOptions(categoryKey, input.value);
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (options.length > 0) {
+          pe.state.highlightedOptionIndexByCategory[categoryKey] = Math.min(
+            (pe.state.highlightedOptionIndexByCategory[categoryKey] || 0) + 1,
+            options.length - 1
+          );
+        }
+        renderDropdownOptions(categoryKey, input.value);
+        openDropdown(categoryKey);
+        return;
+      }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        pe.state.highlightedOptionIndexByCategory[categoryKey] = Math.max(
+          (pe.state.highlightedOptionIndexByCategory[categoryKey] || 0) - 1,
+          0
+        );
+        renderDropdownOptions(categoryKey, input.value);
+        openDropdown(categoryKey);
+        return;
+      }
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+        const option = chooseHighlightedOrBestOption(categoryKey);
+        if (option) {
+          addFilterValue(categoryKey, option.value);
+        }
+        return;
+      }
+
+      if (event.key === "Escape") {
+        closeDropdown(categoryKey);
+      }
+    });
+
+    input.addEventListener("blur", () => {
+      setTimeout(() => {
+        input.value = "";
+        closeDropdown(categoryKey);
+      }, 0);
+    });
   }
 
   function bindFilterEvents() {
     bindSidebarToggle();
 
-    const {
-      companyFilterInput,
-      companyFilterList,
-      companyFilterSelect,
-      parkFilterInput,
-      parkFilterList,
-      parkFilterSelect,
-      countryFilterInput,
-      countryFilterList,
-      countryFilterSelect,
-      stateFilterInput,
-      stateFilterList,
-      stateFilterSelect,
-      typeFilterInput,
-      typeFilterList,
-      typeFilterSelect,
-      priceSort
-    } = pe.dom;
+    for (const categoryKey of Object.keys(filterConfig)) {
+      bindCategoryEvents(categoryKey);
+    }
 
-    companyFilterSelect?.addEventListener("change", () => {
-      pe.state.selectedCompanyFilterValue = companyFilterSelect.value || "all";
-      syncCompanyInputWithSelection();
-      handleCompanyFilterChange();
-      applyFilters();
+    pe.dom.priceSort?.addEventListener("change", () => {
+      pe.renderPasses(getActiveFilters());
     });
 
-    parkFilterSelect?.addEventListener("change", () => {
-      pe.state.selectedParkFilterValue = parkFilterSelect.value || "all";
-      syncParkInputWithSelection();
-      handleParkFilterChange();
-      applyFilters();
-    });
-
-    countryFilterSelect?.addEventListener("change", () => {
-      pe.state.selectedCountryFilterValue = countryFilterSelect.value || "all";
-      syncCountryInputWithSelection();
-      handleCountryFilterChange();
-      applyFilters();
-    });
-
-    stateFilterSelect?.addEventListener("change", () => {
-      pe.state.selectedStateFilterValue = stateFilterSelect.value || "all";
-      syncStateInputWithSelection();
-      handleStateFilterChange();
-      applyFilters();
-    });
-
-    typeFilterSelect?.addEventListener("change", () => {
-      pe.state.selectedTypeFilterValue = typeFilterSelect.value || "all";
-      syncTypeInputWithSelection();
-      applyFilters();
-    });
-
-    companyFilterInput?.addEventListener("focus", () => {
-      pe.state.highlightedCompanyOptionIndex = 0;
-      renderCompanyFilterOptions(companyFilterInput.value);
-      openCompanyFilterDropdown();
-    });
-
-    companyFilterInput?.addEventListener("click", () => {
-      renderCompanyFilterOptions(companyFilterInput.value);
-      openCompanyFilterDropdown();
-    });
-
-    companyFilterInput?.addEventListener("input", () => {
-      const query = companyFilterInput.value;
-      const normalizedQuery = String(query || "").trim().toLowerCase();
-      pe.state.highlightedCompanyOptionIndex = 0;
-      renderCompanyFilterOptions(query);
-      openCompanyFilterDropdown();
-
-      if (!normalizedQuery) {
-        pe.state.selectedCompanyFilterValue = "all";
-        handleCompanyFilterChange();
-        applyFilters();
-        return;
-      }
-
-      const matchingCompanies = companyFilterOptions.filter(
-        (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-      );
-      const exactMatch = matchingCompanies.find((option) => option.label.toLowerCase() === normalizedQuery);
-      const autoSelectedOption = exactMatch || (matchingCompanies.length === 1 ? matchingCompanies[0] : null);
-
-      if (!autoSelectedOption) {
-        return;
-      }
-
-      pe.state.selectedCompanyFilterValue = autoSelectedOption.value;
-      handleCompanyFilterChange();
-      applyFilters();
-    });
-
-    companyFilterInput?.addEventListener("keydown", (event) => {
-      const filteredOptions = getFilteredCompanyOptions(companyFilterInput.value);
-      if (filteredOptions.length === 0) {
-        if (event.key === "Escape") {
-          closeCompanyFilterDropdown();
-        }
-        return;
-      }
-
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        pe.state.highlightedCompanyOptionIndex = Math.min(
-          pe.state.highlightedCompanyOptionIndex + 1,
-          filteredOptions.length - 1
-        );
-        renderCompanyFilterOptions(companyFilterInput.value);
-        openCompanyFilterDropdown();
-        return;
-      }
-
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        pe.state.highlightedCompanyOptionIndex = Math.max(pe.state.highlightedCompanyOptionIndex - 1, 0);
-        renderCompanyFilterOptions(companyFilterInput.value);
-        openCompanyFilterDropdown();
-        return;
-      }
-
-      if (event.key === "Enter") {
-        event.preventDefault();
-        const normalizedQuery = String(companyFilterInput.value || "").trim().toLowerCase();
-        if (!normalizedQuery) {
-          pe.state.selectedCompanyFilterValue = "all";
-        } else {
-          const companyOnlyOptions = filteredOptions.filter((option) => option.value !== "all");
-          const exactMatch = companyOnlyOptions.find((option) => option.label.toLowerCase() === normalizedQuery);
-          const highlightedOption = filteredOptions[pe.state.highlightedCompanyOptionIndex];
-          const fallbackOption = companyOnlyOptions[0];
-          const selectedOption = exactMatch
-            || (highlightedOption && highlightedOption.value !== "all" ? highlightedOption : null)
-            || fallbackOption;
-
-          pe.state.selectedCompanyFilterValue = selectedOption ? selectedOption.value : "all";
-        }
-
-        syncCompanyInputWithSelection();
-        closeCompanyFilterDropdown();
-        handleCompanyFilterChange();
-        applyFilters();
-        return;
-      }
-
-      if (event.key === "Escape") {
-        closeCompanyFilterDropdown();
-      }
-    });
-
-    parkFilterInput.addEventListener("focus", () => {
-      pe.state.highlightedParkOptionIndex = 0;
-      renderParkFilterOptions(parkFilterInput.value);
-      openParkFilterDropdown();
-    });
-
-    parkFilterInput.addEventListener("click", () => {
-      renderParkFilterOptions(parkFilterInput.value);
-      openParkFilterDropdown();
-    });
-
-    parkFilterInput.addEventListener("input", () => {
-      const query = parkFilterInput.value;
-      const normalizedQuery = String(query || "").trim().toLowerCase();
-      pe.state.highlightedParkOptionIndex = 0;
-      renderParkFilterOptions(query);
-      openParkFilterDropdown();
-
-      if (!normalizedQuery) {
-        pe.state.selectedParkFilterValue = "all";
-        handleParkFilterChange();
-        applyFilters();
-        return;
-      }
-
-      const matchingParks = getScopedParkOptions().filter(
-        (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-      );
-      const exactMatch = matchingParks.find((option) => option.label.toLowerCase() === normalizedQuery);
-      const autoSelectedOption = exactMatch || (matchingParks.length === 1 ? matchingParks[0] : null);
-
-      if (!autoSelectedOption) {
-        return;
-      }
-
-      pe.state.selectedParkFilterValue = autoSelectedOption.value;
-      handleParkFilterChange();
-      applyFilters();
-    });
-
-    parkFilterInput.addEventListener("keydown", (event) => {
-      const filteredOptions = getFilteredParkOptions(parkFilterInput.value);
-      if (filteredOptions.length === 0) {
-        if (event.key === "Escape") {
-          closeParkFilterDropdown();
-        }
-        return;
-      }
-
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        pe.state.highlightedParkOptionIndex = Math.min(pe.state.highlightedParkOptionIndex + 1, filteredOptions.length - 1);
-        renderParkFilterOptions(parkFilterInput.value);
-        openParkFilterDropdown();
-        return;
-      }
-
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        pe.state.highlightedParkOptionIndex = Math.max(pe.state.highlightedParkOptionIndex - 1, 0);
-        renderParkFilterOptions(parkFilterInput.value);
-        openParkFilterDropdown();
-        return;
-      }
-
-      if (event.key === "Enter") {
-        event.preventDefault();
-        const normalizedQuery = String(parkFilterInput.value || "").trim().toLowerCase();
-        if (!normalizedQuery) {
-          pe.state.selectedParkFilterValue = "all";
-        } else {
-          const parkOnlyOptions = filteredOptions.filter((option) => option.value !== "all");
-          const exactMatch = parkOnlyOptions.find((option) => option.label.toLowerCase() === normalizedQuery);
-          const highlightedOption = filteredOptions[pe.state.highlightedParkOptionIndex];
-          const fallbackOption = parkOnlyOptions[0];
-          const selectedOption = exactMatch
-            || (highlightedOption && highlightedOption.value !== "all" ? highlightedOption : null)
-            || fallbackOption;
-
-          pe.state.selectedParkFilterValue = selectedOption ? selectedOption.value : "all";
-        }
-
-        syncParkInputWithSelection();
-        closeParkFilterDropdown();
-        handleParkFilterChange();
-        applyFilters();
-        return;
-      }
-
-      if (event.key === "Escape") {
-        closeParkFilterDropdown();
-      }
-    });
-
-    countryFilterInput?.addEventListener("focus", () => {
-      pe.state.highlightedCountryOptionIndex = 0;
-      renderCountryFilterDropdownOptions(countryFilterInput.value);
-      openCountryFilterDropdown();
-    });
-
-    countryFilterInput?.addEventListener("click", () => {
-      renderCountryFilterDropdownOptions(countryFilterInput.value);
-      openCountryFilterDropdown();
-    });
-
-    countryFilterInput?.addEventListener("input", () => {
-      const query = countryFilterInput.value;
-      const normalizedQuery = String(query || "").trim().toLowerCase();
-      pe.state.highlightedCountryOptionIndex = 0;
-      renderCountryFilterDropdownOptions(query);
-      openCountryFilterDropdown();
-
-      if (!normalizedQuery) {
-        pe.state.selectedCountryFilterValue = "all";
-        handleCountryFilterChange();
-        applyFilters();
-        return;
-      }
-
-      const matchingCountries = getScopedCountryOptions().filter(
-        (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-      );
-      const exactMatch = matchingCountries.find((option) => option.label.toLowerCase() === normalizedQuery);
-      const autoSelectedOption = exactMatch || (matchingCountries.length === 1 ? matchingCountries[0] : null);
-      if (!autoSelectedOption) {
-        return;
-      }
-
-      pe.state.selectedCountryFilterValue = autoSelectedOption.value;
-      handleCountryFilterChange();
-      applyFilters();
-    });
-
-    countryFilterInput?.addEventListener("keydown", (event) => {
-      const filteredOptions = getFilteredCountryOptions(countryFilterInput.value);
-      if (filteredOptions.length === 0) {
-        if (event.key === "Escape") {
-          closeCountryFilterDropdown();
-        }
-        return;
-      }
-
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        pe.state.highlightedCountryOptionIndex = Math.min(
-          pe.state.highlightedCountryOptionIndex + 1,
-          filteredOptions.length - 1
-        );
-        renderCountryFilterDropdownOptions(countryFilterInput.value);
-        openCountryFilterDropdown();
-        return;
-      }
-
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        pe.state.highlightedCountryOptionIndex = Math.max(pe.state.highlightedCountryOptionIndex - 1, 0);
-        renderCountryFilterDropdownOptions(countryFilterInput.value);
-        openCountryFilterDropdown();
-        return;
-      }
-
-      if (event.key === "Enter") {
-        event.preventDefault();
-        const normalizedQuery = String(countryFilterInput.value || "").trim().toLowerCase();
-        if (!normalizedQuery) {
-          pe.state.selectedCountryFilterValue = "all";
-        } else {
-          const countryOnlyOptions = filteredOptions.filter((option) => option.value !== "all");
-          const exactMatch = countryOnlyOptions.find((option) => option.label.toLowerCase() === normalizedQuery);
-          const highlightedOption = filteredOptions[pe.state.highlightedCountryOptionIndex];
-          const fallbackOption = countryOnlyOptions[0];
-          const selectedOption = exactMatch
-            || (highlightedOption && highlightedOption.value !== "all" ? highlightedOption : null)
-            || fallbackOption;
-
-          pe.state.selectedCountryFilterValue = selectedOption ? selectedOption.value : "all";
-        }
-
-        syncCountryInputWithSelection();
-        closeCountryFilterDropdown();
-        handleCountryFilterChange();
-        applyFilters();
-        return;
-      }
-
-      if (event.key === "Escape") {
-        closeCountryFilterDropdown();
-      }
-    });
-
-    stateFilterInput?.addEventListener("focus", () => {
-      pe.state.highlightedStateOptionIndex = 0;
-      renderStateFilterDropdownOptions(stateFilterInput.value);
-      openStateFilterDropdown();
-    });
-
-    stateFilterInput?.addEventListener("click", () => {
-      renderStateFilterDropdownOptions(stateFilterInput.value);
-      openStateFilterDropdown();
-    });
-
-    stateFilterInput?.addEventListener("input", () => {
-      const query = stateFilterInput.value;
-      const normalizedQuery = String(query || "").trim().toLowerCase();
-      pe.state.highlightedStateOptionIndex = 0;
-      renderStateFilterDropdownOptions(query);
-      openStateFilterDropdown();
-
-      if (!normalizedQuery) {
-        pe.state.selectedStateFilterValue = "all";
-        handleStateFilterChange();
-        applyFilters();
-        return;
-      }
-
-      const options = getScopedStateOptions(pe.state.selectedCountryFilterValue);
-      const matchingStates = options.filter(
-        (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-      );
-      const exactMatch = matchingStates.find((option) => option.label.toLowerCase() === normalizedQuery);
-      const autoSelectedOption = exactMatch || (matchingStates.length === 1 ? matchingStates[0] : null);
-      if (!autoSelectedOption) {
-        return;
-      }
-
-      pe.state.selectedStateFilterValue = autoSelectedOption.value;
-      handleStateFilterChange();
-      applyFilters();
-    });
-
-    stateFilterInput?.addEventListener("keydown", (event) => {
-      const filteredOptions = getFilteredStateOptions(stateFilterInput.value);
-      if (filteredOptions.length === 0) {
-        if (event.key === "Escape") {
-          closeStateFilterDropdown();
-        }
-        return;
-      }
-
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        pe.state.highlightedStateOptionIndex = Math.min(
-          pe.state.highlightedStateOptionIndex + 1,
-          filteredOptions.length - 1
-        );
-        renderStateFilterDropdownOptions(stateFilterInput.value);
-        openStateFilterDropdown();
-        return;
-      }
-
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        pe.state.highlightedStateOptionIndex = Math.max(pe.state.highlightedStateOptionIndex - 1, 0);
-        renderStateFilterDropdownOptions(stateFilterInput.value);
-        openStateFilterDropdown();
-        return;
-      }
-
-      if (event.key === "Enter") {
-        event.preventDefault();
-        const normalizedQuery = String(stateFilterInput.value || "").trim().toLowerCase();
-        if (!normalizedQuery) {
-          pe.state.selectedStateFilterValue = "all";
-        } else {
-          const stateOnlyOptions = filteredOptions.filter((option) => option.value !== "all");
-          const exactMatch = stateOnlyOptions.find((option) => option.label.toLowerCase() === normalizedQuery);
-          const highlightedOption = filteredOptions[pe.state.highlightedStateOptionIndex];
-          const fallbackOption = stateOnlyOptions[0];
-          const selectedOption = exactMatch
-            || (highlightedOption && highlightedOption.value !== "all" ? highlightedOption : null)
-            || fallbackOption;
-
-          pe.state.selectedStateFilterValue = selectedOption ? selectedOption.value : "all";
-        }
-
-        syncStateInputWithSelection();
-        closeStateFilterDropdown();
-        handleStateFilterChange();
-        applyFilters();
-        return;
-      }
-
-      if (event.key === "Escape") {
-        closeStateFilterDropdown();
-      }
-    });
-
-    typeFilterInput?.addEventListener("focus", () => {
-      pe.state.highlightedTypeOptionIndex = 0;
-      renderTypeFilterDropdownOptions(typeFilterInput.value);
-      openTypeFilterDropdown();
-    });
-
-    typeFilterInput?.addEventListener("click", () => {
-      renderTypeFilterDropdownOptions(typeFilterInput.value);
-      openTypeFilterDropdown();
-    });
-
-    typeFilterInput?.addEventListener("input", () => {
-      const query = typeFilterInput.value;
-      const normalizedQuery = String(query || "").trim().toLowerCase();
-      pe.state.highlightedTypeOptionIndex = 0;
-      renderTypeFilterDropdownOptions(query);
-      openTypeFilterDropdown();
-
-      if (!normalizedQuery) {
-        pe.state.selectedTypeFilterValue = "all";
-        applyFilters();
-        return;
-      }
-
-      const options = getTypeFilterOptions(pe.state.selectedCompanyFilterValue, pe.state.selectedParkFilterValue);
-      const matchingTypes = options.filter(
-        (option) => option.value !== "all" && option.label.toLowerCase().includes(normalizedQuery)
-      );
-      const exactMatch = matchingTypes.find((option) => option.label.toLowerCase() === normalizedQuery);
-      const autoSelectedOption = exactMatch || (matchingTypes.length === 1 ? matchingTypes[0] : null);
-      if (!autoSelectedOption) {
-        return;
-      }
-
-      pe.state.selectedTypeFilterValue = autoSelectedOption.value;
-      applyFilters();
-    });
-
-    typeFilterInput?.addEventListener("keydown", (event) => {
-      const filteredOptions = getFilteredTypeOptions(typeFilterInput.value);
-      if (filteredOptions.length === 0) {
-        if (event.key === "Escape") {
-          closeTypeFilterDropdown();
-        }
-        return;
-      }
-
-      if (event.key === "ArrowDown") {
-        event.preventDefault();
-        pe.state.highlightedTypeOptionIndex = Math.min(
-          pe.state.highlightedTypeOptionIndex + 1,
-          filteredOptions.length - 1
-        );
-        renderTypeFilterDropdownOptions(typeFilterInput.value);
-        openTypeFilterDropdown();
-        return;
-      }
-
-      if (event.key === "ArrowUp") {
-        event.preventDefault();
-        pe.state.highlightedTypeOptionIndex = Math.max(pe.state.highlightedTypeOptionIndex - 1, 0);
-        renderTypeFilterDropdownOptions(typeFilterInput.value);
-        openTypeFilterDropdown();
-        return;
-      }
-
-      if (event.key === "Enter") {
-        event.preventDefault();
-        const normalizedQuery = String(typeFilterInput.value || "").trim().toLowerCase();
-        if (!normalizedQuery) {
-          pe.state.selectedTypeFilterValue = "all";
-        } else {
-          const typeOnlyOptions = filteredOptions.filter((option) => option.value !== "all");
-          const exactMatch = typeOnlyOptions.find((option) => option.label.toLowerCase() === normalizedQuery);
-          const highlightedOption = filteredOptions[pe.state.highlightedTypeOptionIndex];
-          const fallbackOption = typeOnlyOptions[0];
-          const selectedOption = exactMatch
-            || (highlightedOption && highlightedOption.value !== "all" ? highlightedOption : null)
-            || fallbackOption;
-
-          pe.state.selectedTypeFilterValue = selectedOption ? selectedOption.value : "all";
-        }
-
-        syncTypeInputWithSelection();
-        closeTypeFilterDropdown();
-        applyFilters();
-        return;
-      }
-
-      if (event.key === "Escape") {
-        closeTypeFilterDropdown();
-      }
-    });
+    pe.dom.clearActiveFiltersBtn?.addEventListener("click", clearAllFilters);
 
     document.addEventListener("click", (event) => {
       const target = event.target;
-      if (
-        target instanceof Node
-        && !parkFilterInput.contains(target)
-        && !parkFilterList.contains(target)
-        && !companyFilterInput?.contains(target)
-        && !companyFilterList?.contains(target)
-        && !countryFilterInput?.contains(target)
-        && !countryFilterList?.contains(target)
-        && !stateFilterInput?.contains(target)
-        && !stateFilterList?.contains(target)
-        && !typeFilterInput?.contains(target)
-        && !typeFilterList?.contains(target)
-      ) {
-        closeParkFilterDropdown();
-        closeCompanyFilterDropdown();
-        closeCountryFilterDropdown();
-        closeStateFilterDropdown();
-        closeTypeFilterDropdown();
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      const clickedInsideDropdown = Object.keys(filterConfig).some((categoryKey) => {
+        const { input, list } = getCategoryElements(categoryKey);
+        return Boolean(input?.contains(target) || list?.contains(target));
+      });
+
+      if (!clickedInsideDropdown) {
+        closeAllDropdowns();
       }
     });
-
-    companyFilterInput?.addEventListener("blur", () => {
-      setTimeout(() => {
-        syncCompanyInputWithSelection();
-        closeCompanyFilterDropdown();
-      }, 0);
-    });
-
-    parkFilterInput.addEventListener("blur", () => {
-      setTimeout(() => {
-        syncParkInputWithSelection();
-        closeParkFilterDropdown();
-      }, 0);
-    });
-
-    countryFilterInput?.addEventListener("blur", () => {
-      setTimeout(() => {
-        syncCountryInputWithSelection();
-        closeCountryFilterDropdown();
-      }, 0);
-    });
-
-    stateFilterInput?.addEventListener("blur", () => {
-      setTimeout(() => {
-        syncStateInputWithSelection();
-        closeStateFilterDropdown();
-      }, 0);
-    });
-
-    typeFilterInput?.addEventListener("blur", () => {
-      setTimeout(() => {
-        syncTypeInputWithSelection();
-        closeTypeFilterDropdown();
-      }, 0);
-    });
-
-    priceSort.addEventListener("change", applyFilters);
   }
 
-  pe.getPassTypeOrderMap = getPassTypeOrderMap;
-  pe.renderTypeFilterOptions = renderTypeFilterOptions;
-  pe.syncCompanyInputWithSelection = syncCompanyInputWithSelection;
-  pe.renderCompanyFilterOptions = renderCompanyFilterOptions;
-  pe.syncParkInputWithSelection = syncParkInputWithSelection;
-  pe.renderParkFilterOptions = renderParkFilterOptions;
-  pe.applyFilters = applyFilters;
-  pe.handleCompanyFilterChange = handleCompanyFilterChange;
-  pe.handleParkFilterChange = handleParkFilterChange;
-  pe.renderCountryFilterOptions = renderCountryFilterOptions;
-  pe.renderStateFilterOptions = renderStateFilterOptions;
+  function getPassTypeOrderMap(activeFilters = getActiveFilters()) {
+    const visibleTypes = Array.from(
+      new Set(
+        passOffers
+          .filter((offer) => offerMatchesFilters(offer, activeFilters, "type"))
+          .map((offer) => offer.passType)
+      )
+    ).sort((a, b) => a.localeCompare(b));
+
+    return new Map(visibleTypes.map((tierName, index) => [tierName, index]));
+  }
+
   pe.bindFilterEvents = bindFilterEvents;
+  pe.refreshFilterControls = refreshFilterControls;
+  pe.renderActiveFilterTags = renderActiveFilterTags;
+  pe.clearAllFilters = clearAllFilters;
+  pe.getActiveFilters = getActiveFilters;
+  pe.offerMatchesFilters = offerMatchesFilters;
+  pe.getPassTypeOrderMap = getPassTypeOrderMap;
 })();

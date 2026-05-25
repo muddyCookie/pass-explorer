@@ -34,6 +34,9 @@
     priceSort: document.getElementById("priceSort"),
     passGrid: document.getElementById("passGrid"),
     resultsMeta: document.getElementById("resultsMeta"),
+    activeFilterBar: document.getElementById("activeFilterBar"),
+    activeFilterTags: document.getElementById("activeFilterTags"),
+    clearActiveFiltersBtn: document.getElementById("clearActiveFiltersBtn"),
     template: document.getElementById("passCardTemplate"),
     pricingNoticeBanner,
     pricingNoticeFooterDetails,
@@ -154,12 +157,7 @@
   }
 
   // Start in an unscoped state: no single company is selected by default.
-  pe.renderTypeFilterOptions("all", "all");
-  pe.renderCompanyFilterOptions();
-  pe.syncCompanyInputWithSelection();
-  pe.renderParkFilterOptions();
-  pe.syncParkInputWithSelection();
-  pe.renderCountryFilterOptions();
-  pe.renderStateFilterOptions();
-  pe.renderPasses("all");
+  pe.refreshFilterControls();
+  pe.renderActiveFilterTags();
+  pe.renderPasses();
 })();

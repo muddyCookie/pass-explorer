@@ -737,6 +737,46 @@ input[type="search"]::-webkit-search-cancel-button {
   margin: 0;
 }
 
+.active-filter-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin: -0.15rem 0 1rem;
+}
+
+.active-filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.active-filter-tag,
+.active-filter-clear {
+  border: 1px solid var(--tag-border);
+  background: var(--tag-bg);
+  color: inherit;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.36rem 0.68rem;
+  cursor: pointer;
+}
+
+.active-filter-tag:hover,
+.active-filter-tag:focus-visible,
+.active-filter-clear:hover,
+.active-filter-clear:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.active-filter-clear {
+  white-space: nowrap;
+  background: transparent;
+}
+
 .pricing-notice-header-btn {
   border: 1px solid var(--btn-border);
   background: linear-gradient(180deg, var(--btn-surface) 0%, var(--btn-surface-2) 100%);
@@ -768,6 +808,17 @@ input[type="search"]::-webkit-search-cancel-button {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.95rem;
+}
+
+@media (max-width: 679px) {
+  .active-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .active-filter-clear {
+    align-self: flex-start;
+  }
 }
 
 .pass-card {

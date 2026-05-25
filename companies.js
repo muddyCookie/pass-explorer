@@ -42,7 +42,7 @@ const companyCatalog = [
     name: "Six Flags",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    defaultDate: "2026-12-31",
+    defaultDate: "year-12-31",
     defaultUrl: "sixflags",
     defaultUrlPass: "season-passes",
     defaultMembershipUrlPass: "memberships"
@@ -51,7 +51,7 @@ const companyCatalog = [
     name: "Enchanted Parks",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    defaultDate: "2026-12-31",
+    defaultDate: "year-12-31",
     defaultUrlPass: "passes-and-tickets/park-admission/season-passes/",
     urlRules: {
       parkTemplate: "https://{hostSlug}.enchantedparks.com",
@@ -62,7 +62,7 @@ const companyCatalog = [
     name: "Herschend",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    defaultDate: "2026-12-31",
+    defaultDate: "year-12-31",
     defaultSlug: "buy-tickets",
     defaultUrlPass: "season-passes"
   },
@@ -70,7 +70,7 @@ const companyCatalog = [
   name: "Fun Spot America",
   defaultCurrency: "USD",
   defaultCountry: "United States",
-  defaultDate: "2026-12-31",
+  defaultDate: "year-12-31",
   defaultUrl: "fun-spot",
   defaultUrlPass: "buy-tickets"
   },
@@ -78,7 +78,7 @@ const companyCatalog = [
     name: "Merlin Entertainments",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    defaultDate: "2026-12-31",
+    defaultDate: "year-12-31",
     defaultUrl: "legoland",
     defaultUrlPass: "tickets-passes/annual-passes"
   },
@@ -144,7 +144,14 @@ function getCompanyDefaultCountry(companyName) {
 
 function getCompanyDefaultDate(companyName) {
   const rawDate = String(getCompanyConfig(companyName)?.defaultDate || "").trim();
-  
+
+  const formatUtcDate = (date) => {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   // Handle dynamic date expressions like "today+1y"
   const todayMatch = /^today\+([0-9]+)y$/.exec(rawDate);
   if (todayMatch) {
@@ -155,12 +162,21 @@ function getCompanyDefaultDate(companyName) {
     if (target.getUTCDate() !== now.getUTCDate()) {
       target.setUTCDate(Math.min(now.getUTCDate(), lastDayOfMonth));
     }
-    const year = target.getUTCFullYear();
-    const month = String(target.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(target.getUTCDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    return formatUtcDate(target);
   }
-  
+
+  // Handle year-relative expressions like "year+1-12-31".
+  const yearMatch = /^year([+-]\d+)?-(\d{2})-(\d{2})$/.exec(rawDate);
+  if (yearMatch) {
+    const yearOffset = Number(yearMatch[1] || 0);
+    const monthIndex = Number(yearMatch[2]) - 1;
+    const day = Number(yearMatch[3]);
+    const now = new Date();
+    const target = new Date(Date.UTC(now.getUTCFullYear() + yearOffset, monthIndex + 1, 0));
+    target.setUTCDate(Math.min(day, target.getUTCDate()));
+    return formatUtcDate(target);
+  }
+
   return rawDate;
 }
 

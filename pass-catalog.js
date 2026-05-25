@@ -47,6 +47,42 @@ function normalizeAccessDurationMonths(rawValue) {
   return Number.isFinite(numeric) && numeric > 0 ? Math.round(numeric) : null;
 }
 
+function getTodayUtcDateOnly() {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+}
+
+function addMonthsUtc(dateUtc, months) {
+  if (!(dateUtc instanceof Date) || !Number.isFinite(dateUtc.getTime())) {
+    return null;
+  }
+
+  const numericMonths = Number(months);
+  if (!Number.isFinite(numericMonths) || numericMonths <= 0) {
+    return null;
+  }
+
+  const roundedMonths = Math.round(numericMonths);
+  const year = dateUtc.getUTCFullYear();
+  const month = dateUtc.getUTCMonth();
+  const day = dateUtc.getUTCDate();
+  const tentative = new Date(Date.UTC(year, month + roundedMonths, 1));
+  const lastDayOfTargetMonth = new Date(Date.UTC(tentative.getUTCFullYear(), tentative.getUTCMonth() + 1, 0)).getUTCDate();
+  const clampedDay = Math.min(day, lastDayOfTargetMonth);
+  return new Date(Date.UTC(tentative.getUTCFullYear(), tentative.getUTCMonth(), clampedDay));
+}
+
+function formatUtcDate(dateUtc) {
+  if (!(dateUtc instanceof Date) || !Number.isFinite(dateUtc.getTime())) {
+    return "";
+  }
+
+  const year = dateUtc.getUTCFullYear();
+  const month = String(dateUtc.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(dateUtc.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function getExpandedParkCatalogEntries() {
   return Object.entries(parkCatalog || {}).flatMap(([company, groups]) =>
     Object.entries(groups || {}).flatMap(([group, groupConfig]) => {
@@ -598,6 +634,21 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       )
       : null;
 
+    const accessDurationMonths = normalizeAccessDurationMonths(
+      passDefinition?.accessDurationMonths
+      ?? passDefinition?.durationMonths
+      ?? (isMembership ? pricing?.minMonths : null)
+    );
+    const membershipAccessThru = isMembership && accessDurationMonths
+      ? formatUtcDate(addMonthsUtc(getTodayUtcDateOnly(), accessDurationMonths))
+      : "";
+    const accessThru = String(
+      passDefinition.accessThru
+      || membershipAccessThru
+      || getCompanyDefaultDate(company)
+      || ""
+    ).trim();
+
     passOffers.push({
       id: `${slugify(parkName)}-${slugify(passType)}-${slugify(company)}`,
       homePark: parkName,
@@ -609,8 +660,8 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       disclaimer: String(passDefinition.disclaimer || parkConfig.disclaimer || "").trim(),
       passPurchaseUrl: resolvedTierPassUrl || resolvedFallbackUrl,
       accessibleParks,
-      accessThru: String(passDefinition.accessThru || getCompanyDefaultDate(company) || "").trim(),
-      accessDurationMonths: normalizeAccessDurationMonths(passDefinition?.accessDurationMonths ?? passDefinition?.durationMonths),
+      accessThru,
+      accessDurationMonths,
       explicitParkingIncludedParks: hasExplicitParkingConfig
         ? resolveExplicitParkingIncludedParks(expandedAccessibleParks, passParkingConfig, parkName)
         : null
