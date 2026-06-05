@@ -2,7 +2,7 @@
 // Do not edit by hand (edit scripts/price-sources.json instead).
 
 window.priceOverridesMeta = {
-  "generatedAt": "2026-06-05T02:41:57.681Z",
+  "generatedAt": "2026-06-05T14:47:01.328Z",
   "timezone": "UTC"
 }
 ;
@@ -10,31 +10,31 @@ window.priceOverrides = {
   "Worlds of Fun": {
     "Hero": {
       "updatedAt": "2026-06-05",
-      "price": "$65.99"
+      "price": "$79.99"
     },
     "Legend": {
       "updatedAt": "2026-06-05",
-      "price": "$90.99"
+      "price": "$109.99"
     }
   },
   "Six Flags St. Louis": {
     "Hero": {
       "updatedAt": "2026-06-05",
-      "price": "$65.99"
+      "price": "$73.99"
     },
     "Legend": {
       "updatedAt": "2026-06-05",
-      "price": "$90.99"
+      "price": "$103.99"
     }
   },
   "Valleyfair": {
     "Hero": {
       "updatedAt": "2026-06-05",
-      "price": "$65.99"
+      "price": "$79.99"
     },
     "Legend": {
       "updatedAt": "2026-06-05",
-      "price": "$90.99"
+      "price": "$109.99"
     }
   },
   "Michigan's Adventure": {
@@ -50,11 +50,11 @@ window.priceOverrides = {
   "Six Flags Great Escape": {
     "Hero": {
       "updatedAt": "2026-06-05",
-      "price": "$65.99"
+      "price": "$79.99"
     },
     "Legend": {
       "updatedAt": "2026-06-05",
-      "price": "$90.99"
+      "price": "$109.99"
     }
   },
   "California's Great America": {

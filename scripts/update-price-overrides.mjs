@@ -962,24 +962,25 @@ async function main() {
     const url = asUrl(source?.url);
     if (!url) continue;
 
-    const method = String(source?.method || "GET").toUpperCase();
-    const headersRaw = source?.headers && typeof source.headers === "object" ? source.headers : {};
-    const headers = normalizeHeaderMap(headersRaw);
-    let body = source?.body ?? null;
-    const extract = source?.extract || {};
-    const extractType = String(extract?.type || "regex");
+    try {
+      const method = String(source?.method || "GET").toUpperCase();
+      const headersRaw = source?.headers && typeof source.headers === "object" ? source.headers : {};
+      const headers = normalizeHeaderMap(headersRaw);
+      let body = source?.body ?? null;
+      const extract = source?.extract || {};
+      const extractType = String(extract?.type || "regex");
 
-    const isAccessoPackageSwaps = method === "POST"
-      && /\/api\/request\/getpackageswaps/i.test(url.pathname)
-      && body
-      && typeof body === "object";
-    if (isAccessoPackageSwaps) {
-      const needsTokens = ["request_token", "cart_id", "cart_key", "session_id"].some((key) => body?.[key] === "");
-      if (needsTokens) {
-        const tokens = await resolveAccessoSessionTokens(url.toString(), headers, body);
-        body = fillBodyPlaceholders(body, tokens);
+      const isAccessoPackageSwaps = method === "POST"
+        && /\/api\/request\/getpackageswaps/i.test(url.pathname)
+        && body
+        && typeof body === "object";
+      if (isAccessoPackageSwaps) {
+        const needsTokens = ["request_token", "cart_id", "cart_key", "session_id"].some((key) => body?.[key] === "");
+        if (needsTokens) {
+          const tokens = await resolveAccessoSessionTokens(url.toString(), headers, body);
+          body = fillBodyPlaceholders(body, tokens);
+        }
       }
-    }
 
     let extracted = "";
     let jsonForDebug = null;
@@ -1134,6 +1135,10 @@ async function main() {
     overrides[park][passType] ??= { updatedAt };
     setByDotPath(overrides[park][passType], targetPath, normalized);
     overrides[park][passType].updatedAt = updatedAt;
+    } catch (error) {
+      console.error(`Error fetching/processing ${park} / ${passType} from ${url.toString()}: ${error?.message || String(error)}`);
+      missingCount += 1;
+    }
   }
 
   if (sources.length > 0 && Object.keys(overrides).length === 0) {
