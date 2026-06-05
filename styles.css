@@ -219,6 +219,14 @@ body.is-scroll-locked {
   line-height: 1.35;
 }
 
+.prices-last-updated {
+  margin: -0.55rem 0 1rem;
+  color: var(--muted-ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
 .app-footer__link {
   border: 0;
   background: transparent;

@@ -14,6 +14,7 @@
   const pricingNoticeFooterDetails = document.getElementById("pricingNoticeFooterDetails");
   const pricingNoticeDialog = document.getElementById("pricingNoticeDialog");
   const pricingNoticeDialogClose = document.getElementById("pricingNoticeDialogClose");
+  const pricesLastUpdated = document.getElementById("pricesLastUpdated");
 
   pe.dom = {
     parkFilterInput,
@@ -40,8 +41,50 @@
     template: document.getElementById("passCardTemplate"),
     pricingNoticeBanner,
     pricingNoticeFooterDetails,
-    pricingNoticeDialog
+    pricingNoticeDialog,
+    pricesLastUpdated
   };
+
+  function getFallbackPriceUpdatedAt() {
+    const overrides = window.priceOverrides;
+    if (!overrides || typeof overrides !== "object") return "";
+
+    let latest = "";
+    for (const parkOverrides of Object.values(overrides)) {
+      if (!parkOverrides || typeof parkOverrides !== "object") continue;
+      for (const passOverride of Object.values(parkOverrides)) {
+        const value = String(passOverride?.updatedAt || "").trim();
+        if (value && value > latest) latest = value;
+      }
+    }
+    return latest;
+  }
+
+  function renderPricesLastUpdated() {
+    if (!pricesLastUpdated) return;
+
+    const generatedAt = String(window.priceOverridesMeta?.generatedAt || "").trim();
+    const fallbackDate = getFallbackPriceUpdatedAt();
+    const rawDate = generatedAt || fallbackDate;
+    if (!rawDate) return;
+
+    const hasTime = rawDate.includes("T");
+    const date = new Date(hasTime ? rawDate : `${rawDate}T00:00:00`);
+    if (Number.isNaN(date.getTime())) {
+      pricesLastUpdated.textContent = `Prices last updated: ${rawDate}`;
+      pricesLastUpdated.hidden = false;
+      return;
+    }
+
+    const formatter = new Intl.DateTimeFormat(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      ...(hasTime ? { hour: "numeric", minute: "2-digit", timeZoneName: "short" } : {})
+    });
+    pricesLastUpdated.textContent = `Prices last updated: ${formatter.format(date)}`;
+    pricesLastUpdated.hidden = false;
+  }
 
   function bindPricingNotice() {
     if (!pricingNoticeBanner || !pricingNoticeDialog) return;
@@ -151,6 +194,7 @@
 
   pe.bindFilterEvents();
   bindPricingNotice();
+  renderPricesLastUpdated();
 
   if (typeof fetchExchangeRates === "function") {
     await fetchExchangeRates();
