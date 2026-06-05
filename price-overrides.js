@@ -2,7 +2,7 @@
 // Do not edit by hand (edit scripts/price-sources.json instead).
 
 window.priceOverridesMeta = {
-  "generatedAt": "2026-06-05T14:47:01.328Z",
+  "generatedAt": "2026-06-05T14:49:36.698Z",
   "timezone": "UTC"
 }
 ;
