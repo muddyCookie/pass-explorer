@@ -1035,83 +1035,93 @@ async function main() {
     }
 
     const normalized = normalizePriceString(extracted);
-    if (!normalized) {
-      missingCount += 1;
-      console.warn(`No price extracted for ${park} / ${passType} (${url.toString()})`);
-      if (missingCount <= 3) {
-        const matchSpecDebug = extract?.match ?? extract?.matchSpec ?? null;
-        const valuePathDebug = extract?.value?.path ?? extract?.valuePath ?? null;
-        console.warn(`Debug match spec: ${matchSpecDebug ? JSON.stringify(matchSpecDebug) : "null"}; valuePath: ${valuePathDebug ? JSON.stringify(valuePathDebug) : "null"}`);
-      }
-      if (textForDebug && url.host.toLowerCase().includes("ticketspice.com")) {
-        const text = String(textForDebug);
-        const flattened = text
-          .replace(/<!--[\s\S]*?-->/g, "")
-          .replace(/&nbsp;|&#160;/gi, " ")
-          .replace(/<[^>]+>/g, " ")
-          .replace(/\s+/g, " ");
-        const snippet = text.slice(0, 400).replace(/\s+/g, " ").trim();
-        const tail = text.slice(Math.max(0, text.length - 400)).replace(/\s+/g, " ").trim();
-        const hasHero = /Enchanted\s+Hero\s+Pass/i.test(flattened);
-        const hasLegend = /Enchanted\s+Legend\s+Pass/i.test(flattened);
-        const hasEnchantedSection =
-          /###\s*Enchanted\s+Passes/i.test(flattened) ||
-          /Enchanted\s+Passes/i.test(flattened);
-        const hasDollar = /(?:\$|&#36;|&dollar;)\s*[0-9]+(?:\.[0-9]{2})?/i.test(flattened);
-        console.warn(
-          `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
-        );
+    const targetPath = String(source?.target || "price").trim() || "price";
+    
+    // Check if extraction failed or returned an invalid price (0 or empty)
+    const extractedPrice = parsePriceNumber(extracted);
+    const shouldUseFallback = !normalized || extractedPrice <= 0;
 
-        const patternForDebug = String(extract?.pattern || "");
-        if (patternForDebug) {
-          try {
-            const re = new RegExp(patternForDebug, "i");
-            const hit = re.exec(text) || re.exec(flattened);
-            console.warn(
-              `TicketSpice debug: regexHit=${hit ? "true" : "false"} captured=${hit?.[1] ? JSON.stringify(hit[1]) : "null"}`
-            );
-          } catch (error) {
-            console.warn(`TicketSpice debug: regexError=${JSON.stringify(error?.message || String(error))}`);
-          }
+    if (!normalized || shouldUseFallback) {
+      if (!normalized) {
+        missingCount += 1;
+        console.warn(`No price extracted for ${park} / ${passType} (${url.toString()})`);
+        if (missingCount <= 3) {
+          const matchSpecDebug = extract?.match ?? extract?.matchSpec ?? null;
+          const valuePathDebug = extract?.value?.path ?? extract?.valuePath ?? null;
+          console.warn(`Debug match spec: ${matchSpecDebug ? JSON.stringify(matchSpecDebug) : "null"}; valuePath: ${valuePathDebug ? JSON.stringify(valuePathDebug) : "null"}`);
         }
+        if (textForDebug && url.host.toLowerCase().includes("ticketspice.com")) {
+          const text = String(textForDebug);
+          const flattened = text
+            .replace(/<!--[\s\S]*?-->/g, "")
+            .replace(/&nbsp;|&#160;/gi, " ")
+            .replace(/<[^>]+>/g, " ")
+            .replace(/\s+/g, " ");
+          const snippet = text.slice(0, 400).replace(/\s+/g, " ").trim();
+          const tail = text.slice(Math.max(0, text.length - 400)).replace(/\s+/g, " ").trim();
+          const hasHero = /Enchanted\s+Hero\s+Pass/i.test(flattened);
+          const hasLegend = /Enchanted\s+Legend\s+Pass/i.test(flattened);
+          const hasEnchantedSection =
+            /###\s*Enchanted\s+Passes/i.test(flattened) ||
+            /Enchanted\s+Passes/i.test(flattened);
+          const hasDollar = /(?:\$|&#36;|&dollar;)\s*[0-9]+(?:\.[0-9]{2})?/i.test(flattened);
+          console.warn(
+            `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
+          );
 
-        const idx = text.search(/Enchanted/i);
-        if (idx >= 0) {
-          const around = text.slice(Math.max(0, idx - 250), Math.min(text.length, idx + 600)).replace(/\s+/g, " ").trim();
-          console.warn(`TicketSpice debug: enchantedAround=${JSON.stringify(around)}`);
-          const flatAround = flattened.slice(Math.max(0, flattened.search(/Enchanted/i) - 120), Math.min(flattened.length, flattened.search(/Enchanted/i) + 500)).trim();
-          if (flatAround) {
-            console.warn(`TicketSpice debug: enchantedAroundFlat=${JSON.stringify(flatAround)}`);
+          const patternForDebug = String(extract?.pattern || "");
+          if (patternForDebug) {
+            try {
+              const re = new RegExp(patternForDebug, "i");
+              const hit = re.exec(text) || re.exec(flattened);
+              console.warn(
+                `TicketSpice debug: regexHit=${hit ? "true" : "false"} captured=${hit?.[1] ? JSON.stringify(hit[1]) : "null"}`
+              );
+            } catch (error) {
+              console.warn(`TicketSpice debug: regexError=${JSON.stringify(error?.message || String(error))}`);
+            }
           }
-        } else {
-          const headingIdx = text.search(/####/);
-          if (headingIdx >= 0) {
-            const around = text.slice(Math.max(0, headingIdx - 250), Math.min(text.length, headingIdx + 600)).replace(/\s+/g, " ").trim();
-            console.warn(`TicketSpice debug: headingAround=${JSON.stringify(around)}`);
-            const flatIdx = flattened.search(/####/);
-            if (flatIdx >= 0) {
-              const flatAround = flattened.slice(Math.max(0, flatIdx - 120), Math.min(flattened.length, flatIdx + 500)).trim();
-              console.warn(`TicketSpice debug: headingAroundFlat=${JSON.stringify(flatAround)}`);
+
+          const idx = text.search(/Enchanted/i);
+          if (idx >= 0) {
+            const around = text.slice(Math.max(0, idx - 250), Math.min(text.length, idx + 600)).replace(/\s+/g, " ").trim();
+            console.warn(`TicketSpice debug: enchantedAround=${JSON.stringify(around)}`);
+            const flatAround = flattened.slice(Math.max(0, flattened.search(/Enchanted/i) - 120), Math.min(flattened.length, flattened.search(/Enchanted/i) + 500)).trim();
+            if (flatAround) {
+              console.warn(`TicketSpice debug: enchantedAroundFlat=${JSON.stringify(flatAround)}`);
+            }
+          } else {
+            const headingIdx = text.search(/####/);
+            if (headingIdx >= 0) {
+              const around = text.slice(Math.max(0, headingIdx - 250), Math.min(text.length, headingIdx + 600)).replace(/\s+/g, " ").trim();
+              console.warn(`TicketSpice debug: headingAround=${JSON.stringify(around)}`);
+              const flatIdx = flattened.search(/####/);
+              if (flatIdx >= 0) {
+                const flatAround = flattened.slice(Math.max(0, flatIdx - 120), Math.min(flattened.length, flatIdx + 500)).trim();
+                console.warn(`TicketSpice debug: headingAroundFlat=${JSON.stringify(flatAround)}`);
+              }
             }
           }
         }
+        if (jsonForDebug && (extractType === "json-search" || extractType === "json-deep-search")) {
+          const matchPath = extract?.match?.path ?? extract?.matchPath;
+          const samples = deepCollectMatchCandidates(jsonForDebug, matchPath, 12);
+          if (samples.length > 0) {
+            console.warn(`Sample match candidates (${Array.isArray(matchPath) ? matchPath.join(",") : String(matchPath || "")}): ${samples.map((s) => JSON.stringify(s)).join(", ")}`);
+          }
+          const pricingSamples = deepCollectPricingCandidates(jsonForDebug, 8);
+          if (pricingSamples.length > 0) {
+            console.warn(`Sample pricing candidates: ${pricingSamples.map((entry) => `${entry.name ? JSON.stringify(entry.name) + " " : ""}${JSON.stringify(entry.retail_amount)}`).join(", ")}`);
+          }
+          const hint = jsonForDebug?.__pe_lastMatchHint;
+          if (hint) {
+            console.warn(`Last match hint: ${JSON.stringify(hint)}`);
+          }
+        }
+      } else if (shouldUseFallback) {
+        console.warn(`Invalid price extracted for ${park} / ${passType}: ${extracted} (${url.toString()}). Will try fallback.`);
       }
-      if (jsonForDebug && (extractType === "json-search" || extractType === "json-deep-search")) {
-        const matchPath = extract?.match?.path ?? extract?.matchPath;
-        const samples = deepCollectMatchCandidates(jsonForDebug, matchPath, 12);
-        if (samples.length > 0) {
-          console.warn(`Sample match candidates (${Array.isArray(matchPath) ? matchPath.join(",") : String(matchPath || "")}): ${samples.map((s) => JSON.stringify(s)).join(", ")}`);
-        }
-        const pricingSamples = deepCollectPricingCandidates(jsonForDebug, 8);
-        if (pricingSamples.length > 0) {
-          console.warn(`Sample pricing candidates: ${pricingSamples.map((entry) => `${entry.name ? JSON.stringify(entry.name) + " " : ""}${JSON.stringify(entry.retail_amount)}`).join(", ")}`);
-        }
-        const hint = jsonForDebug?.__pe_lastMatchHint;
-        if (hint) {
-          console.warn(`Last match hint: ${JSON.stringify(hint)}`);
-        }
-      }
-      const targetPath = String(source?.target || "price").trim() || "price";
+
       const baseFallback = getBaseFallbackValue(passByParkName, park, passType, targetPath);
       const resolvedFallback = baseFallback ? String(baseFallback).trim() : "";
 
@@ -1120,18 +1130,28 @@ async function main() {
         overrides[park][passType] ??= { updatedAt };
         setByDotPath(overrides[park][passType], targetPath, normalizePriceString(resolvedFallback));
         overrides[park][passType].updatedAt = updatedAt;
-      } else {
+        if (shouldUseFallback && extractedPrice === 0) {
+          console.log(`Used fallback from parks.js for ${park} / ${passType}: ${resolvedFallback}`);
+        }
+      } else if (!normalized) {
+        // Only warn if extraction completely failed, not if we got a zero price
         if (missingCount <= 3) {
           console.warn(
             `No fallback available for ${park} / ${passType} (parks.js=${baseFallback ? JSON.stringify(baseFallback) : "null"})`
           );
+        }
+      } else if (shouldUseFallback) {
+        // Extraction returned invalid price, preserve existing if available
+        if (existingOverrides?.[park]?.[passType]) {
+          overrides[park] ??= {};
+          overrides[park][passType] = existingOverrides[park][passType];
+          console.log(`Preserved existing price for ${park} / ${passType}: ${JSON.stringify(overrides[park][passType])}`);
         }
       }
       continue;
     }
 
     overrides[park] ??= {};
-    const targetPath = String(source?.target || "price").trim() || "price";
     overrides[park][passType] ??= { updatedAt };
     setByDotPath(overrides[park][passType], targetPath, normalized);
     overrides[park][passType].updatedAt = updatedAt;

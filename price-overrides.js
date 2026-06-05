@@ -180,7 +180,7 @@ window.priceOverrides = {
   "Six Flags Discovery Kingdom": {
     "Gold": {
       "updatedAt": "2026-06-05",
-      "price": "$0.00"
+      "price": "$130.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-05",
@@ -268,7 +268,7 @@ window.priceOverrides = {
   "Six Flags Magic Mountain": {
     "Gold": {
       "updatedAt": "2026-06-05",
-      "price": "$0.00"
+      "price": "$135.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-05",
