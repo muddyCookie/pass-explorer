@@ -2,7 +2,7 @@
 // Do not edit by hand (edit scripts/price-sources.json instead).
 
 window.priceOverridesMeta = {
-  "generatedAt": "2026-06-08T14:58:31.669Z",
+  "generatedAt": "2026-06-08T16:55:04.617Z",
   "timezone": "UTC"
 }
 ;
@@ -130,7 +130,7 @@ window.priceOverrides = {
   "King's Dominion": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$89.00"
+      "price": "$119.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -152,7 +152,7 @@ window.priceOverrides = {
   "King's Island": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$145.00"
+      "price": "$150.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -338,13 +338,23 @@ window.priceOverrides = {
     },
     "Prestige": {
       "updatedAt": "2026-06-08",
-      "price": "$249.00"
+      "price": "$250.00"
     },
     "Prestige Membership": {
       "updatedAt": "2026-06-08",
       "pricing": {
         "monthly": "$20.00"
       }
+    }
+  },
+  "Six Flags Mexico": {
+    "Gold": {
+      "updatedAt": "2026-06-08",
+      "price": "$1500.00"
+    },
+    "Prestige": {
+      "updatedAt": "2026-06-08",
+      "price": "$2900.00"
     }
   },
   "Six Flags New England": {
@@ -411,16 +421,6 @@ window.priceOverrides = {
       "pricing": {
         "monthly": "$14.00"
       }
-    }
-  },
-  "Six Flags Mexico": {
-    "Gold": {
-      "updatedAt": "2026-06-08",
-      "price": "$1500.00"
-    },
-    "Prestige": {
-      "updatedAt": "2026-06-08",
-      "price": "$1999.00"
     }
   },
   "Adventureland": {
