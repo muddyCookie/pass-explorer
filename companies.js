@@ -31,7 +31,7 @@ const groupOrder = [
   "Enchanted Parks",
   "Herschend",
   "Fun Spot America",
-  "United",
+  "United Parks",
   "Disney World",
   "Disneyland",
   "Universal Orlando"
@@ -72,7 +72,7 @@ const companyCatalog = [
   defaultCountry: "United States",
   defaultDate: "year-12-31",
   defaultUrl: "fun-spot",
-  defaultUrlPass: "buy-tickets"
+  defaultUrlPass: "season-passes"
   },
   {
     name: "Merlin Entertainments",

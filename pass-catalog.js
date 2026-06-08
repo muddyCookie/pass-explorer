@@ -104,12 +104,13 @@ function getExpandedParkCatalogEntries() {
 }
 
 // Builds a normalized park directory from `parks.js`.
+const allParkConfigs = getExpandedParkCatalogEntries();
 const parkDirectory = [];
 const parkDirectoryByGroup = Object.fromEntries(groupOrder.map((group) => [group, []]));
-for (const parkConfig of getExpandedParkCatalogEntries()) {
+for (const parkConfig of allParkConfigs) {
   const parkName = String(parkConfig.park || "").trim();
   const company = String(parkConfig.company || "").trim();
-  if (!parkName || !company) {
+  if (!parkName || !company || parkConfig.hidden) {
     continue;
   }
 
@@ -135,7 +136,25 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
   }
 }
 
-const parkByName = Object.fromEntries(parkDirectory.map((park) => [park.name, park]));
+const parkByName = Object.fromEntries(
+  allParkConfigs.map((parkConfig) => {
+    const parkName = String(parkConfig.park || "").trim();
+    const company = String(parkConfig.company || "").trim();
+    if (!parkName || !company) {
+      return null;
+    }
+    const links = buildParkLinksForCompany(company, parkConfig);
+    const location = getParkLocationForConfig(parkName, parkConfig);
+    return [parkName, {
+      name: parkName,
+      company,
+      website: links.website,
+      passPurchaseUrl: links.passPurchaseUrl,
+      country: location.country,
+      state: location.state
+    }];
+  }).filter(Boolean)
+);
 const groupParks = Object.fromEntries(
   Object.entries(parkDirectoryByGroup).map(([group, parks]) => [
     group,

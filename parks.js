@@ -825,6 +825,7 @@ const parkCatalog = {
       },
       {
         park: "Fun Spot America", // Orlando, Kissimmee, Atlanta combined due to shared season pass website
+        hidden: true,
         passes: {
           Season: {
             price: "$120",
@@ -916,7 +917,7 @@ const parkCatalog = {
     ]
   },
   "United Parks": {
-    "United": [
+    "United Parks": [
       {
         park: "Sesame Place San Diego",
         url: "sesameplace",
@@ -931,7 +932,7 @@ const parkCatalog = {
           },
           Platinum: {
             price: "$375",
-            access: "United"
+            access: "United Parks"
           }
         }
       },
@@ -944,7 +945,7 @@ const parkCatalog = {
         passes: {
           Platinum: {
             price: "$374",
-            access: "United"
+            access: "United Parks"
           }
         }
       },
@@ -956,7 +957,7 @@ const parkCatalog = {
         passes: {
           Platinum: {
             price: "$537",
-            access: "United"
+            access: "United Parks"
           }
         }
       },
@@ -967,7 +968,7 @@ const parkCatalog = {
         state: "Florida",
         passes: {
           price: "$549",
-          access: "United"
+          access: "United Parks"
         }
       },
       {
@@ -982,7 +983,7 @@ const parkCatalog = {
           },
           Platinum: {
             price: "$375",
-            access: "United"
+            access: "United Parks"
           }
         }
       },
@@ -993,7 +994,7 @@ const parkCatalog = {
         passes: {
           Platinum: {
             price: "$273",
-            access: "United"
+            access: "United Parks"
           }
         }
       },
@@ -1004,7 +1005,7 @@ const parkCatalog = {
         passes: {
           Platinum: {
             price: "$549",
-            access: "United"
+            access: "United Parks"
           }
         }
       }
