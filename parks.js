@@ -61,8 +61,28 @@ const parkCatalog = {
             access: "Six Flags West",
             noParking: "Knott's Berry Farm"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$12", 
+              downPayment: "$40", 
+              minMonths: 12
+            },
+            access: "Six Flags West",
+            noParking: "Knott's Berry Farm"
+          },
           Prestige: {
             price: "$399",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$24", 
+              downPayment: "$40", 
+              minMonths: 12 
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -208,8 +228,28 @@ const parkCatalog = {
             access: "Six Flags Midwest",
             noParking: ["Canada's Wonderland"]
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$10", 
+              downPayment: "$40", 
+              minMonths: 12 
+            },
+            access: "Six Flags Midwest",
+            noParking: ["Canada's Wonderland"]
+          },
           Prestige: {
             price: "$350",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$24", 
+              downPayment: "$40",
+              minMonths: 12
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -300,9 +340,28 @@ const parkCatalog = {
             price: "$160",
             access: "Six Flags East"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$8", 
+              downPayment: "$30", 
+              minMonths: 12 
+            },
+            access: "Six Flags East"
+          },
           Prestige: {
             price: "$165",
             access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$14", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: "Six Flags East",
             noParking: ["Canada's Wonderland"]
           }
         }
@@ -316,8 +375,27 @@ const parkCatalog = {
             price: "$160",
             access: "Six Flags East"
           },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$8", 
+              downPayment: "$30", 
+              minMonths: 12 
+            },
+            access: "Six Flags East"
+          },
           Prestige: {
             price: "$180",
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland"]
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$14", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
             access: SixFlagsPrestigeAccess,
             noParking: ["Canada's Wonderland"]
           }
@@ -331,6 +409,25 @@ const parkCatalog = {
           Gold: {
             price: "$150",
             access: "Six Flags East"
+          },
+          "Gold Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$8", 
+              downPayment: "$30", 
+              minMonths: 12 
+            },
+            access: "Six Flags East"
+          },
+          "Prestige Membership": {
+            pricing: { 
+              type: "membership", 
+              monthly: "$14", 
+              downPayment: "$20", 
+              minMonths: 12 
+            },
+            access: SixFlagsPrestigeAccess,
+            noParking: ["Canada's Wonderland"]
           },
           Prestige: {
             price: "$225",
