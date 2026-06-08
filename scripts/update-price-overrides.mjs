@@ -310,6 +310,26 @@ function findFirstByIncludes(items, matchPath, matchSpecOrIncludes) {
   return null;
 }
 
+function findLastByIncludes(items, matchPath, matchSpecOrIncludes) {
+  if (!Array.isArray(items)) return null;
+  const matchPaths = toMatchPaths(matchPath);
+  if (matchPaths.length === 0) return null;
+  const matchSpec = normalizeMatchSpec(matchSpecOrIncludes);
+  const predicate = buildMatchPredicate(matchSpec);
+  if (!predicate) return null;
+
+  let lastMatch = null;
+  for (const item of items) {
+    for (const pathStr of matchPaths) {
+      const candidate = getByDotPath(item, pathStr);
+      if (predicate(candidate)) {
+        lastMatch = item;
+      }
+    }
+  }
+  return lastMatch;
+}
+
 function parsePriceNumber(raw) {
   const value = String(raw ?? "").trim();
   if (!value) return NaN;
@@ -361,6 +381,17 @@ function findFirstByIncludesInAnyArray(arrays, matchPath, includesValue) {
     }
   }
   return null;
+}
+
+function findLastByIncludesInAnyArray(arrays, matchPath, includesValue) {
+  let lastMatch = null;
+  for (const items of arrays) {
+    const match = findLastByIncludes(items, matchPath, includesValue);
+    if (match) {
+      lastMatch = match;
+    }
+  }
+  return lastMatch;
 }
 
 function deepFindFirstValueByKey(root, keyName) {
@@ -473,7 +504,8 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
 
   const pickMin = pick === "min";
   const pickMax = pick === "max";
-  const shouldPick = pickMin || pickMax;
+  const pickLast = pick === "last";
+  const shouldPick = pickMin || pickMax || pickLast;
   let bestNode = null;
   let bestAmount = pickMin ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
 
@@ -526,6 +558,10 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
       if (resolvedNode && valueCandidate) {
         if (!shouldPick) {
           return resolvedNode;
+        }
+        if (pickLast) {
+          bestNode = resolvedNode;
+          continue;
         }
         const amountNum = parsePriceNumber(valueCandidate);
         if (Number.isFinite(amountNum)) {
@@ -1015,7 +1051,9 @@ async function main() {
           }
           return best;
         })()
-        : findFirstByIncludesInAnyArray(arrays, matchPath, matchSpec);
+        : pick === "last"
+          ? findLastByIncludesInAnyArray(arrays, matchPath, matchSpec)
+          : findFirstByIncludesInAnyArray(arrays, matchPath, matchSpec);
       extracted = item && valuePath
         ? parseAccessoRetailAmount(getByDotPath(item, valuePath))
         : "";
