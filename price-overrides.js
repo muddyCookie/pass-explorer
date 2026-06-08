@@ -2,7 +2,7 @@
 // Do not edit by hand (edit scripts/price-sources.json instead).
 
 window.priceOverridesMeta = {
-  "generatedAt": "2026-06-08T13:16:27.186Z",
+  "generatedAt": "2026-06-08T14:58:31.669Z",
   "timezone": "UTC"
 }
 ;
@@ -78,9 +78,21 @@ window.priceOverrides = {
       "updatedAt": "2026-06-08",
       "price": "$105.00"
     },
+    "Gold Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$8.00"
+      }
+    },
     "Prestige": {
       "updatedAt": "2026-06-08",
       "price": "$165.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$14.00"
+      }
     }
   },
   "Cedar Point": {
@@ -98,9 +110,21 @@ window.priceOverrides = {
       "updatedAt": "2026-06-08",
       "price": "$105.00"
     },
+    "Gold Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$8.00"
+      }
+    },
     "Prestige": {
       "updatedAt": "2026-06-08",
       "price": "$155.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$14.00"
+      }
     }
   },
   "King's Dominion": {
@@ -108,9 +132,21 @@ window.priceOverrides = {
       "updatedAt": "2026-06-08",
       "price": "$89.00"
     },
+    "Gold Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$8.00"
+      }
+    },
     "Prestige": {
       "updatedAt": "2026-06-08",
       "price": "$199.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$14.00"
+      }
     }
   },
   "King's Island": {
@@ -118,9 +154,21 @@ window.priceOverrides = {
       "updatedAt": "2026-06-08",
       "price": "$145.00"
     },
+    "Gold Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$10.00"
+      }
+    },
     "Prestige": {
       "updatedAt": "2026-06-08",
       "price": "$325.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$24.00"
+      }
     }
   },
   "Knott's Berry Farm": {
@@ -128,9 +176,21 @@ window.priceOverrides = {
       "updatedAt": "2026-06-08",
       "price": "$180.00"
     },
+    "Gold Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$12.00"
+      }
+    },
     "Prestige": {
       "updatedAt": "2026-06-08",
       "price": "$375.00"
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-06-08",
+      "pricing": {
+        "monthly": "$24.00"
+      }
     }
   },
   "Frontier City": {
@@ -212,7 +272,7 @@ window.priceOverrides = {
     },
     "Prestige": {
       "updatedAt": "2026-06-08",
-      "price": "$145.00"
+      "price": "$155.00"
     },
     "Prestige Membership": {
       "updatedAt": "2026-06-08",
@@ -290,7 +350,7 @@ window.priceOverrides = {
   "Six Flags New England": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$79.00"
+      "price": "$85.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -372,7 +432,7 @@ window.priceOverrides = {
   "Dutch Wonderland": {
     "Platinum": {
       "updatedAt": "2026-06-08",
-      "price": "$219.99"
+      "price": "$239.99"
     }
   },
   "Idlewild": {
