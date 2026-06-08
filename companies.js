@@ -72,7 +72,7 @@ const companyCatalog = [
   defaultCountry: "United States",
   defaultDate: "year-12-31",
   defaultUrl: "fun-spot",
-  defaultUrlPass: "season-passes"
+  defaultUrlPass: "season-pass"
   },
   {
     name: "Merlin Entertainments",
