@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import vm from "node:vm";
+import { fileURLToPath } from "node:url";
 
 function stableStringify(value) {
   return JSON.stringify(value, null, 2) + "\n";
@@ -560,7 +561,10 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
           return resolvedNode;
         }
         if (pickLast) {
-          bestNode = resolvedNode;
+          const amountNum = parsePriceNumber(valueCandidate);
+          if (Number.isFinite(amountNum) && amountNum > 0) {
+            bestNode = resolvedNode;
+          }
           continue;
         }
         const amountNum = parsePriceNumber(valueCandidate);
@@ -593,11 +597,15 @@ function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valueP
     }
 
     if (Array.isArray(current)) {
-      for (const item of current) stack.push(item);
+      for (let i = current.length - 1; i >= 0; i--) {
+        stack.push(current[i]);
+      }
       continue;
     }
 
-    for (const value of Object.values(current)) {
+    const values = Object.values(current);
+    for (let i = values.length - 1; i >= 0; i--) {
+      const value = values[i];
       if (value && typeof value === "object") {
         stack.push(value);
       }
@@ -962,7 +970,7 @@ function normalizePriceString(raw) {
 }
 
 async function main() {
-  const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   const configPath = path.join(repoRoot, "scripts", "price-sources.json");
   const raw = await fs.readFile(configPath, "utf8");
   const config = JSON.parse(raw);

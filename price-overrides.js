@@ -2,7 +2,7 @@
 // Do not edit by hand (edit scripts/price-sources.json instead).
 
 window.priceOverridesMeta = {
-  "generatedAt": "2026-06-08T14:58:31.669Z",
+  "generatedAt": "2026-06-08T18:30:01.628Z",
   "timezone": "UTC"
 }
 ;
@@ -60,17 +60,17 @@ window.priceOverrides = {
   "California's Great America": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$79.00"
+      "price": "$89.00"
     }
   },
   "Canada's Wonderland": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$135.00"
+      "price": "$149.00"
     },
     "Prestige": {
       "updatedAt": "2026-06-08",
-      "price": "$250.00"
+      "price": "$275.00"
     }
   },
   "Carowinds": {
@@ -86,7 +86,7 @@ window.priceOverrides = {
     },
     "Prestige": {
       "updatedAt": "2026-06-08",
-      "price": "$165.00"
+      "price": "$185.00"
     },
     "Prestige Membership": {
       "updatedAt": "2026-06-08",
@@ -98,7 +98,7 @@ window.priceOverrides = {
   "Cedar Point": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$150.00"
+      "price": "$160.00"
     },
     "Prestige": {
       "updatedAt": "2026-06-08",
@@ -108,7 +108,7 @@ window.priceOverrides = {
   "Dorney Park": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$105.00"
+      "price": "$99.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -118,7 +118,7 @@ window.priceOverrides = {
     },
     "Prestige": {
       "updatedAt": "2026-06-08",
-      "price": "$155.00"
+      "price": "$145.00"
     },
     "Prestige Membership": {
       "updatedAt": "2026-06-08",
@@ -152,7 +152,7 @@ window.priceOverrides = {
   "King's Island": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$145.00"
+      "price": "$140.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -218,7 +218,7 @@ window.priceOverrides = {
   "Six Flags Darien Lake": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$79.00"
+      "price": "$75.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -240,7 +240,7 @@ window.priceOverrides = {
   "Six Flags Discovery Kingdom": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$130.00"
+      "price": "$79.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -284,7 +284,7 @@ window.priceOverrides = {
   "Six Flags Great Adventure": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$89.00"
+      "price": "$79.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -328,7 +328,7 @@ window.priceOverrides = {
   "Six Flags Magic Mountain": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$135.00"
+      "price": "$110.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -338,13 +338,23 @@ window.priceOverrides = {
     },
     "Prestige": {
       "updatedAt": "2026-06-08",
-      "price": "$249.00"
+      "price": "$250.00"
     },
     "Prestige Membership": {
       "updatedAt": "2026-06-08",
       "pricing": {
         "monthly": "$20.00"
       }
+    }
+  },
+  "Six Flags Mexico": {
+    "Gold": {
+      "updatedAt": "2026-06-08",
+      "price": "$1500.00"
+    },
+    "Prestige": {
+      "updatedAt": "2026-06-08",
+      "price": "$1999.00"
     }
   },
   "Six Flags New England": {
@@ -372,7 +382,7 @@ window.priceOverrides = {
   "Six Flags Over Georgia": {
     "Gold": {
       "updatedAt": "2026-06-08",
-      "price": "$89.00"
+      "price": "$55.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-06-08",
@@ -411,16 +421,6 @@ window.priceOverrides = {
       "pricing": {
         "monthly": "$14.00"
       }
-    }
-  },
-  "Six Flags Mexico": {
-    "Gold": {
-      "updatedAt": "2026-06-08",
-      "price": "$1500.00"
-    },
-    "Prestige": {
-      "updatedAt": "2026-06-08",
-      "price": "$1999.00"
     }
   },
   "Adventureland": {

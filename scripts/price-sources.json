@@ -30,7 +30,7 @@
       "extract": {
         "type": "json-deep-search",
         "match": { "path": ["name", "label"], "includes": "{passLabel}" },
-        "value": { "path": "CT", "pick": "min" }
+        "value": { "path": "retail_amount", "pick": "min" }
       }
     },
     "discountHtmlPass": {
@@ -147,9 +147,9 @@
         }
       ],
       "passes": [
-        { "passType": "Gold", "passLabel": "2026 GOLD PASS", "extract": { "match": { "equals": "{passLabel}" }, "value": { "pick": "last" } } },
+        { "passType": "Gold", "passLabel": "2026 GOLD PASS", "extract": { "match": { "pattern": "(?:2026\\s*GOLD\\s*PASS|Gold Pass 2026)" }, "value": { "pick": "last" } } },
         { "passType": "Gold Membership", "passLabel": "Gold Membership", "target": "pricing.monthly" },
-        { "passType": "Prestige", "passLabel": "2026 PRESTIGE PASS", "extract": { "match": { "equals": "{passLabel}" }, "value": { "pick": "last" } } },
+        { "passType": "Prestige", "passLabel": "2026 PRESTIGE PASS", "extract": { "match": { "pattern": "(?:2026\\s*PRESTIGE\\s*PASS|Prestige Pass 2026)" }, "value": { "pick": "last" } } },
         { "passType": "Prestige Membership", "passLabel": "Prestige Membership", "target": "pricing.monthly" }
       ]
     },
@@ -200,7 +200,13 @@
           "merchant": "SF-GC-CDMX",
           "storeHost": "sf-gc-cdmx.store.sixflags.com",
           "currency": "MXN",
-          "excludePassTypes": ["Gold Membership", "Prestige Membership"]
+          "excludePassTypes": ["Gold Membership", "Prestige Membership"],
+          "extract": {
+            "value": {
+              "path": "retail_amount",
+              "pick": "last"
+            }
+          }
         },
         {
           "park": "Six Flags New England",
@@ -219,9 +225,9 @@
         }
       ],
       "passes": [
-        { "passType": "Gold", "passLabel": "2026 GOLD PASS", "extract": { "match": { "equals": "{passLabel}" }, "value": { "pick": "last" } } },
+        { "passType": "Gold", "passLabel": "2026 GOLD PASS", "extract": { "match": { "pattern": "(?:2026\\s*GOLD\\s*PASS|Gold Pass 2026)" }, "value": { "pick": "last" } } },
         { "passType": "Gold Membership", "passLabel": "Gold Membership", "target": "pricing.monthly" },
-        { "passType": "Prestige", "passLabel": "2026 PRESTIGE PASS", "extract": { "match": { "equals": "{passLabel}" }, "value": { "pick": "last" } } },
+        { "passType": "Prestige", "passLabel": "2026 PRESTIGE PASS", "extract": { "match": { "pattern": "(?:2026\\s*PRESTIGE\\s*PASS|Prestige Pass 2026)" }, "value": { "pick": "last" } } },
         { "passType": "Prestige Membership", "passLabel": "Prestige Membership", "target": "pricing.monthly" }
       ]
     },
