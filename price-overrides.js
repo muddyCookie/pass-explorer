@@ -2,94 +2,94 @@
 // Do not edit by hand (edit scripts/price-sources.json instead).
 
 window.priceOverridesMeta = {
-  "generatedAt": "2026-09-02T13:40:49.005Z",
+  "generatedAt": "2026-09-03T13:35:30.444Z",
   "timezone": "UTC"
 }
 ;
 window.priceOverrides = {
   "Worlds of Fun": {
     "Hero": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$75.99"
     },
     "Legend": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$130.99"
     }
   },
   "Six Flags St. Louis": {
     "Hero": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$75.99"
     },
     "Legend": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$130.99"
     }
   },
   "Valleyfair": {
     "Hero": {
-      "updatedAt": "2026-09-02",
-      "price": "$119.99"
+      "updatedAt": "2026-09-03",
+      "price": "$85.99"
     },
     "Legend": {
-      "updatedAt": "2026-09-02",
-      "price": "$174.99"
+      "updatedAt": "2026-09-03",
+      "price": "$139.99"
     }
   },
   "Michigan's Adventure": {
     "Hero": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$105.99"
     },
     "Legend": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$165.99"
     }
   },
   "Six Flags Great Escape": {
     "Hero": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$104.99"
     },
     "Legend": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$159.99"
     }
   },
   "California's Great America": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$130.00"
     }
   },
   "Canada's Wonderland": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$125.00"
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$210.00"
     }
   },
   "Carowinds": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$160.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$8.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$165.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$20.00"
       }
@@ -97,31 +97,31 @@ window.priceOverrides = {
   },
   "Cedar Point": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$195.00"
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$325.00"
     }
   },
   "Dorney Park": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$160.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$8.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$180.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$20.00"
       }
@@ -129,13 +129,13 @@ window.priceOverrides = {
   },
   "King's Dominion": {
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$8.00"
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$20.00"
       }
@@ -143,13 +143,13 @@ window.priceOverrides = {
   },
   "King's Island": {
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$10.00"
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$24.00"
       }
@@ -157,21 +157,21 @@ window.priceOverrides = {
   },
   "Knott's Berry Farm": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$240.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$12.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$399.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$28.00"
       }
@@ -179,21 +179,21 @@ window.priceOverrides = {
   },
   "Frontier City": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$94.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$7.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$150.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$13.00"
       }
@@ -201,21 +201,21 @@ window.priceOverrides = {
   },
   "Six Flags Darien Lake": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$95.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$7.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$200.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$13.00"
       }
@@ -223,21 +223,21 @@ window.priceOverrides = {
   },
   "Six Flags Discovery Kingdom": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$130.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$7.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$145.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$13.00"
       }
@@ -245,21 +245,21 @@ window.priceOverrides = {
   },
   "Six Flags Fiesta Texas": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$114.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$8.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$200.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$14.00"
       }
@@ -267,21 +267,21 @@ window.priceOverrides = {
   },
   "Six Flags Great Adventure": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$115.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$8.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$200.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$20.00"
       }
@@ -289,21 +289,21 @@ window.priceOverrides = {
   },
   "Six Flags Great America": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$110.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$8.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$200.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$14.00"
       }
@@ -311,21 +311,21 @@ window.priceOverrides = {
   },
   "Six Flags Magic Mountain": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$150.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$12.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$325.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$28.00"
       }
@@ -333,31 +333,31 @@ window.priceOverrides = {
   },
   "Six Flags Mexico": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$1500.00"
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$2900.00"
     }
   },
   "Six Flags New England": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$100.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$7.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$200.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$16.00"
       }
@@ -365,21 +365,21 @@ window.priceOverrides = {
   },
   "Six Flags Over Georgia": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$55.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$7.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$200.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$16.00"
       }
@@ -387,21 +387,21 @@ window.priceOverrides = {
   },
   "Six Flags Over Texas": {
     "Gold": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$89.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$8.00"
       }
     },
     "Prestige": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$200.00"
     },
     "Prestige Membership": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "pricing": {
         "monthly": "$14.00"
       }
@@ -409,75 +409,75 @@ window.priceOverrides = {
   },
   "Adventureland": {
     "Platinum": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$260.00"
     }
   },
   "Dutch Wonderland": {
     "Platinum": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$189.99"
     }
   },
   "Idlewild": {
     "Platinum": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$189.99"
     }
   },
   "Kennywood": {
     "Platinum": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$189.99"
     }
   },
   "Lake Compounce": {
     "Platinum": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$169.99"
     }
   },
   "Story Land": {
     "Platinum": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$169.99"
     }
   },
   "Disney World": {
     "Incredi-Pass": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$1629.00"
     }
   },
   "Disneyland": {
     "Explore Key": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$999.00"
     },
     "Believe Key": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$1474.00"
     },
     "Inspire Key": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$1899.00"
     }
   },
   "Busch Gardens Williamsburg": {
     "Platinum": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$369.00"
     }
   },
   "SeaWorld San Diego": {
     "Platinum": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$387.00"
     }
   },
   "SeaWorld Orlando": {
     "Platinum": {
-      "updatedAt": "2026-09-02",
+      "updatedAt": "2026-09-03",
       "price": "$387.00"
     }
   }
