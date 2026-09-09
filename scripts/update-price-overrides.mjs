@@ -1,1230 +1,543 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import vm from "node:vm";
+#!/usr/bin/env node
+import { readFile, writeFile } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-function stableStringify(value) {
-  return JSON.stringify(value, null, 2) + "\n";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const repoRoot = resolve(__dirname, "..");
+const configPath = join(__dirname, "price-sources.json");
+const outputPath = join(repoRoot, "price-overrides.js");
+
+const args = new Set(process.argv.slice(2));
+const dryRun = args.has("--dry-run");
+
+function utcDateOnly(date = new Date()) {
+  return date.toISOString().slice(0, 10);
 }
 
-async function loadBasePassFallbacks(repoRoot) {
-  const parksPath = path.join(repoRoot, "parks.js");
-  let sourceText = "";
-  try {
-    sourceText = await fs.readFile(parksPath, "utf8");
-  } catch {
-    return { parkCatalog: null, passByParkName: {} };
+function utcIsoTimestamp(date = new Date()) {
+  return date.toISOString();
+}
+
+function normalizePriceText(rawValue, currencySymbol = "$") {
+  const text = String(rawValue || "").trim();
+  if (!text) {
+    return "";
   }
 
-  const context = vm.createContext({});
-  try {
-    // Run the file in a sandbox and then read `parkCatalog` out of it.
-    // The file is trusted (repo-local) and this is only used to derive fallback prices.
-    vm.runInContext(`${sourceText}\n;globalThis.__parkCatalog = (typeof parkCatalog !== "undefined" ? parkCatalog : null);`, context, {
-      filename: "parks.js",
-      timeout: 2000
-    });
-  } catch (error) {
-    console.warn(`Base fallback: failed to evaluate parks.js (${error?.message || String(error)})`);
-    return { parkCatalog: null, passByParkName: {} };
+  const match = /([0-9][0-9,]*(?:\.[0-9]{1,2})?)/.exec(text);
+  if (!match) {
+    return text;
   }
 
-  const parkCatalog = context.__parkCatalog ?? null;
-  if (!parkCatalog || typeof parkCatalog !== "object") {
-    return { parkCatalog: null, passByParkName: {} };
+  return `${currencySymbol}${match[1].replace(/,/g, "")}`;
+}
+
+function compileMatcher(matcher) {
+  if (typeof matcher === "string") {
+    return {
+      pattern: matcher,
+      flags: "i",
+      group: 1
+    };
   }
 
-  const passByParkName = {};
+  if (!matcher || typeof matcher !== "object") {
+    return null;
+  }
 
-  const companies = Object.values(parkCatalog);
-  for (const companyGroups of companies) {
-    if (!companyGroups || typeof companyGroups !== "object") continue;
-    for (const groupConfig of Object.values(companyGroups)) {
-      if (Array.isArray(groupConfig)) {
-        for (const parkConfig of groupConfig) {
-          const parkName = String(parkConfig?.park || "").trim();
-          if (!parkName) continue;
-          const passes = parkConfig?.passes && typeof parkConfig.passes === "object" ? parkConfig.passes : null;
-          if (!passes) continue;
-          passByParkName[parkName] = passes;
+  const pattern = String(matcher.pattern || matcher.regex || "").trim();
+  if (!pattern) {
+    return null;
+  }
+
+  return {
+    pattern,
+    flags: String(matcher.flags || "i"),
+    group: Number.isFinite(Number(matcher.group)) ? Number(matcher.group) : 1
+  };
+}
+
+function applyTemplate(template, values) {
+  return String(template || "").replace(/\{(\w+)\}/g, (_, key) => String(values[key] || ""));
+}
+
+function resolveSourceUrl(source, config = {}) {
+  const template = String(source.sourceUrlTemplate || source.source_url_template || "").trim();
+  const rawUrl = String(source.sourceUrl || source.url || "").trim();
+  const rootLink = String(config.link || config.portalLink || config.sourceLink || "").trim();
+  const sourceLink = String(source.link || source.portalLink || source.sourceLink || "").trim();
+  const portalLink = sourceLink || rootLink;
+  const rootHostTemplates = config.portalHostTemplates || config.hostTemplates || {};
+  const hostTemplateKey = String(source.portalHost || source.hostTemplateKey || source.portalHostKey || "").trim();
+  const hostTemplate = String(
+    source.portalHostTemplate
+    || source.hostTemplate
+    || rootHostTemplates[hostTemplateKey]
+    || ""
+  ).trim();
+  const values = {
+    parkCode: String(source.parkCode || source.park_code || "").trim(),
+    park: String(source.park || "").trim(),
+    passType: String(source.passType || "").trim(),
+    seasonPassType: String(source.seasonPassType || source.season_pass_type || "").trim()
+  };
+
+  if (template) {
+    return applyTemplate(template, values);
+  }
+
+  if (hostTemplate && portalLink) {
+    const host = applyTemplate(hostTemplate, values).trim();
+    const link = applyTemplate(portalLink, values).trim();
+    if (host && link) {
+      return `https://${host}.${link}`;
+    }
+  }
+
+  if (portalLink && rawUrl && !/\{|\}/.test(rawUrl)) {
+    const host = String(rawUrl).trim();
+    const link = applyTemplate(portalLink, values).trim();
+    if (host && link) {
+      return `https://${host}.${link}`;
+    }
+  }
+
+  if (rawUrl && /\{\w+\}/.test(rawUrl)) {
+    return applyTemplate(rawUrl, values);
+  }
+
+  return rawUrl;
+}
+
+function stripNestedSourceFields(source) {
+  const {
+    portalHosts,
+    parks,
+    ...rest
+  } = source || {};
+  return rest;
+}
+
+function flattenNestedSources(config) {
+  const rootSources = config.sources;
+
+  if (Array.isArray(rootSources)) {
+    return rootSources;
+  }
+
+  if (!rootSources || typeof rootSources !== "object") {
+    return [];
+  }
+
+  const isLeafConfig = (value) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      return false;
+    }
+
+    return [
+      "portalHosts",
+      "parks",
+      "parkCodes",
+      "jsonPaths",
+      "jsonPath",
+      "priceMatchers",
+      "pricePattern",
+      "sourceUrl",
+      "sourceUrlTemplate",
+      "bootstrapUrl",
+      "responseType",
+      "target",
+      "targetPath",
+      "seasonPassType",
+      "price",
+      "pricing"
+    ].some((key) => Object.prototype.hasOwnProperty.call(value, key));
+  };
+
+  const flattened = [];
+
+  const visit = (node, path = [], inherited = {}) => {
+    if (!node || typeof node !== "object" || Array.isArray(node)) {
+      return;
+    }
+
+    const nodeDefaults = {
+      ...inherited,
+      ...stripNestedSourceFields(node)
+    };
+    const childEntries = Object.entries(node).filter(([, value]) => value && typeof value === "object" && !Array.isArray(value));
+
+    for (const [key, value] of childEntries) {
+      const nextPath = path.concat(key);
+      const nextDefaults = {
+        ...nodeDefaults,
+        ...stripNestedSourceFields(value)
+      };
+
+      if (isLeafConfig(value)) {
+        const sourceKind = String(nextPath[0] || nextDefaults.sourceKind || "").trim();
+        const passType = String(nextPath.length > 2 ? nextPath[2] : nextPath[1] || nextDefaults.passType || "").trim();
+        const sourceGroup = nextPath.length > 2 ? String(nextPath[1] || "").trim() : "";
+        const seasonPassType = String(value.seasonPassType || value.season_pass_type || nextDefaults.seasonPassType || "").trim();
+        const portalHosts = value.portalHosts || value.portal_hosts || {};
+
+        for (const [portalHost, hostConfig] of Object.entries(portalHosts)) {
+          if (!hostConfig || typeof hostConfig !== "object") {
+            continue;
+          }
+
+          const hostDefaults = {
+            ...nextDefaults,
+            ...stripNestedSourceFields(hostConfig)
+          };
+          const parks = hostConfig.parks || hostConfig.parkCodes || {};
+
+          for (const [parkCode, parkConfig] of Object.entries(parks)) {
+            if (!parkConfig || typeof parkConfig !== "object") {
+              continue;
+            }
+
+            flattened.push({
+              ...nodeDefaults,
+              ...stripNestedSourceFields(value),
+              ...stripNestedSourceFields(hostConfig),
+              ...stripNestedSourceFields(parkConfig),
+              sourceKind: String(value.sourceKind || hostConfig.sourceKind || parkConfig.sourceKind || sourceKind).trim(),
+              sourceGroup,
+              passType: String(value.passType || hostConfig.passType || parkConfig.passType || passType).trim(),
+              seasonPassType: String(value.seasonPassType || hostConfig.seasonPassType || parkConfig.seasonPassType || seasonPassType).trim(),
+              portalHost: String(hostConfig.portalHost || parkConfig.portalHost || portalHost).trim(),
+              parkCode: String(parkConfig.parkCode || parkConfig.park_code || parkCode).trim()
+            });
+          }
         }
         continue;
       }
 
-      const defaults = groupConfig?.defaults && typeof groupConfig.defaults === "object" ? groupConfig.defaults : {};
-      const parks = Array.isArray(groupConfig?.parks) ? groupConfig.parks : [];
-      for (const parkConfig of parks) {
-        const parkName = String(parkConfig?.park || "").trim();
-        if (!parkName) continue;
-        const merged = { ...defaults, ...parkConfig };
-        const passes = merged?.passes && typeof merged.passes === "object" ? merged.passes : null;
-        if (!passes) continue;
-        passByParkName[parkName] = passes;
-      }
+      visit(value, nextPath, nextDefaults);
     }
   }
 
-  return { parkCatalog, passByParkName };
+  for (const [sourceKind, sourceConfig] of Object.entries(rootSources)) {
+    visit(sourceConfig, [sourceKind], { sourceKind });
+  }
+
+  return flattened;
 }
 
-function getBaseFallbackValue(passByParkName, park, passType, targetPath) {
-  const passes = passByParkName?.[park];
-  if (!passes || typeof passes !== "object") return "";
+function resolvePath(source, rawPath) {
+  const path = String(rawPath || "").trim();
+  if (!path) {
+    return undefined;
+  }
 
-  const raw = passes[passType];
-  if (raw == null) return "";
-
-  const target = String(targetPath || "price").trim() || "price";
-
-  if (target === "price") {
-    if (typeof raw === "string" || typeof raw === "number") return String(raw).trim();
-    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-      const price = raw.price ?? raw.cost ?? raw.value ?? "";
-      return String(price || "").trim();
+  return path.split(".").reduce((value, key) => {
+    if (value == null) {
+      return undefined;
     }
-    return "";
-  }
-
-  // Membership support (e.g. pricing.monthly, pricing.downPayment)
-  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-    const pricing = raw.pricing ?? raw.membership ?? null;
-    if (pricing && typeof pricing === "object" && !Array.isArray(pricing)) {
-      if (target.startsWith("pricing.")) {
-        const key = target.slice("pricing.".length);
-        return String(pricing?.[key] ?? "").trim();
-      }
+    if (Array.isArray(value) && /^\d+$/.test(key)) {
+      return value[Number(key)];
     }
+    return value[key];
+  }, source);
+}
+
+function setByDotPath(obj, rawPath, value) {
+  const path = String(rawPath || "").trim();
+  if (!path || !obj || typeof obj !== "object" || Array.isArray(obj)) {
+    return;
   }
 
-  return "";
-}
-
-function deepMerge(base, override) {
-  if (override == null) return base;
-  if (base == null) return override;
-  if (Array.isArray(base) || Array.isArray(override)) return override;
-  if (typeof base !== "object" || typeof override !== "object") return override;
-
-  const result = { ...base };
-  for (const [key, value] of Object.entries(override)) {
-    if (key in result) {
-      result[key] = deepMerge(result[key], value);
-    } else {
-      result[key] = value;
-    }
+  const parts = path.split(".").map((part) => part.trim()).filter(Boolean);
+  if (parts.length === 0) {
+    return;
   }
-  return result;
-}
 
-function applyTemplateString(template, vars) {
-  return String(template || "").replace(/\{(\w+)\}/g, (_, key) => {
-    const value = vars?.[key];
-    return value == null ? `{${key}}` : String(value);
-  });
-}
-
-function applyTemplatesDeep(value, vars) {
-  if (value == null) return value;
-  if (typeof value === "string") return applyTemplateString(value, vars);
-  if (typeof value === "number" || typeof value === "boolean") return value;
-  if (Array.isArray(value)) return value.map((entry) => applyTemplatesDeep(entry, vars));
-  if (typeof value === "object") {
-    const result = {};
-    for (const [key, entry] of Object.entries(value)) {
-      result[key] = applyTemplatesDeep(entry, vars);
-    }
-    return result;
-  }
-  return value;
-}
-
-function escapeRegexLiteral(value) {
-  return String(value ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function tryLoadExistingOverrides(fileText) {
-  const text = String(fileText || "");
-  const match = /window\\.priceOverrides\\s*=\\s*({[\\s\\S]*?})\\s*;?\\s*$/m.exec(text);
-  if (!match) return null;
-  try {
-    return JSON.parse(match[1]);
-  } catch {
-    return null;
-  }
-}
-
-function formatTodayYmdUtc() {
-  const now = new Date();
-  const year = now.getUTCFullYear();
-  const month = String(now.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(now.getUTCDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function asUrl(value) {
-  try {
-    return new URL(String(value));
-  } catch {
-    return null;
-  }
-}
-
-function getByDotPath(obj, dotPath) {
-  const parts = String(dotPath || "").split(".").map((part) => part.trim()).filter(Boolean);
-  let current = obj;
-  for (const part of parts) {
-    if (current == null || typeof current !== "object") return undefined;
-    if (Object.prototype.hasOwnProperty.call(current, part)) {
-      current = current[part];
-      continue;
-    }
-    const lower = part.toLowerCase();
-    const fallbackKey = Object.keys(current).find((key) => key.toLowerCase() === lower);
-    current = fallbackKey ? current[fallbackKey] : undefined;
-  }
-  return current;
-}
-
-function setByDotPath(obj, dotPath, value) {
-  const parts = String(dotPath || "").split(".").map((part) => part.trim()).filter(Boolean);
-  if (parts.length === 0) return;
   let current = obj;
   for (let index = 0; index < parts.length - 1; index += 1) {
     const part = parts[index];
-    const next = current[part];
-    if (!next || typeof next !== "object" || Array.isArray(next)) {
+    if (!current[part] || typeof current[part] !== "object" || Array.isArray(current[part])) {
       current[part] = {};
     }
     current = current[part];
   }
+
   current[parts[parts.length - 1]] = value;
 }
 
-function getFirstArrayByDotPaths(obj, dotPaths) {
-  const paths = Array.isArray(dotPaths) ? dotPaths : [dotPaths];
-  for (const dotPath of paths) {
-    const value = getByDotPath(obj, dotPath);
-    if (Array.isArray(value)) {
-      return value;
-    }
-  }
-  return null;
+async function loadJson(filePath) {
+  const raw = await readFile(filePath, "utf8");
+  return JSON.parse(raw);
 }
 
-function collectAllArraysByDotPaths(obj, dotPaths) {
-  const arrays = [];
-  const seen = new Set();
-  const paths = Array.isArray(dotPaths) ? dotPaths : [dotPaths];
-  for (const dotPath of paths) {
-    const value = getByDotPath(obj, dotPath);
-    if (Array.isArray(value)) {
-      const key = dotPath;
-      if (!seen.has(key)) {
-        seen.add(key);
-        arrays.push(value);
-      }
-    }
-  }
-  return arrays;
-}
+function extractPriceFromText(text, source) {
+  const matchers = Array.isArray(source.priceMatchers)
+    ? source.priceMatchers
+    : (source.pricePattern ? [source.pricePattern] : []);
+  const normalizedMatchers = matchers
+    .map(compileMatcher)
+    .filter(Boolean);
 
-function toIncludesNeedles(includesValue) {
-  if (Array.isArray(includesValue)) {
-    return includesValue.map((value) => String(value || "").toLowerCase()).filter(Boolean);
-  }
-  const single = String(includesValue || "").toLowerCase().trim();
-  return single ? [single] : [];
-}
-
-function toMatchPaths(matchPath) {
-  if (Array.isArray(matchPath)) {
-    return matchPath.map((value) => String(value || "").trim()).filter(Boolean);
-  }
-  const single = String(matchPath || "").trim();
-  return single ? [single] : [];
-}
-
-function buildMatchPredicate(match) {
-  const matchObj = match && typeof match === "object" ? match : {};
-  const includes = matchObj.includes ?? matchObj.contains ?? null;
-  const equals = matchObj.equals ?? matchObj.eq ?? null;
-  const regex = matchObj.regex ?? matchObj.pattern ?? null;
-  const caseSensitive = Boolean(matchObj.caseSensitive ?? false);
-
-  if (regex != null && String(regex).trim()) {
-    const flags = String(matchObj.flags || (caseSensitive ? "" : "i"));
-    const re = new RegExp(String(regex), flags.includes("i") || caseSensitive ? flags : `${flags}i`);
-    return (candidate) => {
-      const value = String(candidate ?? "");
-      return re.test(value);
-    };
-  }
-
-  if (equals != null && (Array.isArray(equals) ? equals.length > 0 : String(equals).trim())) {
-    const needles = Array.isArray(equals) ? equals : [equals];
-    const normalizedNeedles = needles
-      .map((value) => String(value ?? "").trim())
-      .filter(Boolean)
-      .map((value) => caseSensitive ? value : value.toLowerCase());
-    return (candidate) => {
-      const value = String(candidate ?? "").trim();
-      if (!value) return false;
-      const normalizedValue = caseSensitive ? value : value.toLowerCase();
-      return normalizedNeedles.some((needle) => normalizedValue === needle);
-    };
-  }
-
-  const needles = toIncludesNeedles(includes);
-  if (needles.length > 0) {
-    return (candidate) => {
-      const value = String(candidate ?? "").toLowerCase();
-      return needles.some((needle) => value.includes(needle));
-    };
-  }
-
-  return null;
-}
-
-function normalizeMatchSpec(matchSpecOrIncludes) {
-  if (matchSpecOrIncludes && typeof matchSpecOrIncludes === "object") {
-    return matchSpecOrIncludes;
-  }
-  return { includes: matchSpecOrIncludes };
-}
-
-function findFirstByIncludes(items, matchPath, matchSpecOrIncludes) {
-  if (!Array.isArray(items)) return null;
-  const matchPaths = toMatchPaths(matchPath);
-  if (matchPaths.length === 0) return null;
-  const matchSpec = normalizeMatchSpec(matchSpecOrIncludes);
-  const predicate = buildMatchPredicate(matchSpec);
-  if (!predicate) return null;
-
-  for (const item of items) {
-    for (const pathStr of matchPaths) {
-      const candidate = getByDotPath(item, pathStr);
-      if (predicate(candidate)) {
-        return item;
-      }
-    }
-  }
-  return null;
-}
-
-function findLastByIncludes(items, matchPath, matchSpecOrIncludes) {
-  if (!Array.isArray(items)) return null;
-  const matchPaths = toMatchPaths(matchPath);
-  if (matchPaths.length === 0) return null;
-  const matchSpec = normalizeMatchSpec(matchSpecOrIncludes);
-  const predicate = buildMatchPredicate(matchSpec);
-  if (!predicate) return null;
-
-  let lastMatch = null;
-  for (const item of items) {
-    for (const pathStr of matchPaths) {
-      const candidate = getByDotPath(item, pathStr);
-      if (predicate(candidate)) {
-        lastMatch = item;
-      }
-    }
-  }
-  return lastMatch;
-}
-
-function parsePriceNumber(raw) {
-  const value = String(raw ?? "").trim();
-  if (!value) return NaN;
-  const match = /([0-9]+(?:[.,][0-9]{1,2})?)/.exec(value);
-  if (!match) return NaN;
-  return Number.parseFloat(match[1].replace(/,/g, ""));
-}
-
-function findBestByIncludes(items, matchPath, matchSpecOrIncludes, valuePath, pick) {
-  if (pick !== "min" && pick !== "max") {
-    return findFirstByIncludes(items, matchPath, matchSpecOrIncludes);
-  }
-  if (!Array.isArray(items)) return null;
-  const matchPaths = toMatchPaths(matchPath);
-  const valuePathStr = String(valuePath || "").trim();
-  if (matchPaths.length === 0 || !valuePathStr) return null;
-  const matchSpec = normalizeMatchSpec(matchSpecOrIncludes);
-  const predicate = buildMatchPredicate(matchSpec);
-  if (!predicate) return null;
-
-  const pickMin = pick === "min";
-  let best = null;
-  let bestAmount = pickMin ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
-
-  for (const item of items) {
-    for (const pathStr of matchPaths) {
-      const candidate = getByDotPath(item, pathStr);
-      if (!predicate(candidate)) continue;
-      const rawAmount = parseAccessoRetailAmount(getByDotPath(item, valuePathStr));
-      if (!rawAmount) continue;
-      const amountNum = parsePriceNumber(rawAmount);
-      if (!Number.isFinite(amountNum)) continue;
-      const better = pickMin ? amountNum < bestAmount : amountNum > bestAmount;
-      if (better) {
-        bestAmount = amountNum;
-        best = item;
-      }
-    }
-  }
-
-  return best;
-}
-
-function findFirstByIncludesInAnyArray(arrays, matchPath, includesValue) {
-  for (const items of arrays) {
-    const match = findFirstByIncludes(items, matchPath, includesValue);
-    if (match) {
-      return match;
-    }
-  }
-  return null;
-}
-
-function findLastByIncludesInAnyArray(arrays, matchPath, includesValue) {
-  let lastMatch = null;
-  for (const items of arrays) {
-    const match = findLastByIncludes(items, matchPath, includesValue);
-    if (match) {
-      lastMatch = match;
-    }
-  }
-  return lastMatch;
-}
-
-function deepFindFirstValueByKey(root, keyName) {
-  const needle = String(keyName || "").trim().toLowerCase();
-  if (!needle) return undefined;
-  if (!root || typeof root !== "object") return undefined;
-
-  const stack = [root];
-  while (stack.length > 0) {
-    const current = stack.pop();
-    if (!current || typeof current !== "object") continue;
-
-    if (!Array.isArray(current)) {
-      const directKey = Object.keys(current).find((key) => key.toLowerCase() === needle);
-      if (directKey != null) {
-        return current[directKey];
-      }
-    }
-
-    if (Array.isArray(current)) {
-      for (const entry of current) stack.push(entry);
-      continue;
-    }
-
-    for (const value of Object.values(current)) {
-      if (value && typeof value === "object") {
-        stack.push(value);
-      }
-    }
-  }
-
-  return undefined;
-}
-
-function deepFindFirstByKeyEqualsWithValue(root, keyName, keyValue, valuePath) {
-  const keyNeedle = String(keyName || "").trim().toLowerCase();
-  if (!keyNeedle) return null;
-  if (keyValue == null || keyValue === "") return null;
-  const valuePathStr = String(valuePath || "").trim();
-  if (!valuePathStr) return null;
-
-  const normalizedKeyValue = String(keyValue).trim().toLowerCase();
-  if (!normalizedKeyValue) return null;
-
-  const stack = [root];
-  while (stack.length > 0) {
-    const current = stack.pop();
-    if (!current || typeof current !== "object") continue;
-
-    if (!Array.isArray(current)) {
-      const matchingKey = Object.keys(current).find((key) => key.toLowerCase() === keyNeedle);
-      if (matchingKey != null) {
-        const candidateId = String(current[matchingKey] ?? "").trim().toLowerCase();
-        if (candidateId && candidateId === normalizedKeyValue) {
-          let valueAtPath = getByDotPath(current, valuePathStr);
-          if (!valueAtPath && !valuePathStr.includes(".")) {
-            valueAtPath = deepFindFirstValueByKey(current, valuePathStr);
-          }
-          const valueCandidate = parseAccessoRetailAmount(valueAtPath);
-          if (valueCandidate) {
-            return current;
-          }
-        }
-      }
-    }
-
-    if (Array.isArray(current)) {
-      for (const entry of current) stack.push(entry);
-      continue;
-    }
-
-    for (const value of Object.values(current)) {
-      if (value && typeof value === "object") {
-        stack.push(value);
-      }
-    }
-  }
-
-  return null;
-}
-
-function extractAccessoAmountFromNode(node, valuePathStr) {
-  const pathStr = String(valuePathStr || "").trim();
-  if (!node || typeof node !== "object" || !pathStr) return "";
-
-  let valueAtPath = getByDotPath(node, pathStr);
-  if (!valueAtPath && !pathStr.includes(".")) {
-    valueAtPath = deepFindFirstValueByKey(node, pathStr);
-  }
-
-  let valueCandidate = parseAccessoRetailAmount(valueAtPath);
-  if (valueCandidate) return valueCandidate;
-
-  const retailFallback = deepFindFirstValueByKey(node, "retail_amount")
-    ?? deepFindFirstValueByKey(node, "retailAmount")
-    ?? deepFindFirstValueByKey(node, "retail_value")
-    ?? deepFindFirstValueByKey(node, "retailValue");
-  valueCandidate = parseAccessoRetailAmount(retailFallback);
-  return valueCandidate || "";
-}
-
-function deepFindFirstByIncludesWithValue(root, matchPath, includesValue, valuePath, pick) {
-  const matchPaths = toMatchPaths(matchPath);
-  const valuePathStr = String(valuePath || "").trim();
-  const matchSpec = normalizeMatchSpec(includesValue);
-  const predicate = buildMatchPredicate(matchSpec);
-  if (!predicate || matchPaths.length === 0 || !valuePathStr) {
-    return null;
-  }
-
-  const pickMin = pick === "min";
-  const pickMax = pick === "max";
-  const pickLast = pick === "last";
-  const shouldPick = pickMin || pickMax || pickLast;
-  let bestNode = null;
-  let bestAmount = pickMin ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
-
-  const stack = [root];
-  while (stack.length > 0) {
-    const current = stack.pop();
-    if (!current || typeof current !== "object") {
-      continue;
-    }
-
-    for (const pathStr of matchPaths) {
-      const candidateValue = getByDotPath(current, pathStr);
-      if (candidateValue == null) {
-        continue;
-      }
-      if (!predicate(candidateValue)) continue;
-
-      // Debug helper: we found a node that matches the name/label selector, but we still need pricing.
-      // To help diagnose structure differences, we can optionally dump minimal hints when extraction fails.
-      const debugHints = {
-        matchPath: pathStr,
-        matchValue: String(candidateValue ?? "").slice(0, 120)
-      };
-
-      let resolvedNode = null;
-      let valueCandidate = extractAccessoAmountFromNode(current, valuePathStr);
-      if (valueCandidate) {
-        resolvedNode = current;
-      }
-
-      // Some bootstrap payloads include "alias" objects with the right name/label but without pricing.
-      // Try to resolve the "real" package by common id keys and then read the pricing from there.
-      const idKeys = ["id", "package_id", "packageId", "vendor_product_id", "vendorProductId"];
-      if (!resolvedNode) {
-        for (const idKey of idKeys) {
-          const idValue = getByDotPath(current, idKey);
-          if (typeof idValue !== "string" && typeof idValue !== "number") {
-            continue;
-          }
-          const resolved = deepFindFirstByKeyEqualsWithValue(root, idKey, idValue, valuePathStr);
-          if (!resolved) continue;
-          const resolvedValue = extractAccessoAmountFromNode(resolved, valuePathStr);
-          if (!resolvedValue) continue;
-          resolvedNode = resolved;
-          valueCandidate = resolvedValue;
-          break;
-        }
-      }
-
-      if (resolvedNode && valueCandidate) {
-        if (!shouldPick) {
-          return resolvedNode;
-        }
-        if (pickLast) {
-          const amountNum = parsePriceNumber(valueCandidate);
-          if (Number.isFinite(amountNum) && amountNum > 0) {
-            bestNode = resolvedNode;
-          }
-          continue;
-        }
-        const amountNum = parsePriceNumber(valueCandidate);
-        if (Number.isFinite(amountNum)) {
-          const better = pickMin ? amountNum < bestAmount : amountNum > bestAmount;
-          if (better) {
-            bestAmount = amountNum;
-            bestNode = resolvedNode;
-          }
-        }
+  for (const matcher of normalizedMatchers) {
+    try {
+      const regex = new RegExp(matcher.pattern, matcher.flags);
+      const match = regex.exec(text);
+      if (!match) {
         continue;
       }
 
-      // If we got here, we matched a node but could not find pricing. Expose a small hint upstream by
-      // attaching a non-enumerable property, so we can log it without bloating normal output.
-      try {
-        Object.defineProperty(root, "__pe_lastMatchHint", {
-          value: {
-            ...debugHints,
-            valuePath: valuePathStr,
-            hasCT: deepFindFirstValueByKey(current, "CT") != null,
-            hasRetailAmount: deepFindFirstValueByKey(current, "retail_amount") != null,
-            id: getByDotPath(current, "id") ?? getByDotPath(current, "vendor_product_id") ?? null
-          },
-          configurable: true
-        });
-      } catch {
-        // ignore
+      const rawValue = match[matcher.group] ?? match[1] ?? match[0];
+      const price = normalizePriceText(rawValue, source.currencySymbol || "$");
+      if (price) {
+        return price;
       }
-    }
-
-    if (Array.isArray(current)) {
-      for (let i = current.length - 1; i >= 0; i--) {
-        stack.push(current[i]);
-      }
-      continue;
-    }
-
-    const values = Object.values(current);
-    for (let i = values.length - 1; i >= 0; i--) {
-      const value = values[i];
-      if (value && typeof value === "object") {
-        stack.push(value);
-      }
+    } catch {
+      // Try the next matcher.
     }
   }
 
-  return bestNode;
-}
-
-function deepCollectMatchCandidates(root, matchPath, limit = 20) {
-  const matchPaths = toMatchPaths(matchPath);
-  if (!root || typeof root !== "object" || matchPaths.length === 0) return [];
-
-  const results = [];
-  const seen = new Set();
-  const stack = [root];
-
-  while (stack.length > 0 && results.length < limit) {
-    const current = stack.pop();
-    if (!current || typeof current !== "object") {
-      continue;
-    }
-
-    for (const pathStr of matchPaths) {
-      const value = getByDotPath(current, pathStr);
-      if (typeof value === "string" || typeof value === "number") {
-        const text = String(value).trim();
-        if (!text) continue;
-        const key = text.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
-        results.push(text);
-        if (results.length >= limit) break;
-      }
-    }
-
-    if (Array.isArray(current)) {
-      for (const item of current) stack.push(item);
-      continue;
-    }
-
-    for (const value of Object.values(current)) {
-      if (value && typeof value === "object") {
-        stack.push(value);
-      }
-    }
-  }
-
-  return results;
-}
-
-function deepCollectPricingCandidates(root, limit = 20) {
-  if (!root || typeof root !== "object") return [];
-
-  const results = [];
-  const seen = new Set();
-  const stack = [root];
-
-  while (stack.length > 0 && results.length < limit) {
-    const current = stack.pop();
-    if (!current || typeof current !== "object") {
-      continue;
-    }
-
-    if (!Array.isArray(current)) {
-      const retailAmount = deepFindFirstValueByKey(current, "retail_amount") ?? deepFindFirstValueByKey(current, "retailAmount");
-      if (retailAmount != null) {
-        const amountText = String(retailAmount).trim();
-        if (amountText) {
-          const name = deepFindFirstValueByKey(current, "name");
-          const nameText = name != null ? String(name).trim() : "";
-          const key = `${nameText.toLowerCase()}|${amountText}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            results.push({ name: nameText || null, retail_amount: amountText });
-          }
-        }
-      }
-    }
-
-    if (Array.isArray(current)) {
-      for (const item of current) stack.push(item);
-      continue;
-    }
-
-    for (const value of Object.values(current)) {
-      if (value && typeof value === "object") {
-        stack.push(value);
-      }
-    }
-  }
-
-  return results;
-}
-
-function normalizeRequestBody(body) {
-  if (body == null) {
-    return null;
-  }
-  if (typeof body === "string") {
-    return body;
-  }
-  if (typeof body === "object") {
-    return JSON.stringify(body);
-  }
-  return String(body);
-}
-
-function ensureJsonContentType(headers) {
-  const normalized = { ...(headers || {}) };
-  const existing = Object.keys(normalized).find((key) => key.toLowerCase() === "content-type");
-  if (!existing) {
-    normalized["content-type"] = "application/json";
-  }
-  return normalized;
-}
-
-function normalizeHeaderMap(headers) {
-  const entries = headers && typeof headers === "object" ? Object.entries(headers) : [];
-  const normalized = {};
-  for (const [key, value] of entries) {
-    const name = String(key || "").trim().toLowerCase();
-    if (!name) continue;
-    const valueString = String(value ?? "").trim();
-    if (!valueString) continue;
-    normalized[name] = valueString;
-  }
-  return normalized;
-}
-
-function findFirstStringByKeysDeep(obj, keysLowercase) {
-  const needles = Array.isArray(keysLowercase) ? keysLowercase : [keysLowercase];
-  const stack = [obj];
-  while (stack.length > 0) {
-    const current = stack.pop();
-    if (!current || typeof current !== "object") continue;
-    for (const [key, value] of Object.entries(current)) {
-      const lower = String(key || "").toLowerCase();
-      if (needles.includes(lower)) {
-        const str = String(value ?? "").trim();
-        if (str) return str;
-      }
-      if (value && typeof value === "object") {
-        stack.push(value);
-      }
-    }
-  }
   return "";
 }
 
-function fillBodyPlaceholders(body, replacements) {
-  if (!body || typeof body !== "object") return body;
-  const result = { ...body };
-  for (const [key, replacement] of Object.entries(replacements || {})) {
-    if (result[key] === "") {
-      result[key] = replacement;
+function extractPriceFromJson(jsonValue, source) {
+  const paths = Array.isArray(source.jsonPaths)
+    ? source.jsonPaths
+    : (source.jsonPath ? [source.jsonPath] : []);
+
+  for (const path of paths) {
+    const value = resolvePath(jsonValue, path);
+    const price = normalizePriceText(value, source.currencySymbol || "$");
+    if (price) {
+      return price;
     }
   }
-  return result;
+
+  return "";
 }
 
-function parseAccessoRetailAmount(value) {
-  if (value == null) return "";
-  if (typeof value === "string" || typeof value === "number") {
-    return String(value).trim();
-  }
-  if (Array.isArray(value)) {
-    for (const entry of value) {
-      const candidate = parseAccessoRetailAmount(entry);
-      if (candidate) return candidate;
+function extractBootstrapUrlFromHtml(html) {
+  const normalizedHtml = String(html || "").replace(/\\\//g, "/");
+  const patterns = [
+    /fetch\("([^"]+\/static-api\/bootstrap\?m=[^"]+)"/i,
+    /fetch\('([^']+\/static-api\/bootstrap\?m=[^']+)'/i,
+    /static-api\/bootstrap\?m=[^"']+/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = pattern.exec(normalizedHtml);
+    if (match) {
+      return match[1] || match[0];
     }
+  }
+
+  return "";
+}
+
+function findAccessoPackage(jsonValue, source) {
+  const packages = jsonValue?.GetMerchantPackageList?.SERVICE?.PS?.P;
+  const packageList = Array.isArray(packages)
+    ? packages
+    : (packages && typeof packages === "object" ? Object.values(packages) : []);
+
+  if (packageList.length === 0) {
+    return null;
+  }
+
+  const packageName = String(source.packageName || "").trim().toLowerCase();
+  const packageKeyword = String(source.packageKeyword || source.packageKeywords || "").trim().toLowerCase();
+  const seasonPassType = String(source.seasonPassType || source.season_pass_type || "").trim().toUpperCase();
+  const packageClass = String(source.packageClass || source.package_class || "").trim().toLowerCase();
+
+  return packageList.find((pkg) => {
+    const name = String(pkg?.name || "").trim().toLowerCase();
+    const keyword = String(pkg?.keyword || pkg?.assoc_keywords || "").trim().toLowerCase();
+    const pkgSeasonPassType = String(pkg?.CHARACS?.season_pass_type || "").trim().toUpperCase();
+    const pkgClass = String(pkg?.package_class || "").trim().toLowerCase();
+    return (
+      (packageName && name === packageName)
+      || (packageKeyword && keyword.includes(packageKeyword))
+      || (seasonPassType && pkgSeasonPassType === seasonPassType)
+      || (packageClass && pkgClass === packageClass)
+    );
+  }) || null;
+}
+
+function extractPriceFromAccessoBootstrap(jsonValue, source) {
+  const pkg = findAccessoPackage(jsonValue, source);
+  if (!pkg) {
     return "";
   }
-  if (typeof value === "object") {
-    if (value.retail_amount != null) return String(value.retail_amount).trim();
-    if (value.retailAmount != null) return String(value.retailAmount).trim();
-    if (value.retail_value != null) return String(value.retail_value).trim();
-    if (value.retailValue != null) return String(value.retailValue).trim();
 
-    const keyMap = Object.fromEntries(
-      Object.entries(value).map(([key, entry]) => [String(key).toLowerCase(), entry])
-    );
-    if (keyMap["retail_amount"] != null) return String(keyMap["retail_amount"]).trim();
-    if (keyMap["retailamount"] != null) return String(keyMap["retailamount"]).trim();
-    if (keyMap["retail_value"] != null) return String(keyMap["retail_value"]).trim();
-    if (keyMap["retailvalue"] != null) return String(keyMap["retailvalue"]).trim();
+  const candidatePaths = Array.isArray(source.jsonPaths) ? source.jsonPaths : [];
+  if (candidatePaths.length === 0) {
+    throw new Error("Accesso source is missing explicit jsonPaths");
   }
+
+  for (const path of candidatePaths) {
+    const value = resolvePath(pkg, path);
+    const price = normalizePriceText(value, source.currencySymbol || "$");
+    if (price) {
+      return price;
+    }
+  }
+
   return "";
 }
 
-function expandSourcesFromConfig(config) {
-  const explicit = Array.isArray(config?.sources) ? config.sources : [];
-  const templates = config?.templates && typeof config.templates === "object" ? config.templates : {};
-  const generated = Array.isArray(config?.generatedSources) ? config.generatedSources : [];
-  if (generated.length === 0) return explicit;
-
-  const expanded = [];
-
-  for (const gen of generated) {
-    const parks = Array.isArray(gen?.parks) ? gen.parks : [];
-    const passes = Array.isArray(gen?.passes) ? gen.passes : [];
-    const genDefaults = gen?.defaults && typeof gen.defaults === "object" ? gen.defaults : {};
-
-    let template = null;
-    if (typeof gen?.template === "string") {
-      template = templates?.[gen.template] || null;
-    } else if (gen?.template && typeof gen.template === "object") {
-      template = gen.template;
-    }
-
-    if (!template || parks.length === 0 || passes.length === 0) {
-      continue;
-    }
-
-    for (const parkEntry of parks) {
-      const park = String(parkEntry?.park || "").trim();
-      if (!park) continue;
-
-      const excludedPassTypes = Array.isArray(parkEntry?.excludePassTypes)
-        ? parkEntry.excludePassTypes.map((value) => String(value || "").trim()).filter(Boolean)
-        : [];
-
-      for (const passEntry of passes) {
-        const passType = String(passEntry?.passType || "").trim();
-        if (!passType) continue;
-        if (excludedPassTypes.includes(passType)) continue;
-
-        const passLabel = String(passEntry?.passLabel ?? parkEntry?.passLabel ?? passType).trim();
-        const passLabelRegex = escapeRegexLiteral(passLabel).replace(/\s+/g, "(?:\\s|&nbsp;|&#160;)+");
-
-        const currency = String(
-          passEntry?.currency || parkEntry?.currency || genDefaults?.currency || ""
-        ).trim();
-
-        const merchant = String(parkEntry?.merchant ?? genDefaults?.merchant ?? "").trim();
-        const apiHost = String(parkEntry?.apiHost ?? genDefaults?.apiHost ?? "").trim();
-
-        const vars = {
-          park,
-          passType,
-          passLabel,
-          passLabelRegex,
-          currency,
-          merchant,
-          merchantLower: merchant.toLowerCase(),
-          apiHost,
-          storeHost: parkEntry?.storeHost ?? genDefaults?.storeHost ?? "",
-          sourceUrl: parkEntry?.sourceUrl ?? genDefaults?.sourceUrl ?? "",
-          ticketspiceHost: parkEntry?.ticketspiceHost ?? genDefaults?.ticketspiceHost ?? "",
-          ticketspicePath: parkEntry?.ticketspicePath ?? genDefaults?.ticketspicePath ?? "",
-          origin: parkEntry?.origin ?? genDefaults?.origin ?? "",
-          referer: parkEntry?.referer ?? genDefaults?.referer ?? ""
-        };
-
-        const merged = deepMerge(template, deepMerge(genDefaults, deepMerge(parkEntry, passEntry)));
-        if (!merged.apiHost && apiHost) {
-          merged.apiHost = apiHost;
-        }
-        const rendered = applyTemplatesDeep(merged, vars);
-
-        expanded.push({
-          ...rendered,
-          park,
-          passType,
-          currency: currency || rendered.currency
-        });
-      }
-    }
+async function fetchSourcePrice(source) {
+  const url = String(source.bootstrapUrl || resolveSourceUrl(source)).trim();
+  if (!url) {
+    throw new Error("Missing sourceUrl");
   }
 
-  return [...explicit, ...expanded];
-}
+  const response = await fetch(url, {
+    headers: {
+      "user-agent": source.userAgent || "Pass Explorer Price Updater",
+      "accept": source.accept || "text/html,application/json;q=0.9,*/*;q=0.8"
+    },
+    redirect: "follow"
+  });
 
-async function fetchText(url, method = "GET", headers = {}, body = null) {
-  const normalizedBody = normalizeRequestBody(body);
-  const normalizedHeaders = normalizedBody ? ensureJsonContentType(headers) : headers;
-  const response = await fetch(url, { method, headers: normalizedHeaders, body: normalizedBody });
   if (!response.ok) {
-    throw new Error(`Fetch failed (${response.status}) for ${url}`);
-  }
-  return await response.text();
-}
-
-async function fetchJson(url, method = "GET", headers = {}, body = null) {
-  const normalizedBody = normalizeRequestBody(body);
-  const normalizedHeaders = normalizedBody ? ensureJsonContentType(headers) : headers;
-  const response = await fetch(url, { method, headers: normalizedHeaders, body: normalizedBody });
-  if (!response.ok) {
-    const responseText = await response.text().catch(() => "");
-    throw new Error(`Fetch failed (${response.status}) for ${url}${responseText ? `\n${responseText.slice(0, 400)}` : ""}`);
-  }
-  return await response.json();
-}
-
-async function resolveAccessoSessionTokens(sourceUrl, sourceHeaders, sourceBody) {
-  const urlObj = asUrl(sourceUrl);
-  if (!urlObj) {
-    throw new Error("Invalid source URL for Accesso resolver.");
+    throw new Error(`Request failed with status ${response.status}`);
   }
 
-  const cartSummaryUrl = new URL(`https://${urlObj.host}/api/request/getcartsummary`);
-  const headers = normalizeHeaderMap(sourceHeaders);
+  const contentType = String(response.headers.get("content-type") || "").toLowerCase();
+  const responseText = await response.text();
 
-  const bodyBase = sourceBody && typeof sourceBody === "object" ? sourceBody : {};
-  const cartBody = {
-    // Flags seen commonly in Accesso storefronts; harmless when ignored.
-    check_cart: "1",
-    include_checkout_keywords: "1",
-    promo_codes: "",
-    skip_requests: "SetExpressCheckout",
-    ...bodyBase,
-    request_type: "GetCartSummary"
-  };
-  cartBody.request_token = "";
-  cartBody.cart_id = "";
-  cartBody.cart_key = "";
-  cartBody.session_id = "";
-
-  const json = await fetchJson(cartSummaryUrl.toString(), "POST", headers, cartBody);
-  const request_token = findFirstStringByKeysDeep(json, ["request_token", "requesttoken"]);
-  const cart_id = findFirstStringByKeysDeep(json, ["cart_id", "cartid"]);
-  const cart_key = findFirstStringByKeysDeep(json, ["cart_key", "cartkey"]);
-  const session_id = findFirstStringByKeysDeep(json, ["session_id", "sessionid"]);
-
-  if (!request_token || !cart_id || !cart_key || !session_id) {
-    const snippet = JSON.stringify(json).slice(0, 400);
-    throw new Error(`Failed to resolve Accesso session tokens from getcartsummary (${cartSummaryUrl}). Response starts with: ${snippet}`);
+  if (source.responseType === "accesso-bootstrap") {
+    const jsonValue = JSON.parse(responseText);
+    return extractPriceFromAccessoBootstrap(jsonValue, source);
   }
 
-  return { request_token, cart_id, cart_key, session_id };
-}
+  if (source.responseType === "json" || contentType.includes("application/json")) {
+    const jsonValue = JSON.parse(responseText);
+    return extractPriceFromJson(jsonValue, source);
+  }
 
-function extractViaRegex(text, pattern) {
-  const cleanedText = String(text ?? "")
-    // TicketSpice (and others) often inject noop React comments between tokens: `<!-- -->`
-    .replace(/<!--[\s\S]*?-->/g, "")
-    // Normalize common HTML whitespace entities so `\s`-ish patterns work.
-    .replace(/&nbsp;|&#160;/gi, " ");
-  const flattenedText = cleanedText
-    // Help regexes that expect "text flows" by reducing tags to spaces.
-    // (We keep the raw HTML available via `cleanedText` since some patterns may rely on markup.)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ");
-  const regex = new RegExp(String(pattern), "i");
-  const match = regex.exec(cleanedText) || regex.exec(flattenedText);
-  if (!match) return "";
-  return match.slice(1).find((value) => value != null && String(value).trim()) ?? "";
-}
-
-function normalizePriceString(raw) {
-  const value = String(raw || "").trim();
-  if (!value) return "";
-  const match = /(\$|USD|CAD|MXN|EUR|GBP)?\s*([0-9]+(?:,[0-9]{3})*(?:\.[0-9]{1,2})?)/i.exec(value);
-  if (!match) return value;
-  const symbol = match[1] || "$";
-  const amountRaw = match[2].replace(/,/g, "");
-  const amountNum = Number.parseFloat(amountRaw);
-  const amount = Number.isFinite(amountNum) ? amountNum.toFixed(2) : amountRaw;
-  return symbol.toUpperCase() === "USD" || symbol.toUpperCase() === "CAD"
-    ? `$${amount}`
-    : `${symbol}${amount}`;
+  return extractPriceFromText(responseText, source);
 }
 
 async function main() {
-  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-  const configPath = path.join(repoRoot, "scripts", "price-sources.json");
-  const raw = await fs.readFile(configPath, "utf8");
-  const config = JSON.parse(raw);
-
-  const { passByParkName } = await loadBasePassFallbacks(repoRoot);
-  const baseFallbackParkCount = Object.keys(passByParkName || {}).length;
-  if (baseFallbackParkCount === 0) {
-    console.warn("Base fallback: no parks loaded from parks.js (fallbacks disabled).");
-  } else {
-    console.log(`Base fallback: loaded ${baseFallbackParkCount} parks from parks.js`);
+  if (typeof fetch !== "function") {
+    throw new Error("This script requires a Node.js version with built-in fetch.");
   }
 
-  const sources = expandSourcesFromConfig(config);
+  const config = await loadJson(configPath);
+  const sources = flattenNestedSources(config);
+  if (sources.length === 0) {
+    throw new Error("No price sources configured in scripts/price-sources.json");
+  }
+
+  const today = utcDateOnly();
+  const generatedAt = utcIsoTimestamp();
   const overrides = {};
-  const generatedAt = new Date().toISOString();
-  const updatedAt = generatedAt.slice(0, 10);
-  let missingCount = 0;
-
-  const existingPath = path.join(repoRoot, "price-overrides.js");
-  let existingOverrides = null;
-  try {
-    const existingText = await fs.readFile(existingPath, "utf8");
-    existingOverrides = tryLoadExistingOverrides(existingText);
-  } catch {
-    existingOverrides = null;
-  }
+  const summary = [];
+  const errors = [];
 
   for (const source of sources) {
-    const park = String(source?.park || "").trim();
-    const passType = String(source?.passType || "").trim();
-    if (!park || !passType) continue;
-
-    const url = asUrl(source?.url);
-    if (!url) continue;
-
-    try {
-      const method = String(source?.method || "GET").toUpperCase();
-      const headersRaw = source?.headers && typeof source.headers === "object" ? source.headers : {};
-      const headers = normalizeHeaderMap(headersRaw);
-      let body = source?.body ?? null;
-      const extract = source?.extract || {};
-      const extractType = String(extract?.type || "regex");
-
-      const isAccessoPackageSwaps = method === "POST"
-        && /\/api\/request\/getpackageswaps/i.test(url.pathname)
-        && body
-        && typeof body === "object";
-      if (isAccessoPackageSwaps) {
-        const needsTokens = ["request_token", "cart_id", "cart_key", "session_id"].some((key) => body?.[key] === "");
-        if (needsTokens) {
-          const tokens = await resolveAccessoSessionTokens(url.toString(), headers, body);
-          body = fillBodyPlaceholders(body, tokens);
-        }
-      }
-
-    let extracted = "";
-    let jsonForDebug = null;
-    let textForDebug = null;
-    if (extractType === "json") {
-      const json = await fetchJson(url.toString(), method, headers, body);
-      jsonForDebug = json;
-      extracted = String(getByDotPath(json, extract?.path) ?? "").trim();
-    } else if (extractType === "json-search") {
-      const json = await fetchJson(url.toString(), method, headers, body);
-      jsonForDebug = json;
-      const arrays = collectAllArraysByDotPaths(json, extract?.arrayPath ?? extract?.arrayPaths);
-      const matchPath = extract?.match?.path ?? extract?.matchPath;
-      const matchSpec = extract?.match ?? extract?.matchSpec ?? { includes: extract?.matchIncludes };
-      const valuePath = extract?.value?.path ?? extract?.valuePath;
-      const pick = extract?.value?.pick ?? extract?.pick ?? null;
-      const item = (pick === "min" || pick === "max") && valuePath
-        ? (() => {
-          let best = null;
-          const pickMin = pick === "min";
-          let bestAmount = pickMin ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
-          for (const items of arrays) {
-            const candidate = findBestByIncludes(items, matchPath, matchSpec, valuePath, pick);
-            if (!candidate) continue;
-            const amount = parsePriceNumber(parseAccessoRetailAmount(getByDotPath(candidate, valuePath)));
-            if (!Number.isFinite(amount)) continue;
-            const better = pickMin ? amount < bestAmount : amount > bestAmount;
-            if (better) {
-              bestAmount = amount;
-              best = candidate;
-            }
-          }
-          return best;
-        })()
-        : pick === "last"
-          ? findLastByIncludesInAnyArray(arrays, matchPath, matchSpec)
-          : findFirstByIncludesInAnyArray(arrays, matchPath, matchSpec);
-      extracted = item && valuePath
-        ? parseAccessoRetailAmount(getByDotPath(item, valuePath))
-        : "";
-    } else if (extractType === "json-deep-search") {
-      const json = await fetchJson(url.toString(), method, headers, body);
-      jsonForDebug = json;
-      const matchPath = extract?.match?.path ?? extract?.matchPath;
-      const matchSpec = extract?.match ?? extract?.matchSpec ?? { includes: extract?.matchIncludes };
-      const valuePath = extract?.value?.path ?? extract?.valuePath;
-      const pick = extract?.value?.pick ?? extract?.pick ?? null;
-      const item = deepFindFirstByIncludesWithValue(json, matchPath, matchSpec, valuePath, pick);
-      extracted = item ? extractAccessoAmountFromNode(item, valuePath) : "";
-    } else {
-      const text = await fetchText(url.toString(), method, headers, body);
-      textForDebug = text;
-      extracted = extractViaRegex(text, extract?.pattern);
-    }
-
-    const normalized = normalizePriceString(extracted);
-    const targetPath = String(source?.target || "price").trim() || "price";
-    
-    // Check if extraction failed or returned an invalid price (0 or empty)
-    const extractedPrice = parsePriceNumber(extracted);
-    const shouldUseFallback = !normalized || extractedPrice <= 0;
-
-    if (!normalized || shouldUseFallback) {
-      if (!normalized) {
-        missingCount += 1;
-        console.warn(`No price extracted for ${park} / ${passType} (${url.toString()})`);
-        if (missingCount <= 3) {
-          const matchSpecDebug = extract?.match ?? extract?.matchSpec ?? null;
-          const valuePathDebug = extract?.value?.path ?? extract?.valuePath ?? null;
-          console.warn(`Debug match spec: ${matchSpecDebug ? JSON.stringify(matchSpecDebug) : "null"}; valuePath: ${valuePathDebug ? JSON.stringify(valuePathDebug) : "null"}`);
-        }
-        if (textForDebug && url.host.toLowerCase().includes("ticketspice.com")) {
-          const text = String(textForDebug);
-          const flattened = text
-            .replace(/<!--[\s\S]*?-->/g, "")
-            .replace(/&nbsp;|&#160;/gi, " ")
-            .replace(/<[^>]+>/g, " ")
-            .replace(/\s+/g, " ");
-          const snippet = text.slice(0, 400).replace(/\s+/g, " ").trim();
-          const tail = text.slice(Math.max(0, text.length - 400)).replace(/\s+/g, " ").trim();
-          const hasHero = /Enchanted\s+Hero\s+Pass/i.test(flattened);
-          const hasLegend = /Enchanted\s+Legend\s+Pass/i.test(flattened);
-          const hasEnchantedSection =
-            /###\s*Enchanted\s+Passes/i.test(flattened) ||
-            /Enchanted\s+Passes/i.test(flattened);
-          const hasDollar = /(?:\$|&#36;|&dollar;)\s*[0-9]+(?:\.[0-9]{2})?/i.test(flattened);
-          console.warn(
-            `TicketSpice debug: len=${text.length} hasEnchantedSection=${hasEnchantedSection} hasHero=${hasHero} hasLegend=${hasLegend} hasDollar=${hasDollar} snippet=${JSON.stringify(snippet)} tail=${JSON.stringify(tail)}`
-          );
-
-          const patternForDebug = String(extract?.pattern || "");
-          if (patternForDebug) {
-            try {
-              const re = new RegExp(patternForDebug, "i");
-              const hit = re.exec(text) || re.exec(flattened);
-              console.warn(
-                `TicketSpice debug: regexHit=${hit ? "true" : "false"} captured=${hit?.[1] ? JSON.stringify(hit[1]) : "null"}`
-              );
-            } catch (error) {
-              console.warn(`TicketSpice debug: regexError=${JSON.stringify(error?.message || String(error))}`);
-            }
-          }
-
-          const idx = text.search(/Enchanted/i);
-          if (idx >= 0) {
-            const around = text.slice(Math.max(0, idx - 250), Math.min(text.length, idx + 600)).replace(/\s+/g, " ").trim();
-            console.warn(`TicketSpice debug: enchantedAround=${JSON.stringify(around)}`);
-            const flatAround = flattened.slice(Math.max(0, flattened.search(/Enchanted/i) - 120), Math.min(flattened.length, flattened.search(/Enchanted/i) + 500)).trim();
-            if (flatAround) {
-              console.warn(`TicketSpice debug: enchantedAroundFlat=${JSON.stringify(flatAround)}`);
-            }
-          } else {
-            const headingIdx = text.search(/####/);
-            if (headingIdx >= 0) {
-              const around = text.slice(Math.max(0, headingIdx - 250), Math.min(text.length, headingIdx + 600)).replace(/\s+/g, " ").trim();
-              console.warn(`TicketSpice debug: headingAround=${JSON.stringify(around)}`);
-              const flatIdx = flattened.search(/####/);
-              if (flatIdx >= 0) {
-                const flatAround = flattened.slice(Math.max(0, flatIdx - 120), Math.min(flattened.length, flatIdx + 500)).trim();
-                console.warn(`TicketSpice debug: headingAroundFlat=${JSON.stringify(flatAround)}`);
-              }
-            }
-          }
-        }
-        if (jsonForDebug && (extractType === "json-search" || extractType === "json-deep-search")) {
-          const matchPath = extract?.match?.path ?? extract?.matchPath;
-          const samples = deepCollectMatchCandidates(jsonForDebug, matchPath, 12);
-          if (samples.length > 0) {
-            console.warn(`Sample match candidates (${Array.isArray(matchPath) ? matchPath.join(",") : String(matchPath || "")}): ${samples.map((s) => JSON.stringify(s)).join(", ")}`);
-          }
-          const pricingSamples = deepCollectPricingCandidates(jsonForDebug, 8);
-          if (pricingSamples.length > 0) {
-            console.warn(`Sample pricing candidates: ${pricingSamples.map((entry) => `${entry.name ? JSON.stringify(entry.name) + " " : ""}${JSON.stringify(entry.retail_amount)}`).join(", ")}`);
-          }
-          const hint = jsonForDebug?.__pe_lastMatchHint;
-          if (hint) {
-            console.warn(`Last match hint: ${JSON.stringify(hint)}`);
-          }
-        }
-      } else if (shouldUseFallback) {
-        console.warn(`Invalid price extracted for ${park} / ${passType}: ${extracted} (${url.toString()}). Will try fallback.`);
-      }
-
-      const baseFallback = getBaseFallbackValue(passByParkName, park, passType, targetPath);
-      const resolvedFallback = baseFallback ? String(baseFallback).trim() : "";
-
-      if (resolvedFallback) {
-        overrides[park] ??= {};
-        overrides[park][passType] ??= { updatedAt };
-        setByDotPath(overrides[park][passType], targetPath, normalizePriceString(resolvedFallback));
-        overrides[park][passType].updatedAt = updatedAt;
-        if (shouldUseFallback && extractedPrice === 0) {
-          console.log(`Used fallback from parks.js for ${park} / ${passType}: ${resolvedFallback}`);
-        }
-      } else if (!normalized) {
-        // Only warn if extraction completely failed, not if we got a zero price
-        if (missingCount <= 3) {
-          console.warn(
-            `No fallback available for ${park} / ${passType} (parks.js=${baseFallback ? JSON.stringify(baseFallback) : "null"})`
-          );
-        }
-      } else if (shouldUseFallback) {
-        // Extraction returned invalid price, preserve existing if available
-        if (existingOverrides?.[park]?.[passType]) {
-          overrides[park] ??= {};
-          overrides[park][passType] = existingOverrides[park][passType];
-          console.log(`Preserved existing price for ${park} / ${passType}: ${JSON.stringify(overrides[park][passType])}`);
-        }
-      }
+    const park = String(source.park || "").trim();
+    const passType = String(source.passType || "").trim();
+    if (!park || !passType) {
+      errors.push(`Skipping source with missing park or passType: ${JSON.stringify(source)}`);
       continue;
     }
 
-    overrides[park] ??= {};
-    overrides[park][passType] ??= { updatedAt };
-    setByDotPath(overrides[park][passType], targetPath, normalized);
-    overrides[park][passType].updatedAt = updatedAt;
-    } catch (error) {
-      console.error(`Error fetching/processing ${park} / ${passType} from ${url.toString()}: ${error?.message || String(error)}`);
-      missingCount += 1;
+    let price = "";
+    let error = "";
+    try {
+      if (String(source.sourceKind || "").toLowerCase() === "accesso-portal") {
+        const portalUrl = String(resolveSourceUrl(source, config)).trim();
+        const portalResponse = await fetch(portalUrl, {
+          headers: {
+            "user-agent": source.userAgent || "Pass Explorer Price Updater",
+            "accept": source.accept || "text/html,application/json;q=0.9,*/*;q=0.8"
+          },
+          redirect: "follow"
+        });
+
+        if (!portalResponse.ok) {
+          throw new Error(`Portal request failed with status ${portalResponse.status}`);
+        }
+
+        const portalHtml = await portalResponse.text();
+        const bootstrapUrl = extractBootstrapUrlFromHtml(portalHtml);
+        if (!bootstrapUrl) {
+          throw new Error("Could not find Accesso bootstrap URL in portal HTML");
+        }
+
+        const bootstrapResponse = await fetch(bootstrapUrl, {
+          headers: {
+            "user-agent": source.userAgent || "Pass Explorer Price Updater",
+            "accept": "application/json,text/plain,*/*"
+          },
+          redirect: "follow"
+        });
+
+        if (!bootstrapResponse.ok) {
+          throw new Error(`Bootstrap request failed with status ${bootstrapResponse.status}`);
+        }
+
+        const bootstrapJson = await bootstrapResponse.json();
+        price = extractPriceFromAccessoBootstrap(bootstrapJson, source);
+      } else {
+        price = await fetchSourcePrice(source);
+      }
+    } catch (caughtError) {
+      error = caughtError instanceof Error ? caughtError.message : String(caughtError || "Unknown error");
     }
+
+    if (!price) {
+      errors.push(`${park} / ${passType}: could not determine a price${error ? ` (${error})` : ""}`);
+      continue;
+    }
+
+    const targetPath = String(source.targetPath || source.target || "price").trim() || "price";
+    if (!overrides[park]) {
+      overrides[park] = {};
+    }
+
+    const override = {
+      updatedAt: today,
+    };
+    setByDotPath(override, targetPath, price);
+    overrides[park][passType] = override;
+
+    summary.push(`${park} / ${passType}: ${price}`);
   }
 
-  if (sources.length > 0 && Object.keys(overrides).length === 0) {
-    throw new Error("No overrides generated (all sources failed). Refusing to overwrite price-overrides.js.");
+  const output = [
+    "// AUTO-GENERATED pricing overrides.",
+    "// Keep park definitions in `parks.js` price-free and update prices here.",
+    "",
+    "window.priceOverridesMeta = " + JSON.stringify({
+      generatedAt,
+      timezone: "UTC"
+    }, null, 2) + ";",
+    "",
+    "window.priceOverrides = " + JSON.stringify(overrides, null, 2) + ";",
+    ""
+  ].join("\n");
+
+  if (!dryRun) {
+    await writeFile(outputPath, output, "utf8");
   }
 
-  const meta = {
-    generatedAt,
-    timezone: "UTC"
-  };
-  const output = `// AUTO-GENERATED by scripts/update-price-overrides.mjs\n// Do not edit by hand (edit scripts/price-sources.json instead).\n\nwindow.priceOverridesMeta = ${stableStringify(meta)};\nwindow.priceOverrides = ${stableStringify(overrides)};\n`;
-  await fs.writeFile(path.join(repoRoot, "price-overrides.js"), output, "utf8");
-  console.log(`Wrote ${Object.keys(overrides).length} parks to price-overrides.js`);
+  console.log(dryRun ? "[dry-run] price-overrides.js would be updated." : "Updated price-overrides.js.");
+  for (const line of summary) {
+    console.log(`- ${line}`);
+  }
+  for (const line of errors) {
+    console.warn(`! ${line}`);
+  }
 
-  if (missingCount > 0) {
-    console.warn(`${missingCount} source(s) failed to extract; fell back to parks.js where available.`);
+  if (errors.length > 0) {
+    process.exitCode = 1;
   }
 }
 
 main().catch((error) => {
-  console.error(error);
+  console.error(error instanceof Error ? error.message : String(error));
   process.exitCode = 1;
 });

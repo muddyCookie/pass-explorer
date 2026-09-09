@@ -587,7 +587,7 @@ function expandAccessibleParks(accessEntries) {
 }
 
 const passOffers = [];
-const OMIT_HOME_ONLY_PASSES = true;
+const OMIT_HOME_ONLY_PASSES = false;
 for (const parkConfig of getExpandedParkCatalogEntries()) {
   const parkName = String(parkConfig.park || "").trim();
   const company = String(parkConfig.company || "").trim();

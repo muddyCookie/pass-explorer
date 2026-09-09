@@ -1,24 +1,7 @@
-// Example company record with all optional fields.
-//
-//const companyCatalog = [
-//  {
-//    name: "United Parks",
-//    defaultCurrency: "USD",
-//    defaultDate: "2026-12-31",
-//    tierOrder: ["Season", "Platinum"],
-//    defaultUrl: "",
-//    defaultUrlPass: "annual-pass",
-//    passDisplayRules: { omitPassSuffixForTypes: ["Fun Card"] },
-//    parkAccessGroups: { UnitedSanDiego: ["SeaWorld San Diego", "Sesame Place San Diego"] },
-//    defaultAccessibleByTier: {
-//      Season: (homePark) => [homePark],
-//      Platinum: (homePark) => [parkGroupByName[homePark] || homePark]
-//    }
-//  }
-//];
+// Six Flags-only configuration for the current catalog.
 const urlRules = {
   // Generic URL rules used for all companies. Companies can override defaults by setting:
-  // - `defaultUrl`: base host/path used to build park websites (e.g. "www.sixflags", "{parkUrl}.disney.go.com/destinations")
+  // - `defaultUrl`: base host/path used to build park websites.
   // - `defaultUrlPass`: default pass path (e.g. "season-passes") or absolute URL template.
   parkTemplate: "https://{url}/{slug}",
   passTemplate: "https://{url}/{slug}/{urlPass}"
@@ -26,15 +9,8 @@ const urlRules = {
 const groupOrder = [
   "Six Flags East",
   "Six Flags Midwest",
-  "Six Flags Texas", 
-  "Six Flags West",
-  "Enchanted Parks",
-  "Herschend",
-  "Fun Spot America",
-  "United Parks",
-  "Disney World",
-  "Disneyland",
-  "Universal Orlando"
+  "Six Flags Texas",
+  "Six Flags West"
 ];
 
 const companyCatalog = [
@@ -42,70 +18,10 @@ const companyCatalog = [
     name: "Six Flags",
     defaultCurrency: "USD",
     defaultCountry: "United States",
-    defaultDate: "year-12-31",
+    defaultDate: "2027-12-31",
     defaultUrl: "sixflags",
     defaultUrlPass: "season-passes",
     defaultMembershipUrlPass: "memberships"
-  },
-  {
-    name: "Enchanted Parks",
-    defaultCurrency: "USD",
-    defaultCountry: "United States",
-    defaultDate: "year-12-31",
-    defaultUrlPass: "passes-and-tickets/park-admission/season-passes/",
-    urlRules: {
-      parkTemplate: "https://{hostSlug}.enchantedparks.com",
-      passTemplate: "https://{hostSlug}.enchantedparks.com/{urlPass}"
-    }
-  },
-  {
-    name: "Herschend",
-    defaultCurrency: "USD",
-    defaultCountry: "United States",
-    defaultDate: "year-12-31",
-    defaultSlug: "buy-tickets",
-    defaultUrlPass: "season-passes"
-  },
-  {
-  name: "Fun Spot America",
-  defaultCurrency: "USD",
-  defaultCountry: "United States",
-  defaultDate: "year-12-31",
-  defaultUrl: "fun-spot",
-  defaultUrlPass: "season-pass"
-  },
-  {
-    name: "Merlin Entertainments",
-    defaultCurrency: "USD",
-    defaultCountry: "United States",
-    defaultDate: "year-12-31",
-    defaultUrl: "legoland",
-    defaultUrlPass: "tickets-passes/annual-passes"
-  },
-  {
-    name: "United Parks",
-    defaultCurrency: "USD",
-    defaultCountry: "United States",
-    defaultDate: "today+1y",
-    defaultUrl: "seaworld",
-    defaultUrlPass: "annual-pass"    
-  },
-  {
-    name: "Walt Disney",
-    defaultCurrency: "USD",
-    defaultCountry: "United States",
-    defaultUrlPass: "passes",
-    urlRules: {
-      parkTemplate: "https://{hostSlug}.disney.go.com/{slug}",
-      passTemplate: "https://{hostSlug}.disney.go.com/{urlPass}"
-    }
-  },
-  {
-    name: "Universal",
-    defaultCurrency: "USD",
-    defaultCountry: "United States",
-    defaultUrl: "universalorlando",
-    defaultUrlPass: "web/en/us/tickets-packages/annual-passes/promo",
   }
 ];
 
@@ -128,6 +44,14 @@ function normalizeUrlSlashes(value) {
 
 function applyUrlTemplate(template, values) {
   return String(template || "").replace(/\{(\w+)\}/g, (_, key) => String(values[key] || ""));
+}
+
+function resolveTemplatedValue(rawValue, templateValues) {
+  const text = String(rawValue || "").trim();
+  if (!text) {
+    return "";
+  }
+  return /\{\w+\}/.test(text) ? applyUrlTemplate(text, templateValues) : text;
 }
 
 function getCompanyConfig(companyName) {
@@ -180,7 +104,7 @@ function getCompanyDefaultDate(companyName) {
   return rawDate;
 }
 
-// Builds website + buy URLs for a park using company-level URL rules and optional park-level `urlPass`.
+// Builds website + buy URLs for a park using company-level URL rules and optional park-level templates.
 function buildParkLinksForCompany(companyName, parkConfig) {
   const company = getCompanyConfig(companyName);
   const urlRules = company?.urlRules || {};
@@ -197,14 +121,6 @@ function buildParkLinksForCompany(companyName, parkConfig) {
   // Prefer park-level `url` as the `{url}` value; fall back to company `defaultUrl`.
   // `slug` is always used as `{slug}`; it is never inferred from `url`.
   const baseUrlTemplateOrValue = parkUrlValue || companyDefaultUrl;
-
-  const expandUrlTemplate = (value, templateValues) => {
-    const text = String(value || "").trim();
-    if (!text) {
-      return "";
-    }
-    return /\{\w+\}/.test(text) ? applyUrlTemplate(text, templateValues) : text;
-  };
 
   const normalizeHostPath = (value) => {
     const text = trimSlashes(String(value || "").trim());
@@ -229,10 +145,12 @@ function buildParkLinksForCompany(companyName, parkConfig) {
   const resolvedPassSlugValue = slugMode === "suffix"
     ? ""
     : (rawSlug || companyDefaultSlug);
+  const parkCodeValue = String(parkConfig.parkCode || parkConfig.code || "").trim();
   const templateValuesBase = {
-    url: normalizeHostPath(expandUrlTemplate(baseUrlTemplateOrValue, { url: resolvedUrlValue, parkUrl: originalParkUrlValue, slug: rawSlug })),
+    url: normalizeHostPath(resolveTemplatedValue(baseUrlTemplateOrValue, { url: resolvedUrlValue, parkUrl: originalParkUrlValue, slug: rawSlug, parkCode: parkCodeValue })),
     urlRoot: "",
     urlPass: String(parkConfig.urlPass || "").trim(),
+    parkCode: parkCodeValue,
     parkUrl: originalParkUrlValue,
     hostSlug: rawHostSlug || (!rawSlug.includes("/") ? rawSlug : "")
   };
@@ -250,10 +168,21 @@ function buildParkLinksForCompany(companyName, parkConfig) {
     website = `https://${websiteTemplateValues.url}`;
   }
 
+  const parkUrlPassTemplate = String(parkConfig.urlPassTemplate || parkConfig.portalTemplate || "").trim();
   const defaultUrlPass = String(urlRules.defaultUrlPass || "").trim();
   const parkUrlPass = String(parkConfig.urlPass || "").trim();
 
   let resolvedUrlPass = "";
+  if (parkUrlPassTemplate) {
+    const templatedPassUrl = normalizeUrlSlashes(applyUrlTemplate(parkUrlPassTemplate, {
+      ...passTemplateValues,
+      urlPass: parkUrlPass || defaultUrlPass
+    })).trim();
+    if (templatedPassUrl) {
+      return { website, passPurchaseUrl: templatedPassUrl };
+    }
+  }
+
   if (parkUrlPass && /^https?:\/\//i.test(parkUrlPass)) {
     resolvedUrlPass = parkUrlPass;
   } else if (parkUrlPass && /^https?:\/\//i.test(defaultUrlPass) && /\{urlPass\}/.test(defaultUrlPass)) {

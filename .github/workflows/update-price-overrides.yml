@@ -1,46 +1,38 @@
-name: Update price overrides
+name: Update Price Overrides
 
 on:
-  workflow_dispatch: {}
   schedule:
-    # Daily at 9:15 AM UTC
-    - cron: "15 9 * * *"
-
-env:
-  # GitHub Actions is deprecating Node.js 20 for JavaScript-based actions in 2026.
-  # This opts the workflow into Node.js 24 for action runtimes.
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    - cron: "0 12 * * *"
+  workflow_dispatch: {}
 
 permissions:
   contents: write
 
-concurrency:
-  group: update-price-overrides
-  cancel-in-progress: false
-
 jobs:
-  update:
+  update-price-overrides:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "22"
 
-      - name: Generate price-overrides.js
+      - name: Refresh price overrides
         run: node scripts/update-price-overrides.mjs
 
-      - name: Commit changes (if any)
+      - name: Commit changes
         run: |
-          if git diff --quiet; then
-            echo "No changes."
+          if git diff --quiet -- price-overrides.js; then
+            echo "No price changes detected."
             exit 0
           fi
+
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add price-overrides.js
           git commit -m "Update price overrides"
           git push

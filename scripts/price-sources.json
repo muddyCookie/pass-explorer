@@ -1,336 +1,84 @@
 {
-  "version": 3,
-  "sources": [],
-  "templates": {
-    "enchantedTicketSpice": {
-      "parkGroup": "Enchanted Parks",
-      "method": "GET",
-      "headers": {
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "accept-language": "en-US,en;q=0.9",
-        "cache-control": "no-cache",
-        "pragma": "no-cache",
-        "upgrade-insecure-requests": "1",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-      },
-      "url": "https://{ticketspiceHost}.ticketspice.com/admission-2026",
-      "extract": {
-        "type": "regex",
-        "pattern": "{passLabelRegex}[\\s\\S]{0,12000}?(?:\\$|&#36;|&dollar;)\\s*([0-9]+\\.[0-9]{2})\\s*\\(\\s*(?:\\$|&#36;|&dollar;)?\\s*[0-9]+\\.[0-9]{2}\\s*\\+"
-      }
-    },
-    "sixFlagsAccessoBootstrap": {
-      "method": "GET",
-      "headers": {
-        "accept": "application/json, text/plain, */*",
-        "origin": "https://{storeHost}",
-        "referer": "https://{storeHost}/"
-      },
-      "url": "https://{apiHost}/static-api/bootstrap?m={merchant}",
-      "extract": {
-        "type": "json-deep-search",
-        "match": { "path": ["name", "label"], "includes": "{passLabel}" },
-        "value": { "path": "retail_amount", "pick": "min" }
-      }
-    },
-    "discountHtmlPass": {
-      "method": "GET",
-      "headers": {
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "accept-language": "en-US,en;q=0.9",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-        "sec-fetch-dest": "document",
-        "sec-fetch-mode": "navigate",
-        "sec-fetch-site": "none"
-      },
-      "url": "{sourceUrl}",
-      "extract": {
-        "type": "regex",
-        "pattern": "{passLabelRegex}[\\s\\S]{0,3200}?(?:Save\\s+\\$[0-9]+(?:\\.[0-9]{2})?(?:\\s+(?:Now|Online))?\\s+\\$[0-9]+(?:\\.[0-9]{2})?\\s+\\$([0-9]+(?:,[0-9]{3})*(?:\\.[0-9]{2})?)|Single Pass Price[^$]*\\$[0-9]+(?:\\.[0-9]{2})?\\s+\\$([0-9]+(?:,[0-9]{3})*(?:\\.[0-9]{2})?)|Only\\s+\\$([0-9]+(?:,[0-9]{3})*(?:\\.[0-9]{2})?)|Less Than a Day Ticket\\s+\\$([0-9]+(?:,[0-9]{3})*(?:\\.[0-9]{2})?))"
-      }
-    },
-    "annualPriceHtmlPass": {
-      "method": "GET",
-      "headers": {
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "accept-language": "en-US,en;q=0.9",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-      },
-      "url": "{sourceUrl}",
-      "extract": {
-        "type": "regex",
-        "pattern": "{passLabelRegex}[\\s\\S]{0,1800}?\\$\\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\\.[0-9]{2})?)"
-      }
-    },
-    "unitedAnnualPaymentHtmlPass": {
-      "method": "GET",
-      "headers": {
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "accept-language": "en-US,en;q=0.9",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-      },
-      "url": "{sourceUrl}",
-      "extract": {
-        "type": "regex",
-        "pattern": "{passLabelRegex}[\\s\\S]{0,8000}?(?:Annual payments\\s*\\$([0-9]+(?:,[0-9]{3})*(?:\\.[0-9]{2})?)|or\\s*\\$([0-9]+(?:,[0-9]{3})*(?:\\.[0-9]{2})?)\\s+annually)"
-      }
-    }
+  "portalHostTemplates": {
+    "cf": "cf-{parkCode}.buy",
+    "sf": "sf-gc-{parkCode}.store"
   },
-  "generatedSources": [
-    {
-      "template": "enchantedTicketSpice",
-      "defaults": {
-        "currency": "USD"
-      },
-      "parks": [
-        { "park": "Worlds of Fun", "ticketspiceHost": "worldsoffun" },
-        { "park": "Six Flags St. Louis", "ticketspiceHost": "mid-america" },
-        { "park": "Valleyfair", "ticketspiceHost": "valleyfair" },
-        { "park": "Michigan's Adventure", "ticketspiceHost": "michigans-adventure" },
-        { "park": "Six Flags Great Escape", "ticketspiceHost": "great-escape" }
-      ],
-      "passes": [
-        { "passType": "Hero", "passLabel": "Enchanted Hero Pass" },
-        { "passType": "Legend", "passLabel": "Enchanted Legend Pass" }
-      ]
-    },
-    {
-      "template": "sixFlagsAccessoBootstrap",
-      "defaults": {
-        "currency": "USD",
-        "apiHost": "ecomm.api.cf.accessoticketing.com"
-      },
-      "parks": [
-        {
-          "park": "California's Great America",
-          "merchant": "CF-GA",
-          "storeHost": "cf-ga.buy.sixflags.com",
-          "excludePassTypes": ["Prestige", "Gold Membership", "Prestige Membership"]
-        },
-        {
-          "park": "Canada's Wonderland",
-          "merchant": "CF-CW",
-          "storeHost": "cf-cw.buy.sixflags.com",
-          "currency": "CAD",
-          "excludePassTypes": ["Gold Membership", "Prestige Membership"]
-        },
-        {
-          "park": "Carowinds",
-          "merchant": "CF-CA",
-          "storeHost": "cf-ca.buy.sixflags.com"
-        },
-        {
-          "park": "Cedar Point",
-          "merchant": "CF-CP",
-          "storeHost": "cf-cp.buy.sixflags.com",
-          "excludePassTypes": ["Gold Membership", "Prestige Membership"]
-        },
-        {
-          "park": "Dorney Park",
-          "merchant": "CF-DP",
-          "storeHost": "cf-dp.buy.sixflags.com"
-        },
-        {
-          "park": "King's Dominion",
-          "merchant": "CF-KD",
-          "storeHost": "cf-kd.buy.sixflags.com"
-        },
-        {
-          "park": "King's Island",
-          "merchant": "CF-KI",
-          "storeHost": "cf-ki.buy.sixflags.com"
-        },
-        {
-          "park": "Knott's Berry Farm",
-          "merchant": "CF-KBF",
-          "storeHost": "cf-kbf.buy.sixflags.com"
-        }
-      ],
-      "passes": [
-        { "passType": "Gold", "passLabel": "2026 GOLD PASS", "extract": { "match": { "pattern": "(?:2026\\s*GOLD\\s*PASS|Gold Pass 2026)" }, "value": { "pick": "last" } } },
-        { "passType": "Gold Membership", "passLabel": "Gold Membership", "target": "pricing.monthly" },
-        { "passType": "Prestige", "passLabel": "2026 PRESTIGE PASS", "extract": { "match": { "pattern": "(?:2026\\s*PRESTIGE\\s*PASS|Prestige Pass 2026)" }, "value": { "pick": "last" } } },
-        { "passType": "Prestige Membership", "passLabel": "Prestige Membership", "target": "pricing.monthly" }
-      ]
-    },
-    {
-      "template": "sixFlagsAccessoBootstrap",
-      "defaults": {
-        "currency": "USD",
-        "apiHost": "ecomm.api.sf.accessoticketing.com"
-      },
-      "parks": [
-        {
-          "park": "Frontier City",
-          "merchant": "SF-GC-FC",
-          "storeHost": "sf-gc-fc.store.sixflags.com"
-        },
-        {
-          "park": "Six Flags Darien Lake",
-          "merchant": "SF-GC-DL",
-          "storeHost": "sf-gc-dl.store.sixflags.com"
-        },
-        {
-          "park": "Six Flags Discovery Kingdom",
-          "merchant": "SF-GC-DK",
-          "storeHost": "sf-gc-dk.store.sixflags.com"
-        },
-        {
-          "park": "Six Flags Fiesta Texas",
-          "merchant": "SF-GC-FT",
-          "storeHost": "sf-gc-ft.store.sixflags.com"
-        },
-        {
-          "park": "Six Flags Great Adventure",
-          "merchant": "SF-GC-NJ",
-          "storeHost": "sf-gc-nj.store.sixflags.com"
-        },
-        {
-          "park": "Six Flags Great America",
-          "merchant": "SF-GC-GA",
-          "storeHost": "sf-gc-ga.store.sixflags.com"
-        },
-        {
-          "park": "Six Flags Magic Mountain",
-          "merchant": "SF-GC-MM",
-          "storeHost": "sf-gc-mm.store.sixflags.com"
-        },
-        {
-          "park": "Six Flags Mexico",
-          "merchant": "SF-GC-CDMX",
-          "storeHost": "sf-gc-cdmx.store.sixflags.com",
-          "currency": "MXN",
-          "excludePassTypes": ["Gold Membership", "Prestige Membership"],
-          "extract": {
-            "value": {
-              "path": "retail_amount",
-              "pick": "last"
+  "sources": {
+    "accesso-portal": {
+      "Season Passes": {
+        "link": "sixflags.com/packageList/navItem/Season%20Passes",
+        "Gold": {
+          "seasonPassType": "GW",
+          "target": "price",
+          "jsonPaths": [
+            "price_label_override"
+          ],
+          "portalHosts": {
+            "cf": {
+              "parks": {
+                "ga": {
+                  "park": "California's Great America",
+                  "currencySymbol": "$"
+                }
+              }
             }
           }
         },
-        {
-          "park": "Six Flags New England",
-          "merchant": "SF-GC-NE",
-          "storeHost": "sf-gc-ne.store.sixflags.com"
-        },
-        {
-          "park": "Six Flags Over Georgia",
-          "merchant": "SF-GC-OG",
-          "storeHost": "sf-gc-og.store.sixflags.com"
-        },
-        {
-          "park": "Six Flags Over Texas",
-          "merchant": "SF-GC-OT",
-          "storeHost": "sf-gc-ot.store.sixflags.com"
-        }
-      ],
-      "passes": [
-        { "passType": "Gold", "passLabel": "2026 GOLD PASS", "extract": { "match": { "pattern": "(?:2026\\s*GOLD\\s*PASS|Gold Pass 2026)" }, "value": { "pick": "last" } } },
-        { "passType": "Gold Membership", "passLabel": "Gold Membership", "target": "pricing.monthly" },
-        { "passType": "Prestige", "passLabel": "2026 PRESTIGE PASS", "extract": { "match": { "pattern": "(?:2026\\s*PRESTIGE\\s*PASS|Prestige Pass 2026)" }, "value": { "pick": "last" } } },
-        { "passType": "Prestige Membership", "passLabel": "Prestige Membership", "target": "pricing.monthly" }
-      ]
-    },
-    {
-      "template": "discountHtmlPass",
-      "defaults": {
-        "currency": "USD"
-      },
-      "parks": [
-        {
-          "park": "Adventureland",
-          "sourceUrl": "https://www.adventurelandpark.com/buy-tickets/season-passes/",
-          "headers": {
-            "referer": "https://www.adventurelandpark.com/"
-          }
-        },
-        {
-          "park": "Dutch Wonderland",
-          "sourceUrl": "https://www.dutchwonderland.com/buy-tickets/season-passes"
-        },
-        {
-          "park": "Idlewild",
-          "sourceUrl": "https://idlewild.com/buy-tickets/season-passes/"
-        },
-        {
-          "park": "Kennywood",
-          "sourceUrl": "https://www.kennywood.com/buy-tickets/season-passes"
-        },
-        {
-          "park": "Lake Compounce",
-          "sourceUrl": "https://www.lakecompounce.com/buy-tickets/season-passes/"
-        },
-        {
-          "park": "Story Land",
-          "sourceUrl": "https://www.storylandnh.com/buy-tickets/season-passes/"
-        }
-      ],
-      "passes": [
-        { "passType": "Platinum", "passLabel": "Platinum Season Pass" }
-      ]
-    },
-    {
-      "template": "annualPriceHtmlPass",
-      "defaults": {
-        "currency": "USD"
-      },
-      "parks": [
-        {
-          "park": "Disney World",
-          "sourceUrl": "https://disneyworld.disney.go.com/passholder-program/"
-        }
-      ],
-      "passes": [
-        {
-          "passType": "Incredi-Pass",
-          "passLabel": "Disney Incredi-Pass",
-          "extract": {
-            "type": "regex",
-            "pattern": "Annual Price[\\s\\S]{0,900}?\\$[0-9]+(?:,[0-9]{3})?(?:\\.[0-9]{2})?[^$]*\\$[0-9]+(?:,[0-9]{3})?(?:\\.[0-9]{2})?[^$]*\\$[0-9]+(?:,[0-9]{3})?(?:\\.[0-9]{2})?[^$]*\\$([0-9]+(?:,[0-9]{3})*(?:\\.[0-9]{2})?)"
+        "Prestige": {
+          "seasonPassType": "PP",
+          "target": "price",
+          "jsonPaths": [
+            "price_label_override"
+          ],
+          "portalHosts": {
+            "cf": {
+              "parks": {
+                "ga": {
+                  "park": "California's Great America",
+                  "currencySymbol": "$"
+                }
+              }
+            }
           }
         }
-      ]
-    },
-    {
-      "template": "annualPriceHtmlPass",
-      "defaults": {
-        "currency": "USD",
-        "sourceUrl": "https://disneyland.disney.go.com/passes/?viewType=compare"
       },
-      "parks": [
-        { "park": "Disneyland" }
-      ],
-      "passes": [
-        { "passType": "Explore Key", "passLabel": "Explore Key Pass" },
-        { "passType": "Believe Key", "passLabel": "Believe Key Pass" },
-        { "passType": "Inspire Key", "passLabel": "Inspire Key Pass" }
-      ]
-    },
-    {
-      "template": "unitedAnnualPaymentHtmlPass",
-      "defaults": {
-        "currency": "USD"
-      },
-      "parks": [
-        {
-          "park": "Busch Gardens Williamsburg",
-          "sourceUrl": "https://buschgardens.com/williamsburg/annual-pass",
-          "passLabel": "11-Park Platinum Membership"
+      "Memberships": {
+        "link": "sixflags.com/packageList/navItem/Memberships",
+        "Gold Membership": {
+          "seasonPassType": "GW",
+          "target": "pricing.monthly",
+          "jsonPaths": [
+            "CT.0.payment_plan_amount"
+          ],
+          "portalHosts": {
+            "cf": {
+              "parks": {
+                "ga": {
+                  "park": "California's Great America",
+                  "currencySymbol": "$"
+                }
+              }
+            }
+          }
         },
-        {
-          "park": "SeaWorld San Diego",
-          "sourceUrl": "https://seaworld.com/san-diego/annual-pass/",
-          "passLabel": "Platinum Pass"
-        },
-        {
-          "park": "SeaWorld Orlando",
-          "sourceUrl": "https://seaworld.com/orlando/annual-pass/",
-          "passLabel": "Platinum Pass"
+        "Prestige Membership": {
+          "seasonPassType": "PP",
+          "target": "pricing.monthly",
+          "jsonPaths": [
+            "CT.0.payment_plan_amount"
+          ],
+          "portalHosts": {
+            "cf": {
+              "parks": {
+                "ga": {
+                  "park": "California's Great America",
+                  "currencySymbol": "$"
+                }
+              }
+            }
+          }
         }
-      ],
-      "passes": [
-        { "passType": "Platinum" }
-      ]
+      }
     }
-  ]
+  }
 }

@@ -1,6 +1,6 @@
 # Pass Explorer
 
-Static (no-build) app for comparing amusement park season passes.
+Static (no-build) app for comparing Six Flags season passes.
 
 ## Where everything is
 
@@ -11,12 +11,13 @@ Static (no-build) app for comparing amusement park season passes.
 
 - `companies.js` - company configuration + URL building helpers.
 - `parks.js` - the park list (`parkCatalog`).
+- `price-overrides.js` - generated pricing overrides, kept separate from the park definitions.
+- `scripts/price-sources.json` - the source list used by the daily price updater.
 - `pass-catalog.js` - builds the derived catalog used by the app:
   - `passOffers` (the main list rendered on screen)
   - `companyFilterOptions`, `allParkFilterOptions`
   - park link helpers like `getParkWebsiteUrl()`, `getPassPurchaseUrl()`
   - location helpers like `countryFilterOptions`, `getStateOptionsForCountry()`
-  - optional `price-overrides.js` support (automated price updates)
 
 ### UI
 
@@ -26,18 +27,17 @@ Static (no-build) app for comparing amusement park season passes.
 - `theme.js` - theme selection + theme toggle (persists `pe-theme`).
 - `main.js` - app bootstrap / orchestration (wires DOM → binds events → initial render).
 
-## Automating prices (optional)
+## Starting Fresh
 
-This repo supports a generated `price-overrides.js` file (loaded after `parks.js`). Overrides replace the `price` (or membership `pricing`) defined in `parks.js` so you can keep `parks.js` as your stable base catalog.
+The app is set up as a blank slate for manual park entry and pricing work.
 
-- Copy `scripts/price-sources.example.json` to `scripts/price-sources.json` and configure sources.
-- Run `node scripts/update-price-overrides.mjs` to regenerate `price-overrides.js`.
-- Optional: enable the GitHub Action workflow in `.github/workflows/update-price-overrides.yml` to regenerate + push on a schedule.
+- Add park data directly in `parks.js`.
+- Put current prices in `price-overrides.js` so the park catalog stays clean.
+- Keep the theme, filters, and layout as-is while you rebuild the catalog.
 
-For local testing, you can edit `price-overrides.local.js` (loaded after the generated file). The GitHub Action does not touch this file.
+## Daily Pricing Updates
 
-Notes:
-- Some vendors use `POST` + a JSON request body for price endpoints; `scripts/price-sources.json` supports `method`, `headers`, and `body` per source.
-- If you have lots of similar parks/passes, `scripts/price-sources.json` also supports `templates` + `generatedSources` so you can define the Accesso endpoint/extract logic once and just list per-park merchant/storeHost values.
-- For Accesso endpoints, you can grab the payload by copying the `getpackageswaps` request as cURL from your browser devtools and translating the `--data-raw` JSON into `body`.
-- For Accesso `getpackageswaps`, leave `request_token`, `cart_id`, `cart_key`, and `session_id` blank (`""`) and the updater will fetch fresh values via `getcartsummary` automatically.
+- `scripts/update-price-overrides.mjs` fetches the live park pages listed in `scripts/price-sources.json`.
+- `scripts/price-sources.json` is nested by `sourceKind -> passType -> portalHost -> parkCode`.
+- The script rewrites `price-overrides.js` so the app always reads current prices from the generated layer.
+- `.github/workflows/update-price-overrides.yml` runs the script daily and commits any price changes back to the repo.
