@@ -1,83 +1,17 @@
 {
-  "portalHostTemplates": {
-    "cf": "cf-{parkCode}.buy",
-    "sf": "sf-gc-{parkCode}.store"
-  },
   "sources": {
     "accesso-portal": {
-      "Season Passes": {
-        "link": "sixflags.com/packageList/navItem/Season%20Passes",
-        "Gold": {
-          "seasonPassType": "GW",
-          "target": "price",
-          "jsonPaths": [
-            "price_label_override"
-          ],
-          "portalHosts": {
-            "cf": {
-              "parks": {
-                "ga": {
-                  "park": "California's Great America",
-                  "currencySymbol": "$"
-                }
-              }
-            }
-          }
+      "portals": {
+        "Cedar Fair": {
+          "host": "cf-{parkCode}.buy"
         },
-        "Prestige": {
-          "seasonPassType": "PP",
-          "target": "price",
-          "jsonPaths": [
-            "price_label_override"
-          ],
-          "portalHosts": {
-            "cf": {
-              "parks": {
-                "ga": {
-                  "park": "California's Great America",
-                  "currencySymbol": "$"
-                }
-              }
-            }
-          }
+        "Six Flags": {
+          "host": "sf-gc-{parkCode}.store"
         }
       },
-      "Memberships": {
-        "link": "sixflags.com/packageList/navItem/Memberships",
-        "Gold Membership": {
-          "seasonPassType": "GW",
-          "target": "pricing.monthly",
-          "jsonPaths": [
-            "CT.0.payment_plan_amount"
-          ],
-          "portalHosts": {
-            "cf": {
-              "parks": {
-                "ga": {
-                  "park": "California's Great America",
-                  "currencySymbol": "$"
-                }
-              }
-            }
-          }
-        },
-        "Prestige Membership": {
-          "seasonPassType": "PP",
-          "target": "pricing.monthly",
-          "jsonPaths": [
-            "CT.0.payment_plan_amount"
-          ],
-          "portalHosts": {
-            "cf": {
-              "parks": {
-                "ga": {
-                  "park": "California's Great America",
-                  "currencySymbol": "$"
-                }
-              }
-            }
-          }
-        }
+      "linkSuffixes": {
+        "passes": ".sixflags.com/packageList/navItem/Season%20Passes",
+        "memberships": ".sixflags.com/packageList/navItem/Memberships"
       }
     }
   }

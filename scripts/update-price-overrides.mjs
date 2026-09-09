@@ -2,6 +2,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runInNewContext } from "node:vm";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
@@ -10,6 +11,15 @@ const outputPath = join(repoRoot, "price-overrides.js");
 
 const args = new Set(process.argv.slice(2));
 const dryRun = args.has("--dry-run");
+const REQUEST_TIMEOUT_MS = 30000;
+
+function requestOptions(headers) {
+  return {
+    headers,
+    redirect: "follow",
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+  };
+}
 
 function utcDateOnly(date = new Date()) {
   return date.toISOString().slice(0, 10);
@@ -113,13 +123,111 @@ function resolveSourceUrl(source, config = {}) {
 function stripNestedSourceFields(source) {
   const {
     portalHosts,
+    portals,
     parks,
+    passes,
+    memberships,
+    urlTemplates,
+    linkSuffixes,
     ...rest
   } = source || {};
   return rest;
 }
 
-function flattenNestedSources(config) {
+function flattenSharedParkData(parkData) {
+  if (Array.isArray(parkData)) {
+    return parkData;
+  }
+
+  if (!parkData || typeof parkData !== "object") {
+    return [];
+  }
+
+  return Object.entries(parkData).flatMap(([company, companyConfig]) =>
+    Object.entries(companyConfig || {}).flatMap(([group, regionConfig]) =>
+      Object.entries(regionConfig || {}).flatMap(([portal, portalConfig]) =>
+        (portalConfig?.parks || []).map((park) => ({
+          ...park,
+          company,
+          group,
+          portal
+        }))
+      )
+    )
+  );
+}
+
+function flattenParkSources(sourceKind, sourceConfig, parkData = []) {
+  if (!sourceConfig?.portals || typeof sourceConfig.portals !== "object") {
+    return [];
+  }
+
+  const flattened = [];
+  const categories = [
+    ["passes", "Season Passes"],
+    ["memberships", "Memberships"]
+  ];
+
+  for (const [portalName, portalConfig] of Object.entries(sourceConfig.portals)) {
+    if (!portalConfig || typeof portalConfig !== "object") {
+      continue;
+    }
+
+    const sharedParks = flattenSharedParkData(parkData);
+    const parks = Array.isArray(portalConfig.parks)
+      ? portalConfig.parks
+      : sharedParks.filter((park) => park && park.portal === portalName);
+
+    for (const park of parks) {
+      if (!park || typeof park !== "object") {
+        continue;
+      }
+
+      const parkCode = String(park.parkCode || park.park_code || "").trim();
+      if (!parkCode) {
+        continue;
+      }
+
+      for (const [categoryKey, sourceGroup] of categories) {
+        const entries = park[categoryKey];
+        if (!entries || typeof entries !== "object" || Array.isArray(entries)) {
+          continue;
+        }
+
+        const linkSuffix = sourceConfig.linkSuffixes?.[categoryKey];
+        const sourceUrlTemplate = `https://${portalConfig.host || ""}{linkSuffix}`.replace("{linkSuffix}", linkSuffix || "");
+        for (const [passType, entry] of Object.entries(entries)) {
+          if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+            continue;
+          }
+
+          const source = entry.source && typeof entry.source === "object"
+            ? entry.source
+            : entry;
+          if (!source.jsonPaths && !source.jsonPath && !source.priceMatchers && !source.pricePattern && !source.sourceUrl && !source.sourceUrlTemplate) {
+            continue;
+          }
+
+          flattened.push({
+            ...stripNestedSourceFields(sourceConfig),
+            ...stripNestedSourceFields(park),
+            ...source,
+            sourceKind,
+            sourceGroup,
+            passType,
+            sourceUrlTemplate,
+            portalHost: portalName,
+            parkCode
+          });
+        }
+      }
+    }
+  }
+
+  return flattened;
+}
+
+function flattenNestedSources(config, parkData = []) {
   const rootSources = config.sources;
 
   if (Array.isArray(rootSources)) {
@@ -220,6 +328,12 @@ function flattenNestedSources(config) {
   }
 
   for (const [sourceKind, sourceConfig] of Object.entries(rootSources)) {
+    const parkSources = flattenParkSources(sourceKind, sourceConfig, parkData);
+    if (parkSources.length > 0) {
+      flattened.push(...parkSources);
+      continue;
+    }
+
     visit(sourceConfig, [sourceKind], { sourceKind });
   }
 
@@ -232,10 +346,24 @@ function resolvePath(source, rawPath) {
     return undefined;
   }
 
-  return path.split(".").reduce((value, key) => {
+  return path.split(".").reduce((value, rawKey) => {
     if (value == null) {
       return undefined;
     }
+
+    const selectorMatch = /^([^[]+)\[([^=]+)=(.*)\]$/.exec(rawKey);
+    if (selectorMatch) {
+      const [, collectionKey, property, expectedValue] = selectorMatch;
+      const collection = value[collectionKey];
+      if (!Array.isArray(collection)) {
+        return undefined;
+      }
+
+      const normalizedExpected = expectedValue.trim().toLowerCase();
+      return collection.find((item) => String(item?.[property] || "").trim().toLowerCase() === normalizedExpected);
+    }
+
+    const key = rawKey;
     if (Array.isArray(value) && /^\d+$/.test(key)) {
       return value[Number(key)];
     }
@@ -269,6 +397,16 @@ function setByDotPath(obj, rawPath, value) {
 async function loadJson(filePath) {
   const raw = await readFile(filePath, "utf8");
   return JSON.parse(raw);
+}
+
+async function loadParkData() {
+  const parkDataPath = join(repoRoot, "park-data.js");
+  const source = await readFile(parkDataPath, "utf8");
+  const sandbox = {};
+  runInNewContext(`${source}\nglobalThis.__parkData = parkData;`, sandbox);
+  return sandbox.__parkData && typeof sandbox.__parkData === "object"
+    ? sandbox.__parkData
+    : {};
 }
 
 function extractPriceFromText(text, source) {
@@ -345,22 +483,39 @@ function findAccessoPackage(jsonValue, source) {
   }
 
   const packageName = String(source.packageName || "").trim().toLowerCase();
+  const packageNamePattern = String(source.packageNamePattern || "").trim();
   const packageKeyword = String(source.packageKeyword || source.packageKeywords || "").trim().toLowerCase();
   const seasonPassType = String(source.seasonPassType || source.season_pass_type || "").trim().toUpperCase();
   const packageClass = String(source.packageClass || source.package_class || "").trim().toLowerCase();
 
-  return packageList.find((pkg) => {
+  let packageNameRegex = null;
+  if (packageNamePattern) {
+    try {
+      packageNameRegex = new RegExp(packageNamePattern, "i");
+    } catch {
+      packageNameRegex = null;
+    }
+  }
+
+  const packageMatches = (pkg) => {
     const name = String(pkg?.name || "").trim().toLowerCase();
     const keyword = String(pkg?.keyword || pkg?.assoc_keywords || "").trim().toLowerCase();
     const pkgSeasonPassType = String(pkg?.CHARACS?.season_pass_type || "").trim().toUpperCase();
     const pkgClass = String(pkg?.package_class || "").trim().toLowerCase();
     return (
-      (packageName && name === packageName)
+      (packageNameRegex && packageNameRegex.test(name))
+      || (packageName && name === packageName)
       || (packageKeyword && keyword.includes(packageKeyword))
       || (seasonPassType && pkgSeasonPassType === seasonPassType)
       || (packageClass && pkgClass === packageClass)
     );
-  }) || null;
+  };
+
+  if (packageNameRegex) {
+    return packageList.find((pkg) => packageNameRegex.test(String(pkg?.name || "").trim())) || null;
+  }
+
+  return packageList.find(packageMatches) || null;
 }
 
 function extractPriceFromAccessoBootstrap(jsonValue, source) {
@@ -385,19 +540,49 @@ function extractPriceFromAccessoBootstrap(jsonValue, source) {
   return "";
 }
 
+function extractAccessoPathPrice(pkg, paths, source) {
+  for (const path of Array.isArray(paths) ? paths : []) {
+    const value = resolvePath(pkg, path);
+    const price = normalizePriceText(value, source.currencySymbol || "$");
+    if (price) {
+      return price;
+    }
+  }
+
+  return "";
+}
+
+function extractAccessoMembershipPricing(jsonValue, source) {
+  if (!String(source.targetPath || source.target || "").startsWith("pricing.")) {
+    return null;
+  }
+
+  const pkg = findAccessoPackage(jsonValue, source);
+  if (!pkg) {
+    return null;
+  }
+
+  const downPayment = extractAccessoPathPrice(pkg, source.downPaymentJsonPaths, source);
+  const minMonthsValue = (Array.isArray(source.minMonthsJsonPaths) ? source.minMonthsJsonPaths : [])
+    .map((path) => resolvePath(pkg, path))
+    .find((value) => Number.isFinite(Number(value)) && Number(value) > 0);
+
+  return {
+    downPayment,
+    minMonths: minMonthsValue ? Number(minMonthsValue) : null
+  };
+}
+
 async function fetchSourcePrice(source) {
   const url = String(source.bootstrapUrl || resolveSourceUrl(source)).trim();
   if (!url) {
     throw new Error("Missing sourceUrl");
   }
 
-  const response = await fetch(url, {
-    headers: {
+  const response = await fetch(url, requestOptions({
       "user-agent": source.userAgent || "Pass Explorer Price Updater",
       "accept": source.accept || "text/html,application/json;q=0.9,*/*;q=0.8"
-    },
-    redirect: "follow"
-  });
+    }));
 
   if (!response.ok) {
     throw new Error(`Request failed with status ${response.status}`);
@@ -425,7 +610,8 @@ async function main() {
   }
 
   const config = await loadJson(configPath);
-  const sources = flattenNestedSources(config);
+  const parkData = await loadParkData();
+  const sources = flattenNestedSources(config, parkData);
   if (sources.length === 0) {
     throw new Error("No price sources configured in scripts/price-sources.json");
   }
@@ -435,6 +621,7 @@ async function main() {
   const overrides = {};
   const summary = [];
   const errors = [];
+  const bootstrapCache = new Map();
 
   for (const source of sources) {
     const park = String(source.park || "").trim();
@@ -446,41 +633,42 @@ async function main() {
 
     let price = "";
     let error = "";
+    let membershipPricing = null;
     try {
       if (String(source.sourceKind || "").toLowerCase() === "accesso-portal") {
         const portalUrl = String(resolveSourceUrl(source, config)).trim();
-        const portalResponse = await fetch(portalUrl, {
-          headers: {
-            "user-agent": source.userAgent || "Pass Explorer Price Updater",
-            "accept": source.accept || "text/html,application/json;q=0.9,*/*;q=0.8"
-          },
-          redirect: "follow"
-        });
+        let bootstrapJson = bootstrapCache.get(portalUrl);
+        if (!bootstrapJson) {
+          const portalResponse = await fetch(portalUrl, requestOptions({
+              "user-agent": source.userAgent || "Pass Explorer Price Updater",
+              "accept": source.accept || "text/html,application/json;q=0.9,*/*;q=0.8"
+            }));
 
-        if (!portalResponse.ok) {
-          throw new Error(`Portal request failed with status ${portalResponse.status}`);
+          if (!portalResponse.ok) {
+            throw new Error(`Portal request failed with status ${portalResponse.status}`);
+          }
+
+          const portalHtml = await portalResponse.text();
+          const bootstrapUrl = extractBootstrapUrlFromHtml(portalHtml);
+          if (!bootstrapUrl) {
+            throw new Error("Could not find Accesso bootstrap URL in portal HTML");
+          }
+
+          const bootstrapResponse = await fetch(bootstrapUrl, requestOptions({
+              "user-agent": source.userAgent || "Pass Explorer Price Updater",
+              "accept": "application/json,text/plain,*/*"
+            }));
+
+          if (!bootstrapResponse.ok) {
+            throw new Error(`Bootstrap request failed with status ${bootstrapResponse.status}`);
+          }
+
+          bootstrapJson = await bootstrapResponse.json();
+          bootstrapCache.set(portalUrl, bootstrapJson);
         }
 
-        const portalHtml = await portalResponse.text();
-        const bootstrapUrl = extractBootstrapUrlFromHtml(portalHtml);
-        if (!bootstrapUrl) {
-          throw new Error("Could not find Accesso bootstrap URL in portal HTML");
-        }
-
-        const bootstrapResponse = await fetch(bootstrapUrl, {
-          headers: {
-            "user-agent": source.userAgent || "Pass Explorer Price Updater",
-            "accept": "application/json,text/plain,*/*"
-          },
-          redirect: "follow"
-        });
-
-        if (!bootstrapResponse.ok) {
-          throw new Error(`Bootstrap request failed with status ${bootstrapResponse.status}`);
-        }
-
-        const bootstrapJson = await bootstrapResponse.json();
         price = extractPriceFromAccessoBootstrap(bootstrapJson, source);
+        membershipPricing = extractAccessoMembershipPricing(bootstrapJson, source);
       } else {
         price = await fetchSourcePrice(source);
       }
@@ -502,6 +690,14 @@ async function main() {
       updatedAt: today,
     };
     setByDotPath(override, targetPath, price);
+    if (membershipPricing) {
+      if (membershipPricing.downPayment) {
+        setByDotPath(override, "pricing.downPayment", membershipPricing.downPayment);
+      }
+      if (membershipPricing.minMonths) {
+        setByDotPath(override, "pricing.minMonths", membershipPricing.minMonths);
+      }
+    }
     overrides[park][passType] = override;
 
     summary.push(`${park} / ${passType}: ${price}`);

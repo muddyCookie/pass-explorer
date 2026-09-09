@@ -1,34 +1,34 @@
 // Starter Six Flags catalog.
 // Add parks and pass pricing here as you rebuild the site.
 
-const SixFlagsPrestigeAccess = [
-  "Six Flags East",
-  "Six Flags Midwest",
-  "Six Flags Texas",
-  "Six Flags West"
-];
-
 const parkCatalog = {
-  "Six Flags": {
-    "Six Flags West": [
-      {
-        park: "California's Great America",
-        slug: "cagreatamerica",
-        parkCode: "ga",
-        state: "California",
-        passes: {
-          Gold: {
-            access: "Six Flags West",
-            noParking: "Knott's Berry Farm"
-          },
-          Prestige: {
-            access: SixFlagsPrestigeAccess,
-          }
-        }
-      }
-    ],
-    "Six Flags Midwest": [],
-    "Six Flags East": [],
-    "Six Flags Texas": []
-  }
+  "Six Flags": Object.fromEntries(
+    ["Six Flags East", "Six Flags Midwest", "Six Flags Texas", "Six Flags West"]
+      .map((group) => [group, []])
+  )
 };
+
+for (const [company, companyConfig] of Object.entries(parkData)) {
+  for (const [group, regionConfig] of Object.entries(companyConfig || {})) {
+    for (const portalConfig of Object.values(regionConfig || {})) {
+      if (!parkCatalog[company]) {
+        parkCatalog[company] = {};
+      }
+      if (!parkCatalog[company][group]) {
+        parkCatalog[company][group] = [];
+      }
+
+      for (const park of portalConfig.parks || []) {
+        parkCatalog[company][group].push({
+          park: park.park,
+          slug: park.slug,
+          state: park.state,
+          passes: {
+            ...(park.passes || {}),
+            ...(park.memberships || {})
+          }
+        });
+      }
+    }
+  }
+}
