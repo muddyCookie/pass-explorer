@@ -15,6 +15,17 @@ function normalizeGroupName(groupValue) {
   return match || raw;
 }
 
+function getCanonicalPassType(passType) {
+  const value = String(passType || "").trim();
+  if (/^gold(?:\s+membership)?(?:\s+\(no initiation fee\))?$/i.test(value)) {
+    return "Gold";
+  }
+  if (/^prestige(?:\s+membership)?(?:\s+\(no initiation fee\))?$/i.test(value)) {
+    return "Prestige";
+  }
+  return value;
+}
+
 function normalizeLocationPart(value) {
   const trimmed = String(value || "").trim();
   return trimmed || "";
@@ -186,7 +197,8 @@ const parkAccessGroups = Object.fromEntries(
 
 const parkCollectionsByName = {
   ...groupParks,
-  ...parkAccessGroups
+  ...parkAccessGroups,
+  "Gilroy Gardens": ["Gilroy Gardens"]
 };
 
 const countries = Array.from(new Set(parkDirectory.map((park) => park.country))).sort((a, b) => a.localeCompare(b));
@@ -214,6 +226,9 @@ function getStateOptionsForCountry(countryValue = "all") {
 }
 
 function getParkWebsiteUrl(parkName) {
+  if (String(parkName || "").trim() === "Gilroy Gardens") {
+    return "https://www.gilroygardens.org/";
+  }
   return parkByName[parkName]?.website || "#";
 }
 
@@ -316,8 +331,15 @@ function getPriceOverride(parkName, passType) {
         .replace(/\s+/g, " ")
         .trim();
 
-      const normalized = normalize(safeParkName);
-      if (!normalized) return null;
+      const normalizedNames = [safeParkName]
+        .concat(safeParkName.includes(" & ") ? [safeParkName.split(" & ")[0]] : [])
+        .concat(/^Hurricane Harbor /i.test(safeParkName)
+          ? [`Six Flags ${safeParkName}`]
+          : [])
+        .concat(/^Wild Safari$/i.test(safeParkName) ? ["Six Flags Wild Safari"] : [])
+        .map(normalize)
+        .filter(Boolean);
+      if (normalizedNames.length === 0) return null;
 
       // Build a lookup map once so we can tolerate small naming differences
       // (ex: "Kings Island" vs "King's Island") across data sources.
@@ -330,7 +352,9 @@ function getPriceOverride(parkName, passType) {
         getPriceOverride._normalizedParkMapCatalog = catalog;
       }
 
-      const mappedKey = getPriceOverride._normalizedParkMap.get(normalized);
+      const mappedKey = normalizedNames
+        .map((name) => getPriceOverride._normalizedParkMap.get(name))
+        .find(Boolean);
       if (!mappedKey) return null;
       const candidate = catalog[mappedKey];
       return candidate && typeof candidate === "object" ? candidate : null;
@@ -362,7 +386,7 @@ function applyPassOverride(passDefinition, override) {
     );
   const basePricing = passDefinition.pricing;
   const overridePricing = override.pricing;
-  const pricing = overridePricing != null
+  let pricing = overridePricing != null
     ? (
       basePricing
       && typeof basePricing === "object"
@@ -373,6 +397,14 @@ function applyPassOverride(passDefinition, override) {
         : overridePricing
     )
     : basePricing;
+
+  if (pricing && typeof pricing === "object" && !pricing.type && (pricing.monthly || pricing.monthlyPrice)) {
+    pricing = {
+      type: "membership",
+      ...pricing
+    };
+  }
+
   return {
     ...passDefinition,
     price,
@@ -629,7 +661,7 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
     const funCardOverride = passType === "Fun Card"
       ? String(parkConfig.urlFunCard || "").trim()
       : "";
-    const isMembership = pricing?.type === "membership";
+    const isMembership = pricing?.type === "membership" || Boolean(pricing?.monthly);
     const rawTierUrl = funCardOverride
       || (isMembership ? membershipUrlByTier[passType] : passUrlByTier[passType])
       || null;
@@ -672,10 +704,10 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       id: `${slugify(parkName)}-${slugify(passType)}-${slugify(company)}`,
       homePark: parkName,
       company,
-      passType,
+      passType: getCanonicalPassType(passType),
       price,
       pricing,
-      currency: parkConfig.currency || getCompanyDefaultCurrency(company),
+      currency: String(parkConfig.currency || getCompanyDefaultCurrency(company) || "USD").trim().toUpperCase(),
       disclaimer: String(passDefinition.disclaimer || parkConfig.disclaimer || "").trim(),
       passPurchaseUrl: resolvedTierPassUrl || resolvedFallbackUrl,
       accessibleParks,

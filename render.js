@@ -114,6 +114,11 @@
       return homePark;
     }
 
+    const isMembership = offer?.pricing?.type === "membership" || Boolean(offer?.pricing?.monthly);
+    if (isMembership) {
+      return `${homePark} - ${passType} Membership`;
+    }
+
     return shouldOmitPassSuffix(offer.company, passType)
       ? `${homePark} - ${passType}`
       : `${homePark} - ${passType} Pass`;
@@ -326,7 +331,8 @@
       const priceSub = typeof formatOfferPriceSub === "function" ? formatOfferPriceSub(offer) : "";
 
       if (priceSubEl) {
-        // Only show the native-currency line under the main price for membership pricing.
+        // Native-currency detail is only needed for memberships; regular pass
+        // cards already show their native amount in the pricing note.
         const showSub = Boolean(priceSub) && Boolean(membershipNote);
         priceSubEl.textContent = showSub ? priceSub : "";
         priceSubEl.hidden = !showSub;

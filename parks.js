@@ -23,6 +23,8 @@ for (const [company, companyConfig] of Object.entries(parkData)) {
           park: park.park,
           slug: park.slug,
           state: park.state,
+          country: park.country,
+          currency: park.currency,
           passes: {
             ...(park.passes || {}),
             ...(park.memberships || {})

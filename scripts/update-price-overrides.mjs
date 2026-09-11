@@ -196,6 +196,7 @@ function flattenParkSources(sourceKind, sourceConfig, parkData = []) {
 
         const linkSuffix = sourceConfig.linkSuffixes?.[categoryKey];
         const sourceUrlTemplate = `https://${portalConfig.host || ""}{linkSuffix}`.replace("{linkSuffix}", linkSuffix || "");
+        const defaultTarget = categoryKey === "memberships" ? "pricing.monthly" : "price";
         for (const [passType, entry] of Object.entries(entries)) {
           if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
             continue;
@@ -204,13 +205,15 @@ function flattenParkSources(sourceKind, sourceConfig, parkData = []) {
           const source = entry.source && typeof entry.source === "object"
             ? entry.source
             : entry;
-          if (!source.jsonPaths && !source.jsonPath && !source.priceMatchers && !source.pricePattern && !source.sourceUrl && !source.sourceUrlTemplate) {
+          const isAccesso = String(sourceKind || "").toLowerCase() === "accesso-portal";
+          if (!isAccesso && !source.jsonPaths && !source.jsonPath && !source.priceMatchers && !source.pricePattern && !source.sourceUrl && !source.sourceUrlTemplate) {
             continue;
           }
 
           flattened.push({
             ...stripNestedSourceFields(sourceConfig),
             ...stripNestedSourceFields(park),
+            target: defaultTarget,
             ...source,
             sourceKind,
             sourceGroup,
@@ -472,6 +475,74 @@ function extractBootstrapUrlFromHtml(html) {
   return "";
 }
 
+function parsePriceNumber(val) {
+  const num = parseFloat(String(val || "").replace(/[^\d.]/g, ""));
+  return Number.isFinite(num) ? num : 0;
+}
+
+function extractDisplayedPrice(rawValue) {
+  const label = String(rawValue || "").trim();
+  if (!label) {
+    return 0;
+  }
+
+  const newMatch = /New:\s*\$?([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i.exec(label);
+  const match = newMatch || /\$?([0-9][0-9,]*(?:\.[0-9]{1,2})?)/.exec(label);
+  return match ? parsePriceNumber(match[1]) : 0;
+}
+
+function extractHiddenPassPrice(rawValue) {
+  const matches = String(rawValue || "").match(/\$([0-9][0-9,]*(?:\.[0-9]{1,2})?)/g) || [];
+  const prices = matches.map(parsePriceNumber).filter((price) => price > 0);
+  return prices.length > 0 ? Math.max(...prices) : 0;
+}
+
+function extractPassPriceFromPackage(pkg, currencySymbol = "$") {
+  if (!pkg) return "";
+
+  // Prefer the selected new rate. Package-level labels can describe a bundle
+  // rather than the base package (as Cedar Point currently does for Prestige).
+  const ctList = Array.isArray(pkg.CT) ? pkg.CT : (pkg.CT ? [pkg.CT] : []);
+  if (ctList.length === 0) return "";
+
+  // Prefer rate with renewal_flag == "0" or "New" or "Nuevo" or "Regular"
+  const newRate = ctList.find(c => String(c.renewal_flag) === "0" || /new|nuevo|regular/i.test(c.name || "")) || ctList[0];
+
+  if (newRate.price_label_override) {
+    const displayedPrice = extractDisplayedPrice(newRate.price_label_override);
+    if (displayedPrice > 0) return `${currencySymbol}${displayedPrice.toFixed(2)}`;
+  }
+
+  // Some Cedar Fair packages expose the real card price in this rendered
+  // label while their general price_label_override describes an upsell.
+  const hiddenPrice = extractHiddenPassPrice(pkg.CHARACS?.hide_price_label);
+  if (hiddenPrice > 0) return `${currencySymbol}${hiddenPrice.toFixed(2)}`;
+
+  const labelOverride = pkg.CHARACS?.price_label_override || pkg.price_label_override;
+  const displayedPrice = extractDisplayedPrice(labelOverride);
+  if (displayedPrice > 0) return `${currencySymbol}${displayedPrice.toFixed(2)}`;
+
+  const amt = parsePriceNumber(newRate.retail_amount);
+  const val = parsePriceNumber(newRate.retail_value);
+
+  if (amt > 0 && val > 0) {
+    const amtDecimals = Math.round((amt % 1) * 100);
+    const valDecimals = Math.round((val % 1) * 100);
+
+    // If retail_value is a round amount (e.g. $229.00 or $329.00) and retail_amount has odd tax cents ($227.80, $327.05)
+    if (valDecimals === 0 && amtDecimals !== 0) {
+      return `${currencySymbol}${val.toFixed(2)}`;
+    }
+    // E.g. retail_amount is $89.00 or $115.00, while retail_value includes tax ($94.90 or $96.34)
+    return `${currencySymbol}${amt.toFixed(2)}`;
+  }
+
+  if (amt > 0) return `${currencySymbol}${amt.toFixed(2)}`;
+  if (val > 0) return `${currencySymbol}${val.toFixed(2)}`;
+
+  return "";
+}
+
 function findAccessoPackage(jsonValue, source) {
   const packages = jsonValue?.GetMerchantPackageList?.SERVICE?.PS?.P;
   const packageList = Array.isArray(packages)
@@ -482,40 +553,90 @@ function findAccessoPackage(jsonValue, source) {
     return null;
   }
 
-  const packageName = String(source.packageName || "").trim().toLowerCase();
-  const packageNamePattern = String(source.packageNamePattern || "").trim();
-  const packageKeyword = String(source.packageKeyword || source.packageKeywords || "").trim().toLowerCase();
-  const seasonPassType = String(source.seasonPassType || source.season_pass_type || "").trim().toUpperCase();
-  const packageClass = String(source.packageClass || source.package_class || "").trim().toLowerCase();
+  const passType = String(source.passType || "").trim();
+  const isMembership = /membership/i.test(passType) || String(source.targetPath || source.target || "").startsWith("pricing.");
 
-  let packageNameRegex = null;
-  if (packageNamePattern) {
-    try {
-      packageNameRegex = new RegExp(packageNamePattern, "i");
-    } catch {
-      packageNameRegex = null;
+  if (isMembership) {
+    const isPrestige = /prestige/i.test(passType);
+    const requiresNoInitiationFee = source.noInitiationFee === true;
+    const candidates = [];
+
+    const membershipRegex = new RegExp(`^(?:\\d{4}\\s*\\*?\\s*)?${isPrestige ? "Prestige" : "Gold"}\\s+Membership(?:\\s*\\*?\\s*\\d{4})?$`, "i");
+    for (const pkg of packageList) {
+      const name = String(pkg?.name || "").trim();
+      if (/dining|drink\s+(?:plan\s+)?plus|haunted|add-?on|paper\s+cup|deposit/i.test(name)) {
+        continue;
+      }
+      if (isPrestige && !/prestige/i.test(name)) continue;
+      if (!isPrestige && (!/gold/i.test(name) || /prestige/i.test(name))) continue;
+      if (!membershipRegex.test(name) && String(pkg.CHARACS?.package_type).toLowerCase() !== "membership") {
+        continue;
+      }
+      candidates.push(pkg);
+    }
+
+    const pricedCandidates = [];
+    for (const pkg of candidates) {
+      const pricing = extractAccessoMembershipPricing(jsonValue, { ...source, _pkg: pkg });
+      if (pricing && parsePriceNumber(pricing.monthly) > 0) {
+        pricedCandidates.push({ pkg, pricing });
+      }
+    }
+
+    const feeMatches = pricedCandidates.filter(({ pricing }) => {
+      const hasNoInitiationFee = parsePriceNumber(pricing.downPayment) === 0;
+      return requiresNoInitiationFee ? hasNoInitiationFee : !hasNoInitiationFee;
+    });
+    // A no-initiation-fee membership must never fall back to the regular
+    // membership package; doing so silently copies the wrong monthly price.
+    if (requiresNoInitiationFee) {
+      return feeMatches[0]?.pkg || null;
+    }
+
+    return feeMatches[0]?.pkg || pricedCandidates[0]?.pkg || candidates[0] || null;
+  }
+
+  // Season Passes (Gold, Prestige, etc.)
+  const normalizedTier = passType.replace(/\s*Pass$/i, "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const passRegex = new RegExp(`^(?:\\d{4}\\s*\\*?\\s*)?${normalizedTier}\\s+Pass(?:\\s*\\*?\\s*\\d{4})?$`, "i");
+  const candidates = [];
+
+  for (const pkg of packageList) {
+    const name = String(pkg?.name || "").trim();
+    if (/add-?on|dining|bundle|ticket|haunted|military|pre-?k|drink\s+plan|cabana|upgrade|meal/i.test(name)) {
+      continue;
+    }
+    if (!passRegex.test(name)) {
+      continue;
+    }
+
+    const yearMatch = /(\d{4})/.exec(name);
+    const year = yearMatch ? parseInt(yearMatch[1], 10) : 0;
+    candidates.push({ pkg, year });
+  }
+
+  const validCandidates = [];
+  for (const { pkg, year } of candidates) {
+    const price = extractPassPriceFromPackage(pkg, source.currencySymbol || "$");
+    const num = parsePriceNumber(price);
+    if (num > 0) {
+      validCandidates.push({ pkg, year, price, num });
     }
   }
 
-  const packageMatches = (pkg) => {
-    const name = String(pkg?.name || "").trim().toLowerCase();
-    const keyword = String(pkg?.keyword || pkg?.assoc_keywords || "").trim().toLowerCase();
-    const pkgSeasonPassType = String(pkg?.CHARACS?.season_pass_type || "").trim().toUpperCase();
-    const pkgClass = String(pkg?.package_class || "").trim().toLowerCase();
-    return (
-      (packageNameRegex && packageNameRegex.test(name))
-      || (packageName && name === packageName)
-      || (packageKeyword && keyword.includes(packageKeyword))
-      || (seasonPassType && pkgSeasonPassType === seasonPassType)
-      || (packageClass && pkgClass === packageClass)
-    );
-  };
-
-  if (packageNameRegex) {
-    return packageList.find((pkg) => packageNameRegex.test(String(pkg?.name || "").trim())) || null;
+  if (validCandidates.length === 0) {
+    return candidates[0]?.pkg || null;
   }
 
-  return packageList.find(packageMatches) || null;
+  // The catalog is for the current 2027 season. If a store has not published it,
+  // fall back to its newest available base pass.
+  const preferredYear = validCandidates.some((candidate) => candidate.year === 2027)
+    ? 2027
+    : Math.max(...validCandidates.map((candidate) => candidate.year));
+  const maxYearCandidates = validCandidates.filter((candidate) => candidate.year === preferredYear);
+  maxYearCandidates.sort((a, b) => a.num - b.num);
+
+  return maxYearCandidates[0].pkg;
 }
 
 function extractPriceFromAccessoBootstrap(jsonValue, source) {
@@ -524,28 +645,23 @@ function extractPriceFromAccessoBootstrap(jsonValue, source) {
     return "";
   }
 
-  const candidatePaths = Array.isArray(source.jsonPaths) ? source.jsonPaths : [];
-  if (candidatePaths.length === 0) {
-    throw new Error("Accesso source is missing explicit jsonPaths");
+  const isMembership = /membership/i.test(source.passType || "") || String(source.targetPath || source.target || "").startsWith("pricing.");
+  if (isMembership) {
+    const pricing = extractAccessoMembershipPricing(jsonValue, { ...source, _pkg: pkg });
+    return pricing?.monthly || "";
   }
 
+  const price = extractPassPriceFromPackage(pkg, source.currencySymbol || "$");
+  if (price) {
+    return price;
+  }
+
+  const candidatePaths = Array.isArray(source.jsonPaths) ? source.jsonPaths : [];
   for (const path of candidatePaths) {
     const value = resolvePath(pkg, path);
-    const price = normalizePriceText(value, source.currencySymbol || "$");
-    if (price) {
-      return price;
-    }
-  }
-
-  return "";
-}
-
-function extractAccessoPathPrice(pkg, paths, source) {
-  for (const path of Array.isArray(paths) ? paths : []) {
-    const value = resolvePath(pkg, path);
-    const price = normalizePriceText(value, source.currencySymbol || "$");
-    if (price) {
-      return price;
+    const resolvedPrice = normalizePriceText(value, source.currencySymbol || "$");
+    if (resolvedPrice) {
+      return resolvedPrice;
     }
   }
 
@@ -553,23 +669,53 @@ function extractAccessoPathPrice(pkg, paths, source) {
 }
 
 function extractAccessoMembershipPricing(jsonValue, source) {
-  if (!String(source.targetPath || source.target || "").startsWith("pricing.")) {
+  const isMembership = /membership/i.test(source.passType || "") || String(source.targetPath || source.target || "").startsWith("pricing.");
+  if (!isMembership) {
     return null;
   }
 
-  const pkg = findAccessoPackage(jsonValue, source);
+  const pkg = source._pkg || findAccessoPackage(jsonValue, source);
   if (!pkg) {
     return null;
   }
 
-  const downPayment = extractAccessoPathPrice(pkg, source.downPaymentJsonPaths, source);
-  const minMonthsValue = (Array.isArray(source.minMonthsJsonPaths) ? source.minMonthsJsonPaths : [])
-    .map((path) => resolvePath(pkg, path))
-    .find((value) => Number.isFinite(Number(value)) && Number(value) > 0);
+  const ctList = Array.isArray(pkg.CT) ? pkg.CT : (pkg.CT ? [pkg.CT] : []);
+  if (ctList.length === 0) return null;
+  const ct = ctList[0];
+
+  const monthlyVal = extractDisplayedPrice(
+    ct.price_label_override || pkg.CHARACS?.price_label_override || pkg.price_label_override
+  ) || parsePriceNumber(ct.retail_amount) || parsePriceNumber(ct.retail_value);
+  if (monthlyVal <= 0) return null;
+  const currencySymbol = source.currencySymbol || "$";
+  const monthly = `${currencySymbol}${monthlyVal.toFixed(2)}`;
+
+  // Find non-refundable initiation fee in COMP
+  const rawComponents = ct.COMP || pkg.COMP;
+  const compList = Array.isArray(rawComponents) ? rawComponents : (rawComponents ? [rawComponents] : []);
+  const initComp = compList.find(c =>
+    String(c.CHARACS?.package_type).toLowerCase() === "deposit" ||
+    /initiation\s+fee/i.test(c.name || "")
+  );
+  let downPayment = `${currencySymbol}0.00`;
+  if (initComp) {
+    const initCt = Array.isArray(initComp.CT) ? initComp.CT[0] : initComp.CT;
+    const feeAmt = parsePriceNumber(initCt?.retail_amount);
+    const feeVal = parsePriceNumber(initCt?.retail_value);
+    const feeFinal = (Math.round((feeVal % 1) * 100) === 0 && Math.round((feeAmt % 1) * 100) !== 0)
+      ? feeVal
+      : (feeAmt || feeVal);
+    if (feeFinal > 0) {
+      downPayment = `${currencySymbol}${feeFinal.toFixed(2)}`;
+    }
+  }
+
+  const minMonths = parseInt(ct.PAYMENT_SCHEDULE?.required_num_payments, 10) || 12;
 
   return {
+    monthly,
     downPayment,
-    minMonths: minMonthsValue ? Number(minMonthsValue) : null
+    minMonths
   };
 }
 
@@ -620,6 +766,7 @@ async function main() {
   const generatedAt = utcIsoTimestamp();
   const overrides = {};
   const summary = [];
+  const unavailable = [];
   const errors = [];
   const bootstrapCache = new Map();
 
@@ -677,11 +824,22 @@ async function main() {
     }
 
     if (!price) {
-      errors.push(`${park} / ${passType}: could not determine a price${error ? ` (${error})` : ""}`);
+      const message = `${park} / ${passType}: could not determine a price${error ? ` (${error})` : ""}`;
+      // Some catalog aliases deliberately point to portals that do not sell a
+      // separate membership. They are not scraper failures and must not make a
+      // successful refresh fail.
+      if (String(source.sourceKind || "").toLowerCase() === "accesso-portal" && !error) {
+        unavailable.push(message);
+      } else {
+        errors.push(message);
+      }
       continue;
     }
 
     const targetPath = String(source.targetPath || source.target || "price").trim() || "price";
+    if (source.priceOverride && !/membership/i.test(passType)) {
+      price = String(source.priceOverride).trim();
+    }
     if (!overrides[park]) {
       overrides[park] = {};
     }
@@ -691,6 +849,7 @@ async function main() {
     };
     setByDotPath(override, targetPath, price);
     if (membershipPricing) {
+      setByDotPath(override, "pricing.type", "membership");
       if (membershipPricing.downPayment) {
         setByDotPath(override, "pricing.downPayment", membershipPricing.downPayment);
       }
@@ -723,6 +882,9 @@ async function main() {
   console.log(dryRun ? "[dry-run] price-overrides.js would be updated." : "Updated price-overrides.js.");
   for (const line of summary) {
     console.log(`- ${line}`);
+  }
+  for (const line of unavailable) {
+    console.log(`~ ${line} (not offered by this portal)`);
   }
   for (const line of errors) {
     console.warn(`! ${line}`);

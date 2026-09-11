@@ -391,7 +391,9 @@
     }
 
     if (categoryKey === "type") {
-      return values.includes(offer.passType);
+      return values.includes(typeof getCanonicalPassType === "function"
+        ? getCanonicalPassType(offer.passType)
+        : offer.passType);
     }
 
     if (categoryKey === "park") {
@@ -440,7 +442,9 @@
     }
 
     if (categoryKey === "type") {
-      return Array.from(new Set(offers.map((offer) => offer.passType)))
+      return Array.from(new Set(offers.map((offer) => typeof getCanonicalPassType === "function"
+        ? getCanonicalPassType(offer.passType)
+        : offer.passType)))
         .sort((a, b) => a.localeCompare(b))
         .map((value) => ({ value, label: value }));
     }

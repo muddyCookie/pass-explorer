@@ -11,110 +11,48 @@ const parkData = {
       "Cedar Fair": {
         parks: [
           {
-            park: "Carowinds",
+            park: "Carowinds & Carolina Harbor",
             slug: "carowinds",
             state: "North Carolina",
             parkCode: "ca",
             currencySymbol: "$",
             passes: {
-              Gold: {
-                access: "Six Flags East",
-                  source: {
-                    packageNamePattern: "^\\d{4} Gold Pass$",
-                    target: "price",
-                    jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                  }
-                },
-                Prestige: {
-                  access: SixFlagsPrestigeAccess,
-                  source: {
-                    packageNamePattern: "^\\d{4} Prestige Pass$",
-                    target: "price",
-                    jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                  }   
-                }
-              }, 
+              Gold: { access: "Six Flags East" },
+              Prestige: { access: SixFlagsPrestigeAccess }
+            },
             memberships: {
-              "Gold Membership": {
-                access: "Six Flags East",
-                source: {
-                  packageNamePattern: "^Gold Membership$",
-                  target: "pricing.monthly",
-                  jsonPaths: ["CT.retail_amount"],
-                  downPaymentJsonPaths: [
-                    "CT.PAYMENT_SCHEDULE.SP.fee_amount",
-                    "CT.fee_total"
-                  ],
-                  minMonthsJsonPaths: [
-                    "CT.PAYMENT_SCHEDULE.required_num_payments"
-                  ]
-                }
-              },
-              "Prestige Membership": {
-                access: SixFlagsPrestigeAccess,
-                source: {
-                  seasonPassType: "PM",
-                  target: "pricing.monthly",
-                  jsonPaths: ["CT.retail_amount"],
-                  downPaymentJsonPaths: [
-                    "CT.PAYMENT_SCHEDULE.SP.fee_amount",
-                    "CT.fee_total"
-                  ],
-                  minMonthsJsonPaths: [
-                    "CT.PAYMENT_SCHEDULE.required_num_payments"
-                  ]
-                }
-              }
+              "Gold Membership": { access: "Six Flags East" },
+              "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
-            park: "Dorney Park",
+            park: "Dorney Park & Wildwater Kingdom",
             slug: "dorneypark",
             state: "Pennsylvania",
             parkCode: "dp",
             currencySymbol: "$",
             passes: {
-                Gold: {
-                access: "Six Flags East",
-                source: {
-                    packageNamePattern: "^\\d{4} Gold Pass$",
-                    target: "price",
-                    jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                }
-                },
-                Prestige: {
-                access: SixFlagsPrestigeAccess,
-                source: {
-                    packageNamePattern: "^\\d{4} Prestige Pass$",
-                    target: "price",
-                    jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                }
-                }
+              Gold: { access: "Six Flags East" },
+              Prestige: { access: SixFlagsPrestigeAccess }
+            },
+            memberships: {
+              "Gold Membership": { access: "Six Flags East" },
+              "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
-            park: "Kings Dominion",
+            park: "Kings Dominion & Soak City",
             slug: "kingsdominion",
             state: "Virginia",
             parkCode: "kd",
             currencySymbol: "$",
             passes: {
-              Gold: {
-                access: "Six Flags East",
-                source: {
-                  packageNamePattern: "^\\d{4} Gold Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                }
-              },
-              Prestige: {
-                access: SixFlagsPrestigeAccess,
-                source: {
-                  packageNamePattern: "^\\d{4} Prestige Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                }
-              }
+              Gold: { access: "Six Flags East" },
+              Prestige: { access: SixFlagsPrestigeAccess }
+            },
+            memberships: {
+              "Gold Membership": { access: "Six Flags East" },
+              "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           }
         ]
@@ -123,7 +61,7 @@ const parkData = {
         parks: [
           {
             park: "Six Flags Great Adventure",
-            slug: "sixflagsgreatadventure",
+            slug: "greatadventure",
             state: "New Jersey",
             parkCode: "nj",
             currencySymbol: "$",
@@ -137,8 +75,8 @@ const parkData = {
             }
           },
           {
-            park: "Six Flags Hurricane Harbor New Jersey",
-            slug: "sixflagshurricaneharbornewjersey",
+            park: "Hurricane Harbor New Jersey",
+            slug: "greatadventure",
             state: "New Jersey",
             parkCode: "nj",
             currencySymbol: "$",
@@ -152,8 +90,8 @@ const parkData = {
             }
           },
           {
-            park: "Six Flags New England",
-            slug: "sixflagsnewengland",
+            park: "Six Flags New England & Hurricane Harbor",
+            slug: "newengland",
             state: "Massachusetts",
             parkCode: "ne",
             currencySymbol: "$",
@@ -163,37 +101,35 @@ const parkData = {
             },
             memberships: {
               "Gold Membership": { access: "Six Flags East" },
-              "Prestige Membership": { access: SixFlagsPrestigeAccess }
-            }
-          },
-          {
-            park: "Six Flags Over Georgia",
-            slug: "sixflagsovergeorgia",
-            state: "Georgia",
-            parkCode: "og",
-            currencySymbol: "$",
-            passes: {
-              Gold: {
+              "Prestige Membership": { access: SixFlagsPrestigeAccess },
+              "Gold Membership (No Initiation Fee)": {
                 access: "Six Flags East",
-                source: {
-                  packageNamePattern: "^\\d{4} Gold Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Season Pass - New].retail_amount"]
-                }
+                noInitiationFee: true
               },
-              Prestige: {
+              "Prestige Membership (No Initiation Fee)": {
                 access: SixFlagsPrestigeAccess,
-                source: {
-                  packageNamePattern: "^\\d{4} Prestige Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Season Pass - New].retail_amount"]
-                }
+                noInitiationFee: true
               }
             }
           },
           {
+            park: "Six Flags Over Georgia & Hurricane Harbor",
+            slug: "overgeorgia",
+            state: "Georgia",
+            parkCode: "og",
+            currencySymbol: "$",
+            passes: {
+              Gold: { access: "Six Flags East" },
+              Prestige: { access: SixFlagsPrestigeAccess }
+            },
+            memberships: {
+              "Gold Membership": { access: "Six Flags East" },
+              "Prestige Membership": { access: SixFlagsPrestigeAccess }
+            }
+          },
+          {
             park: "Six Flags White Water",
-            slug: "sixflagswhitewater",
+            slug: "whitewater",
             state: "Georgia",
             parkCode: "ww",
             currencySymbol: "$",
@@ -207,8 +143,8 @@ const parkData = {
             }
           },
           {
-            park: "Six Flags Wild Safari",
-            slug: "sixflagswildsafari",
+            park: "Wild Safari",
+            slug: "greatadventure",
             state: "New Jersey",
             parkCode: "nj",
             currencySymbol: "$",
@@ -228,49 +164,25 @@ const parkData = {
       "Cedar Fair": {
         parks: [
           {
-            park: "Canada's Wonderland",
+            park: "Canada's Wonderland & Splash Works",
             slug: "canadaswonderland",
+            country: "Canada",
             state: "Ontario",
             parkCode: "cw",
-            currencySymbol: "$",
+            currency: "CAD",
             passes: {
               Gold: {
                 access: "Six Flags Midwest",
-                noParking: "Canada's Wonderland",
-                source: {
-                  packageNamePattern: "^\\d{4} Gold Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                }
+                noParking: "Canada's Wonderland"
               },
-              Prestige: {
-                access: SixFlagsPrestigeAccess,
-                source: {
-                  packageNamePattern: "^\\d{4} Prestige Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                }
-              }
+              Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": {
-                source: {
-                  seasonPassType: "MGE",
-                  target: "pricing.monthly",
-                  jsonPaths: ["CT.retail_amount"],
-                  downPaymentJsonPaths: ["CT.PAYMENT_SCHEDULE.SP.fee_amount", "CT.fee_total"],
-                  minMonthsJsonPaths: ["CT.PAYMENT_SCHEDULE.required_num_payments"]
-                }
+              "Gold Membership": { 
+                access: "Six Flags Midwest", 
+                noParking: "Canada's Wonderland" 
               },
-              "Prestige Membership": {
-                source: {
-                  seasonPassType: "PM",
-                  target: "pricing.monthly",
-                  jsonPaths: ["CT.retail_amount"],
-                  downPaymentJsonPaths: ["CT.PAYMENT_SCHEDULE.SP.fee_amount", "CT.fee_total"],
-                  minMonthsJsonPaths: ["CT.PAYMENT_SCHEDULE.required_num_payments"]
-                }
-              }
+              "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
@@ -280,68 +192,46 @@ const parkData = {
             parkCode: "cp",
             currencySymbol: "$",
             passes: {
-              Gold: {
+              Gold: { 
                 access: "Six Flags Midwest",
-                source: {
-                  packageNamePattern: "^\\d{4} Gold Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                }
+                noParking: "Canada's Wonderland"
               },
-              Prestige: {
-                access: SixFlagsPrestigeAccess,
-                source: {
-                  packageNamePattern: "^\\d{4} Prestige Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Regular - New].retail_amount"]
-                }
-              }
+              Prestige: { access: SixFlagsPrestigeAccess }
             }
           },
           {
             park: "Cedar Point Shores",
-            slug: "cedarpointshores",
+            slug: "cedarpoint",
             state: "Ohio",
             parkCode: "cp",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags Midwest" },
+              Gold: { 
+                access: "Six Flags Midwest" ,
+                noParking: "Canada's Wonderland"
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
-            },
-            memberships: {
-              "Gold Membership": { access: "Six Flags Midwest" },
-              "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
-            park: "Kings Island",
+            park: "Kings Island & Soak City",
             slug: "kingsisland",
             state: "Ohio",
             parkCode: "ki",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags Midwest" },
+              Gold: { 
+                access: "Six Flags Midwest",
+                noParking: "Canada's Wonderland"
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": {
-                source: {
-                  seasonPassType: "GM",
-                  target: "pricing.monthly",
-                  jsonPaths: ["CT.retail_amount"],
-                  downPaymentJsonPaths: ["CT.PAYMENT_SCHEDULE.SP.fee_amount", "CT.fee_total"],
-                  minMonthsJsonPaths: ["CT.PAYMENT_SCHEDULE.required_num_payments"]
-                }
+              "Gold Membership": { 
+                access: "Six Flags Midwest",
+                noParking: "Canada's Wonderland"
               },
-              "Prestige Membership": {
-                source: {
-                  seasonPassType: "PM",
-                  target: "pricing.monthly",
-                  jsonPaths: ["CT.retail_amount"],
-                  downPaymentJsonPaths: ["CT.PAYMENT_SCHEDULE.SP.fee_amount", "CT.fee_total"],
-                  minMonthsJsonPaths: ["CT.PAYMENT_SCHEDULE.required_num_payments"]
-                }
-              }
+              "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           }
         ]
@@ -349,82 +239,86 @@ const parkData = {
       "Six Flags": {
         parks: [
           {
-            park: "Six Flags Darien Lake",
+            park: "Six Flags Darien Lake & Hurricane Harbor",
             slug: "darienlake",
             state: "New York",
             parkCode: "dl",
             currencySymbol: "$",
             passes: {
-              Gold: {
-                access: "Six Flags Midwest",
-                source: {
-                  packageNamePattern: "^\\d{4} Gold Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Season Pass - New].retail_amount"]
-                }
+              Gold: { 
+                access: "Six Flags Midwest", 
+                noParking: "Canada's Wonderland"
               },
-              Prestige: {
-                access: SixFlagsPrestigeAccess,
-                source: {
-                  packageNamePattern: "^\\d{4} Prestige Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Season Pass - New].retail_amount"]
-                }
-              }
-            }
-          },
-          {
-            park: "Six Flags Great America",
-            slug: "sixflagsgreatamerica",
-            state: "Illinois",
-            parkCode: "ga",
-            currencySymbol: "$",
-            passes: {
-              Gold: {
-                access: "Six Flags Midwest",
-                source: {
-                  packageNamePattern: "^\\d{4} Gold Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Season Pass - New].retail_amount"]
-                }
-              },
-              Prestige: {
-                access: SixFlagsPrestigeAccess,
-                source: {
-                  packageNamePattern: "^\\d{4} Prestige Pass$",
-                  target: "price",
-                  jsonPaths: ["CT[name=Season Pass - New].retail_amount"]
-                }
-              }
-            }
-          },
-          {
-            park: "Six Flags Hurricane Harbor Chicago",
-            slug: "sixflagshurricaneharborchicago",
-            state: "Illinois",
-            parkCode: "ga",
-            currencySymbol: "$",
-            passes: {
-              Gold: { access: "Six Flags Midwest" },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags Midwest" },
+              "Gold Membership": { 
+                access: "Six Flags Midwest",
+                noParking: "Canada's Wonderland" 
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
-            park: "Six Flags Hurricane Harbor Rockford",
-            slug: "sixflagshurricaneharborrockford",
+            park: "Six Flags Great America",
+            slug: "greatamerica",
+            state: "Illinois",
+            parkCode: "ga",
+            currencySymbol: "$",
+            passes: {
+              Gold: { 
+                access: "Six Flags Midwest",
+                noParking: "Canada's Wonderland"
+              },
+              Prestige: { access: SixFlagsPrestigeAccess }
+            },
+            memberships: {
+              "Gold Membership": { 
+                access: "Six Flags Midwest",
+                noParking: "Canada's Wonderland" 
+              },
+              "Prestige Membership": { access: SixFlagsPrestigeAccess }
+            }
+          },
+          {
+            park: "Hurricane Harbor Chicago",
+            slug: "greatamerica",
+            state: "Illinois",
+            parkCode: "ga",
+            currencySymbol: "$",
+            passes: {
+              Gold: { 
+                access: "Six Flags Midwest",
+                noParking: "Canada's Wonderland"
+              },
+              Prestige: { access: SixFlagsPrestigeAccess }
+            },
+            memberships: {
+              "Gold Membership": { 
+                access: "Six Flags Midwest", 
+                noParking: "Canada's Wonderland"
+              },
+              "Prestige Membership": { access: SixFlagsPrestigeAccess }
+            }
+          },
+          {
+            park: "Hurricane Harbor Rockford",
+            slug: "hurricaneharborrockford",
             state: "Illinois",
             parkCode: "hhr",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags Midwest" },
+              Gold: { 
+                access: "Six Flags Midwest", 
+                noParking: "Canada's Wonderland"
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags Midwest" },
+              "Gold Membership": { 
+                access: "Six Flags Midwest", 
+                noParking: "Canada's Wonderland"
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           }
@@ -460,7 +354,7 @@ const parkData = {
             parkCode: "fc",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags Texas" },
+              Gold: { access: "Six Flags Texas", priceOverride: "$59.00" },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
@@ -469,8 +363,8 @@ const parkData = {
             }
           },
           {
-            park: "Six Flags Fiesta Texas",
-            slug: "sixflagsfiestatexas",
+            park: "Six Flags Fiesta Texas & Hurricane Harbor",
+            slug: "fiestatexas",
             state: "Texas",
             parkCode: "ft",
             currencySymbol: "$",
@@ -480,12 +374,20 @@ const parkData = {
             },
             memberships: {
               "Gold Membership": { access: "Six Flags Texas" },
-              "Prestige Membership": { access: SixFlagsPrestigeAccess }
+              "Prestige Membership": { access: SixFlagsPrestigeAccess },
+              "Gold Membership (No Initiation Fee)": {
+                access: "Six Flags Texas",
+                noInitiationFee: true
+              },
+              "Prestige Membership (No Initiation Fee)": {
+                access: SixFlagsPrestigeAccess,
+                noInitiationFee: true
+              }
             }
           },
           {
-            park: "Six Flags Hurricane Harbor Arlington",
-            slug: "sixflagshurricaneharborarlington",
+            park: "Hurricane Harbor Arlington",
+            slug: "hurricaneharbortexas",
             state: "Texas",
             parkCode: "ot",
             currencySymbol: "$",
@@ -495,17 +397,25 @@ const parkData = {
             },
             memberships: {
               "Gold Membership": { access: "Six Flags Texas" },
-              "Prestige Membership": { access: SixFlagsPrestigeAccess }
+              "Prestige Membership": { access: SixFlagsPrestigeAccess },
+              "Gold Membership (No Initiation Fee)": {
+                access: "Six Flags Texas",
+                noInitiationFee: true
+              },
+              "Prestige Membership (No Initiation Fee)": {
+                access: SixFlagsPrestigeAccess,
+                noInitiationFee: true
+              }
             }
           },
           {
-            park: "Six Flags Hurricane Harbor Oklahoma City",
-            slug: "sixflagshurricaneharboroklahomacity",
+            park: "Hurricane Harbor Oklahoma City",
+            slug: "hurricaneharborokc",
             state: "Oklahoma",
             parkCode: "fc",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags Texas" },
+              Gold: { access: "Six Flags Texas", priceOverride: "$59.00" },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
@@ -514,8 +424,8 @@ const parkData = {
             }
           },
           {
-            park: "Six Flags Hurricane Harbor Splashtown",
-            slug: "sixflagshurricaneharborsplashtown",
+            park: "Hurricane Harbor Splashtown",
+            slug: "splashtown",
             state: "Texas",
             parkCode: "hhs",
             currencySymbol: "$",
@@ -530,7 +440,7 @@ const parkData = {
           },
           {
             park: "Six Flags Over Texas",
-            slug: "sixflagsovertexas",
+            slug: "overtexas",
             state: "Texas",
             parkCode: "ot",
             currencySymbol: "$",
@@ -540,7 +450,15 @@ const parkData = {
             },
             memberships: {
               "Gold Membership": { access: "Six Flags Texas" },
-              "Prestige Membership": { access: SixFlagsPrestigeAccess }
+              "Prestige Membership": { access: SixFlagsPrestigeAccess },
+              "Gold Membership (No Initiation Fee)": {
+                access: "Six Flags Texas",
+                noInitiationFee: true
+              },
+              "Prestige Membership (No Initiation Fee)": {
+                access: SixFlagsPrestigeAccess,
+                noInitiationFee: true
+              }
             }
           }
         ]
@@ -550,43 +468,65 @@ const parkData = {
       "Cedar Fair": {
         parks: [
           {
-            park: "California's Great America",
-            slug: "californiasgreatamerica",
+            park: "California's Great America & South Bay Shores",
+            slug: "cagreatamerica",
             state: "California",
             parkCode: "ga",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: ["Six Flags West", "Gilroy Gardens"], 
+                noParking: ["Gilroy Gardens", "Knott's Berry Farm", "Knott's Soak City"]
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags West" },
+              "Gold Membership": { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"] 
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
             park: "Knott's Berry Farm",
-            slug: "knottsberryfarm",
+            slug: "knotts",
             state: "California",
             parkCode: "kbf",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: "Six Flags West", 
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
+            },
+            memberships: {
+              "Gold Membership": { 
+                access: "Six Flags West", 
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
+              "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
             park: "Knott's Soak City",
-            slug: "knottssoakcity",
+            slug: "knotts",
             state: "California",
             parkCode: "kbf",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"] 
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags West" },
+              "Gold Membership": { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"] 
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           }
@@ -601,71 +541,102 @@ const parkData = {
             parkCode: "dk",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags West" },
+              "Gold Membership": { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
-            park: "Six Flags Hurricane Harbor Concord",
-            slug: "sixflagshurricaneharborconcord",
+            park: "Hurricane Harbor Concord",
+            slug: "hurricaneharborconcord",
             state: "California",
             parkCode: "hhc",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags West" },
+              "Gold Membership": { 
+                access: "Six Flags West", 
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
-            park: "Six Flags Hurricane Harbor Los Angeles",
-            slug: "sixflagshurricaneharborlosangeles",
+            park: "Hurricane Harbor Los Angeles",
+            slug: "magicmountain",
             state: "California",
             parkCode: "mm",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags West" },
+              "Gold Membership": { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
-            park: "Six Flags Hurricane Harbor Oaxtepec",
-            slug: "sixflagshurricaneharboroaxtepec",
+            park: "Hurricane Harbor Oaxtepec",
+            slug: "hurricaneharborox",
+            country: "Mexico",
             state: "Morelos",
             parkCode: "hhox",
-            currencySymbol: "$",
+            currency: "MXN",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags West" },
+              "Gold Membership": { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
-            park: "Six Flags Hurricane Harbor Phoenix",
-            slug: "sixflagshurricaneharborphoenix",
+            park: "Hurricane Harbor Phoenix",
+            slug: "phoenix",
             state: "Arizona",
             parkCode: "hhpx",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags West" },
+              "Gold Membership": { 
+                access: "Six Flags West", 
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
@@ -676,26 +647,39 @@ const parkData = {
             parkCode: "mm",
             currencySymbol: "$",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: "Six Flags West", 
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags West" },
+              "Gold Membership": { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           },
           {
             park: "Six Flags Mexico",
             slug: "sixflagsmexico",
-            state: "Mexico",
+            country: "Mexico",
+            state: "Mexico City",
             parkCode: "cdmx",
-            currencySymbol: "$",
+            currency: "MXN",
             passes: {
-              Gold: { access: "Six Flags West" },
+              Gold: { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
-              "Gold Membership": { access: "Six Flags West" },
+              "Gold Membership": { 
+                access: "Six Flags West",
+                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
+              },
               "Prestige Membership": { access: SixFlagsPrestigeAccess }
             }
           }
@@ -709,53 +693,6 @@ for (const companyConfig of Object.values(parkData)) {
   for (const regionConfig of Object.values(companyConfig || {})) {
     for (const portalConfig of Object.values(regionConfig || {})) {
       portalConfig.parks?.sort((left, right) => left.park.localeCompare(right.park));
-    }
-  }
-}
-
-function createDefaultPassSource(portal, passType) {
-  const rateName = portal === "Cedar Fair" ? "Regular - New" : "Season Pass - New";
-  return {
-    packageNamePattern: `^\\d{4} ${passType} Pass$`,
-    target: "price",
-    jsonPaths: [`CT[name=${rateName}].retail_amount`]
-  };
-}
-
-function createDefaultMembershipSource(passType) {
-  return {
-    packageNamePattern: `^${passType} Membership$`,
-    target: "pricing.monthly",
-    jsonPaths: ["CT.retail_amount"],
-    downPaymentJsonPaths: [
-      "CT.PAYMENT_SCHEDULE.SP.fee_amount",
-      "CT.fee_total"
-    ],
-    minMonthsJsonPaths: [
-      "CT.PAYMENT_SCHEDULE.required_num_payments"
-    ]
-  };
-}
-
-for (const companyConfig of Object.values(parkData)) {
-  for (const regionConfig of Object.values(companyConfig || {})) {
-    for (const [portal, portalConfig] of Object.entries(regionConfig || {})) {
-      for (const park of portalConfig.parks || []) {
-        park.parkCode = String(park.parkCode || "");
-
-        for (const [passType, pass] of Object.entries(park.passes || {})) {
-          if (!pass.source) {
-            pass.source = createDefaultPassSource(portal, passType);
-          }
-        }
-
-        for (const [membershipType, membership] of Object.entries(park.memberships || {})) {
-          if (!membership.source) {
-            const passType = membershipType.replace(/ Membership$/, "");
-            membership.source = createDefaultMembershipSource(passType);
-          }
-        }
-      }
     }
   }
 }
