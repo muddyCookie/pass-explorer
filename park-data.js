@@ -536,7 +536,7 @@ const parkData = {
         parks: [
           {
             park: "Six Flags Discovery Kingdom",
-            slug: "sixflagsdiscoverykingdom",
+            slug: "discoverykingdom",
             state: "California",
             parkCode: "dk",
             currencySymbol: "$",
@@ -642,7 +642,7 @@ const parkData = {
           },
           {
             park: "Six Flags Magic Mountain",
-            slug: "sixflagsmagicmountain",
+            slug: "magicmountain",
             state: "California",
             parkCode: "mm",
             currencySymbol: "$",
@@ -663,7 +663,7 @@ const parkData = {
           },
           {
             park: "Six Flags Mexico",
-            slug: "sixflagsmexico",
+            slug: "mexico",
             country: "Mexico",
             state: "Mexico City",
             parkCode: "cdmx",
