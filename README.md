@@ -1,6 +1,6 @@
 # Pass Explorer
 
-Static (no-build) app for comparing Six Flags season passes.
+Static (no-build) app for comparing season passes.
 
 ## Where everything is
 
