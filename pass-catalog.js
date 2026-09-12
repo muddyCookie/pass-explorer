@@ -58,9 +58,11 @@ function normalizeAccessDurationMonths(rawValue) {
   return Number.isFinite(numeric) && numeric > 0 ? Math.round(numeric) : null;
 }
 
-function getTodayUtcDateOnly() {
+// Use the visitor's local calendar date. This avoids UTC rolling over to the
+// next day before the visitor's local date has changed.
+function getTodayLocalDateOnly() {
   const now = new Date();
-  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  return new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 }
 
 function addMonthsUtc(dateUtc, months) {
@@ -693,7 +695,7 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       ?? (isMembership ? pricing?.minMonths : null)
     );
     const membershipAccessThru = isMembership && accessDurationMonths
-      ? formatUtcDate(addMonthsUtc(getTodayUtcDateOnly(), accessDurationMonths))
+      ? formatUtcDate(addMonthsUtc(getTodayLocalDateOnly(), accessDurationMonths))
       : "";
     const accessThru = String(
       passDefinition.accessThru
