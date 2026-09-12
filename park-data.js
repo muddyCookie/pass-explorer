@@ -12,6 +12,7 @@ const parkData = {
         parks: [
           {
             park: "Carowinds & Carolina Harbor",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "carowinds",
             state: "North Carolina",
             parkCode: "ca",
@@ -27,6 +28,7 @@ const parkData = {
           },
           {
             park: "Dorney Park & Wildwater Kingdom",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "dorneypark",
             state: "Pennsylvania",
             parkCode: "dp",
@@ -42,6 +44,7 @@ const parkData = {
           },
           {
             park: "Kings Dominion & Soak City",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "kingsdominion",
             state: "Virginia",
             parkCode: "kd",
@@ -61,6 +64,7 @@ const parkData = {
         parks: [
           {
             park: "Six Flags Great Adventure",
+            parkType: ["Amusement / Theme"],
             slug: "greatadventure",
             state: "New Jersey",
             parkCode: "nj",
@@ -76,6 +80,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor New Jersey",
+            parkType: ["Water"],
             slug: "greatadventure",
             state: "New Jersey",
             parkCode: "nj",
@@ -91,6 +96,7 @@ const parkData = {
           },
           {
             park: "Six Flags New England & Hurricane Harbor",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "newengland",
             state: "Massachusetts",
             parkCode: "ne",
@@ -114,6 +120,7 @@ const parkData = {
           },
           {
             park: "Six Flags Over Georgia & Hurricane Harbor",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "overgeorgia",
             state: "Georgia",
             parkCode: "og",
@@ -129,6 +136,7 @@ const parkData = {
           },
           {
             park: "Six Flags White Water",
+            parkType: ["Water"],
             slug: "whitewater",
             state: "Georgia",
             parkCode: "ww",
@@ -144,6 +152,7 @@ const parkData = {
           },
           {
             park: "Wild Safari",
+            parkType: ["Wildlife"],
             slug: "greatadventure",
             state: "New Jersey",
             parkCode: "nj",
@@ -165,6 +174,7 @@ const parkData = {
         parks: [
           {
             park: "Canada's Wonderland & Splash Works",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "canadaswonderland",
             country: "Canada",
             state: "Ontario",
@@ -187,6 +197,7 @@ const parkData = {
           },
           {
             park: "Cedar Point",
+            parkType: ["Amusement / Theme"],
             slug: "cedarpoint",
             state: "Ohio",
             parkCode: "cp",
@@ -201,6 +212,7 @@ const parkData = {
           },
           {
             park: "Cedar Point Shores",
+            parkType: ["Water"],
             slug: "cedarpoint",
             state: "Ohio",
             parkCode: "cp",
@@ -215,6 +227,7 @@ const parkData = {
           },
           {
             park: "Kings Island & Soak City",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "kingsisland",
             state: "Ohio",
             parkCode: "ki",
@@ -240,6 +253,7 @@ const parkData = {
         parks: [
           {
             park: "Six Flags Darien Lake & Hurricane Harbor",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "darienlake",
             state: "New York",
             parkCode: "dl",
@@ -261,6 +275,7 @@ const parkData = {
           },
           {
             park: "Six Flags Great America",
+            parkType: ["Amusement / Theme"],
             slug: "greatamerica",
             state: "Illinois",
             parkCode: "ga",
@@ -282,6 +297,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor Chicago",
+            parkType: ["Water"],
             slug: "greatamerica",
             state: "Illinois",
             parkCode: "ga",
@@ -303,6 +319,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor Rockford",
+            parkType: ["Water"],
             slug: "hurricaneharborrockford",
             state: "Illinois",
             parkCode: "hhr",
@@ -330,6 +347,7 @@ const parkData = {
         parks: [
           {
             park: "Schlitterbahn New Braunfels",
+            parkType: ["Water"],
             slug: "schlitterbahnnewbraunfels",
             state: "Texas",
             parkCode: "nb",
@@ -349,6 +367,7 @@ const parkData = {
         parks: [
           {
             park: "Frontier City",
+            parkType: ["Amusement / Theme"],
             slug: "frontiercity",
             state: "Oklahoma",
             parkCode: "fc",
@@ -364,6 +383,7 @@ const parkData = {
           },
           {
             park: "Six Flags Fiesta Texas & Hurricane Harbor",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "fiestatexas",
             state: "Texas",
             parkCode: "ft",
@@ -387,6 +407,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor Arlington",
+            parkType: ["Water"],
             slug: "hurricaneharbortexas",
             state: "Texas",
             parkCode: "ot",
@@ -410,6 +431,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor Oklahoma City",
+            parkType: ["Water"],
             slug: "hurricaneharborokc",
             state: "Oklahoma",
             parkCode: "fc",
@@ -425,6 +447,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor Splashtown",
+            parkType: ["Water"],
             slug: "splashtown",
             state: "Texas",
             parkCode: "hhs",
@@ -440,6 +463,7 @@ const parkData = {
           },
           {
             park: "Six Flags Over Texas",
+            parkType: ["Amusement / Theme"],
             slug: "overtexas",
             state: "Texas",
             parkCode: "ot",
@@ -469,6 +493,7 @@ const parkData = {
         parks: [
           {
             park: "California's Great America & South Bay Shores",
+            parkType: ["Amusement / Theme", "Water"],
             slug: "cagreatamerica",
             state: "California",
             parkCode: "ga",
@@ -490,6 +515,7 @@ const parkData = {
           },
           {
             park: "Knott's Berry Farm",
+            parkType: ["Amusement / Theme"],
             slug: "knotts",
             state: "California",
             parkCode: "kbf",
@@ -511,6 +537,7 @@ const parkData = {
           },
           {
             park: "Knott's Soak City",
+            parkType: ["Water"],
             slug: "knotts",
             state: "California",
             parkCode: "kbf",
@@ -536,6 +563,7 @@ const parkData = {
         parks: [
           {
             park: "Six Flags Discovery Kingdom",
+            parkType: ["Amusement / Theme", "Wildlife"],
             slug: "discoverykingdom",
             state: "California",
             parkCode: "dk",
@@ -557,6 +585,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor Concord",
+            parkType: ["Water"],
             slug: "hurricaneharborconcord",
             state: "California",
             parkCode: "hhc",
@@ -578,6 +607,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor Los Angeles",
+            parkType: ["Water"],
             slug: "magicmountain",
             state: "California",
             parkCode: "mm",
@@ -599,6 +629,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor Oaxtepec",
+            parkType: ["Water"],
             slug: "hurricaneharborox",
             country: "Mexico",
             state: "Morelos",
@@ -621,6 +652,7 @@ const parkData = {
           },
           {
             park: "Hurricane Harbor Phoenix",
+            parkType: ["Water"],
             slug: "phoenix",
             state: "Arizona",
             parkCode: "hhpx",
@@ -642,6 +674,7 @@ const parkData = {
           },
           {
             park: "Six Flags Magic Mountain",
+            parkType: ["Amusement / Theme"],
             slug: "magicmountain",
             state: "California",
             parkCode: "mm",
@@ -663,6 +696,7 @@ const parkData = {
           },
           {
             park: "Six Flags Mexico",
+            parkType: ["Amusement / Theme"],
             slug: "mexico",
             country: "Mexico",
             state: "Mexico City",

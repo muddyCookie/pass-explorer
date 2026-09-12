@@ -96,6 +96,7 @@ body {
   background: linear-gradient(180deg, var(--page-grad-top) 0%, var(--bg) 100%);
   color: var(--ink);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 body.is-scroll-locked {
@@ -304,6 +305,7 @@ body.is-scroll-locked {
 
 .content-layout {
   margin-top: 1.2rem;
+  min-width: 0;
 }
 
 .hero {
@@ -836,6 +838,8 @@ input[type="search"]::-webkit-search-cancel-button {
   padding: 0.95rem;
   box-shadow: 0 8px 20px rgba(22, 37, 33, 0.08);
   animation: fade-up 380ms ease both;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .card-top {
@@ -843,11 +847,14 @@ input[type="search"]::-webkit-search-cancel-button {
   justify-content: space-between;
   gap: 0.6rem;
   align-items: baseline;
+  min-width: 0;
 }
 
 .pass-name {
   margin: 0;
   font-size: 1.1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .pass-name-link {
@@ -865,6 +872,7 @@ input[type="search"]::-webkit-search-cancel-button {
   margin: 0;
   color: var(--accent-2);
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 .pass-price-stack {
@@ -909,7 +917,8 @@ input[type="search"]::-webkit-search-cancel-button {
   font-size: 0.8rem;
   color: var(--muted-ink);
   text-align: right;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 
@@ -1002,6 +1011,23 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 @media (max-width: 720px) {
+  .app-shell {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .hero {
+    padding: 1.15rem;
+  }
+
+  .card-top,
+  .detail-row {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
   .notice-banner__content {
     flex-direction: column;
     align-items: flex-start;

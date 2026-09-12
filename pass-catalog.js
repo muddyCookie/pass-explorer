@@ -134,7 +134,8 @@ for (const parkConfig of allParkConfigs) {
     website: links.website,
     passPurchaseUrl: links.passPurchaseUrl,
     country: location.country,
-    state: location.state
+    state: location.state,
+    parkType: Array.isArray(parkConfig.parkType) ? parkConfig.parkType : []
   };
 
   parkDirectory.push(parkEntry);
@@ -162,7 +163,8 @@ const parkByName = Object.fromEntries(
       website: links.website,
       passPurchaseUrl: links.passPurchaseUrl,
       country: location.country,
-      state: location.state
+      state: location.state,
+      parkType: Array.isArray(parkConfig.parkType) ? parkConfig.parkType : []
     }];
   }).filter(Boolean)
 );

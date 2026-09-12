@@ -7,14 +7,16 @@
       park: [],
       country: [],
       state: [],
-      type: []
+      type: [],
+      parkType: []
     },
     highlightedOptionIndexByCategory: {
       company: 0,
       park: 0,
       country: 0,
       state: 0,
-      type: 0
+      type: 0,
+      parkType: 0
     }
   };
 
@@ -68,6 +70,15 @@
       selectKey: "typeFilterSelect",
       emptyText: "No matching tiers",
       selectLabel: "Add Tier Tag",
+      matchMode: "any"
+    },
+    parkType: {
+      label: "Park Type",
+      inputKey: "parkTypeFilterInput",
+      listKey: "parkTypeFilterList",
+      selectKey: "parkTypeFilterSelect",
+      emptyText: "No matching park types",
+      selectLabel: "Add Park Type Tag",
       matchMode: "any"
     }
   };
@@ -401,6 +412,11 @@
       return values.every((value) => parks.includes(value));
     }
 
+    if (categoryKey === "parkType") {
+      const parkTypes = parkByName[offer.homePark]?.parkType || [];
+      return values.some((value) => parkTypes.includes(value));
+    }
+
     if (categoryKey === "state") {
       const states = getOfferStateSet(offer);
       return values.every((value) => states.has(value));
@@ -455,6 +471,11 @@
       )
         .sort((a, b) => a.localeCompare(b))
         .map((value) => ({ value, label: value }));
+    }
+
+    if (categoryKey === "parkType") {
+      return Array.from(new Set(offers.flatMap((offer) => parkByName[offer.homePark]?.parkType || [])))
+        .sort((a, b) => a.localeCompare(b)).map((value) => ({ value, label: value }));
     }
 
     if (categoryKey === "country") {

@@ -24,6 +24,7 @@ for (const [company, companyConfig] of Object.entries(parkData)) {
           slug: park.slug,
           state: park.state,
           country: park.country,
+          parkType: Array.isArray(park.parkType) ? park.parkType : [],
           currency: park.currency,
           passes: {
             ...(park.passes || {}),
