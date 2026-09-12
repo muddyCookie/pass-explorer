@@ -326,9 +326,11 @@
       node.querySelector(".pass-price").textContent = formatOfferPrice(offer);
 
       const priceSubEl = node.querySelector(".pass-price-sub");
+      const priceTotalEl = node.querySelector(".pass-price-total");
       const priceNoteEl = node.querySelector(".pass-price-note");
       const membershipNote = typeof formatOfferPriceNote === "function" ? formatOfferPriceNote(offer) : "";
       const priceSub = typeof formatOfferPriceSub === "function" ? formatOfferPriceSub(offer) : "";
+      const membershipTotal = typeof formatOfferMembershipTotal === "function" ? formatOfferMembershipTotal(offer) : "";
 
       if (priceSubEl) {
         // Native-currency detail is only needed for memberships; regular pass
@@ -336,6 +338,11 @@
         const showSub = Boolean(priceSub) && Boolean(membershipNote);
         priceSubEl.textContent = showSub ? priceSub : "";
         priceSubEl.hidden = !showSub;
+      }
+
+      if (priceTotalEl) {
+        priceTotalEl.textContent = membershipTotal;
+        priceTotalEl.hidden = !membershipTotal;
       }
 
       const accessThruRaw = String(offer?.accessThru || "").trim();

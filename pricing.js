@@ -159,15 +159,29 @@ function formatOfferPriceNote(offer) {
   }
 
   if (feeAmount <= 0) {
-    return totalText
-      ? `Minimum ${minMonths} monthly payments (${totalText} total).`
-      : `Minimum ${minMonths} monthly payments.`;
+    return totalText ? `min ${minMonths} mo (${totalText} total)` : `min ${minMonths} mo`;
   }
 
   const feeText = `${downPayment} initiation fee`;
-  return totalText
-    ? `Includes a ${feeText} and a minimum of ${minMonths} monthly payments (${totalText} total).`
-    : `Includes a ${feeText} and a minimum of ${minMonths} monthly payments.`;
+  return totalText ? `${feeText} + min ${minMonths} mo (${totalText} total)` : `${feeText} + min ${minMonths} mo`;
+}
+
+function formatOfferMembershipTotal(offer) {
+  const pricing = offer?.pricing ?? null;
+  if (pricing?.type !== "membership" && !pricing?.monthly) return "";
+  const monthlyAmount = parsePrice(pricing.monthly);
+  const feeAmount = parsePrice(pricing.downPayment);
+  const minMonths = Number.isFinite(Number(pricing.minMonths)) ? Number(pricing.minMonths) : 12;
+  const totalAmount = feeAmount + (monthlyAmount * minMonths);
+  if (!Number.isFinite(totalAmount) || totalAmount <= 0) return "";
+  const code = String(offer?.currency || "USD").toUpperCase();
+  if (code === "USD") return `${formatUsd(totalAmount)} total`;
+  const usdTotal = convertToUsd(totalAmount, code);
+  const nativeFractionDigits = Math.abs(totalAmount % 1) > 1e-9 ? 2 : 0;
+  const nativeTotal = `$${totalAmount.toFixed(nativeFractionDigits)} ${code}`;
+  return Number.isFinite(usdTotal)
+    ? `${formatUsd(usdTotal)} USD / ${nativeTotal} total`
+    : `${nativeTotal} total`;
 }
 
 function formatOfferPriceSub(offer) {

@@ -899,6 +899,14 @@ input[type="search"]::-webkit-search-cancel-button {
   font-weight: 400;
 }
 
+.pass-price-total {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted-ink);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
 .detail-label {
   margin: 0;
   font-size: 0.75rem;
