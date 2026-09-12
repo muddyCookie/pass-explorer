@@ -159,11 +159,15 @@ function formatOfferPriceNote(offer) {
   }
 
   if (feeAmount <= 0) {
-    return totalText ? `min ${minMonths} mo (${totalText} total)` : `min ${minMonths} mo`;
+    return totalText
+      ? `Minimum ${minMonths} monthly payments (${totalText} total).`
+      : `Minimum ${minMonths} monthly payments.`;
   }
 
   const feeText = `${downPayment} initiation fee`;
-  return totalText ? `${feeText} + min ${minMonths} mo (${totalText} total)` : `${feeText} + min ${minMonths} mo`;
+  return totalText
+    ? `Includes a ${feeText} and a minimum of ${minMonths} monthly payments (${totalText} total).`
+    : `Includes a ${feeText} and a minimum of ${minMonths} monthly payments.`;
 }
 
 function formatOfferPriceSub(offer) {

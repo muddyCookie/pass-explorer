@@ -846,8 +846,9 @@ input[type="search"]::-webkit-search-cancel-button {
   display: flex;
   justify-content: space-between;
   gap: 0.6rem;
-  align-items: baseline;
+  align-items: flex-start;
   min-width: 0;
+  flex-wrap: nowrap;
 }
 
 .pass-name {
@@ -855,6 +856,7 @@ input[type="search"]::-webkit-search-cancel-button {
   font-size: 1.1rem;
   min-width: 0;
   overflow-wrap: anywhere;
+  flex: 1 1 auto;
 }
 
 .pass-name-link {
@@ -881,6 +883,8 @@ input[type="search"]::-webkit-search-cancel-button {
   align-items: flex-end;
   gap: 0.15rem;
   text-align: right;
+  flex: 0 0 auto;
+  min-width: max-content;
 }
 
 .pass-price-row {
@@ -913,10 +917,10 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .pass-price-note {
-  margin: 0;
+  margin: 0.45rem 0 0;
   font-size: 0.8rem;
   color: var(--muted-ink);
-  text-align: right;
+  text-align: left;
   white-space: normal;
   overflow-wrap: anywhere;
 }
@@ -1022,10 +1026,8 @@ input[type="search"]::-webkit-search-cancel-button {
     padding: 1.15rem;
   }
 
-  .card-top,
   .detail-row {
     align-items: flex-start;
-    flex-wrap: wrap;
   }
 
   .notice-banner__content {
