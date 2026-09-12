@@ -900,11 +900,13 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .pass-price-total {
-  margin: 0;
+  margin: 0.15rem 0 0;
   font-size: 0.78rem;
   color: var(--muted-ink);
   font-weight: 400;
   white-space: nowrap;
+  text-align: right;
+  text-align: right;
 }
 
 .detail-label {
@@ -925,12 +927,33 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .pass-price-note {
-  margin: 0.45rem 0 0;
+  margin: 0;
   font-size: 0.8rem;
   color: var(--muted-ink);
   text-align: left;
   white-space: normal;
   overflow-wrap: anywhere;
+  min-height: 1.1em;
+}
+
+.pass-price-note.is-empty {
+  visibility: hidden;
+}
+
+.detail-row .pass-price-note { margin-left: auto; text-align: right; }
+
+@media (min-width: 721px) {
+  .pass-card:not(.has-membership-total) .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+
+  .pass-card:not(.has-membership-total) .detail-row .pass-price-note {
+    order: -1;
+    margin-left: 0;
+    text-align: left;
+  }
 }
 
 
@@ -1036,7 +1059,16 @@ input[type="search"]::-webkit-search-cancel-button {
 
   .detail-row {
     align-items: flex-start;
+    flex-direction: column;
+    gap: 0.15rem;
   }
+
+  .detail-row .pass-price-note {
+    order: -1;
+    margin-left: 0;
+    text-align: left;
+  }
+
 
   .notice-banner__content {
     flex-direction: column;

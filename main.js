@@ -36,6 +36,7 @@
     parkTypeFilterList: document.getElementById("parkTypeFilterList"),
     parkTypeFilterSelect: document.getElementById("parkTypeFilterSelect"),
     priceSort: document.getElementById("priceSort"),
+    currencySelect: document.getElementById("currencySelect"),
     passGrid: document.getElementById("passGrid"),
     resultsMeta: document.getElementById("resultsMeta"),
     activeFilterBar: document.getElementById("activeFilterBar"),
@@ -201,6 +202,14 @@
 
   if (typeof fetchExchangeRates === "function") {
     await fetchExchangeRates();
+  }
+
+  if (pe.dom.currencySelect) {
+    pe.dom.currencySelect.value = getSelectedCurrency();
+    pe.dom.currencySelect.addEventListener("change", () => {
+      setSelectedCurrency(pe.dom.currencySelect.value);
+      pe.renderPasses();
+    });
   }
 
   // Start in an unscoped state: no single company is selected by default.

@@ -343,6 +343,7 @@
       if (priceTotalEl) {
         priceTotalEl.textContent = membershipTotal;
         priceTotalEl.hidden = !membershipTotal;
+        priceTotalEl.classList.remove("is-empty");
       }
 
       const accessThruRaw = String(offer?.accessThru || "").trim();
@@ -371,9 +372,11 @@
       if (priceNoteEl) {
         const detailNote = membershipNote || priceSub;
         priceNoteEl.textContent = detailNote;
-        priceNoteEl.hidden = !detailNote;
+        priceNoteEl.hidden = false;
+        priceNoteEl.classList.toggle("is-empty", !detailNote);
       }
       const cardEl = node.querySelector(".pass-card");
+      cardEl.classList.toggle("has-membership-total", Boolean(membershipTotal));
 
       const sortedParksToDisplay = [...offer.expandedParks].sort((a, b) => a.localeCompare(b));
       const parkList = node.querySelector(".park-list");
