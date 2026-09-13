@@ -111,7 +111,7 @@ function formatOfferPriceUsd(offer) {
 
     const monthlyAmount = parsePrice(monthly);
     const usdMonthly = convertToUsd(monthlyAmount, code);
-    return Number.isFinite(usdMonthly) ? `~${formatUsd(usdMonthly)}/mo` : `${code} ${monthly}/mo`;
+    return Number.isFinite(usdMonthly) ? `≈${formatUsd(usdMonthly)}/mo` : `${code} ${monthly}/mo`;
   }
 
   if (!rawPrice) {
@@ -129,7 +129,7 @@ function formatOfferPriceUsd(offer) {
 
   const usdPrice = convertToUsd(numericPrice, code);
   if (Number.isFinite(usdPrice)) {
-    return `~${formatUsd(usdPrice)}`;
+    return `≈${formatUsd(usdPrice)}`;
   }
 
   return `${code} ${rawPrice}`;
@@ -204,7 +204,7 @@ function convertToUserCurrency(amount, sourceCurrency) {
 }
 
 function convertedCurrencyPrefix(sourceCurrency) {
-  return String(sourceCurrency || "USD").toUpperCase() === selectedCurrency ? "" : "~";
+  return String(sourceCurrency || "USD").toUpperCase() === selectedCurrency ? "" : "≈";
 }
 
 function formatOfferMembershipTotal(offer) {
