@@ -298,7 +298,6 @@
     });
 
     const SWIPE_OPEN_EDGE_PX = 72;
-
     const onTouchStart = (event) => {
       if (!mobileViewport.matches || !controls) return;
       touchStartedWhenOpen = controls.classList.contains("open");
@@ -328,9 +327,7 @@
 
       if (isHorizontal && !wasOpen && dx < 0) {
         const edgeStart = touchStartX >= (window.innerWidth - SWIPE_OPEN_EDGE_PX);
-        if (edgeStart) {
-          setSidebarOpen(true);
-        }
+        if (edgeStart) setSidebarOpen(true);
       }
     };
 

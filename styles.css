@@ -136,7 +136,7 @@ body.is-scroll-locked {
 
 .notice-banner {
   position: sticky;
-  top: 0.75rem;
+  top: calc(0.75rem + env(safe-area-inset-top, 0px));
   z-index: 10;
   padding: 0.75rem 0.9rem;
   border: 1px solid var(--border);
@@ -248,6 +248,8 @@ body.is-scroll-locked {
   background: var(--surface);
   color: var(--ink);
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  max-height: calc(100dvh - 2rem - env(safe-area-inset-top, 0px));
+  overflow: auto;
 }
 
 .pe-dialog::backdrop {
@@ -472,8 +474,7 @@ h1 {
   position: fixed;
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   right: calc(1rem + env(safe-area-inset-right, 0px));
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
+  transform: none;
   width: .74rem;
   height: .74rem;
   border-radius: 10px;
@@ -491,16 +492,15 @@ h1 {
   display: grid;
   place-content: center;
   z-index: 60;
-  will-change: transform;
-  transform: translateZ(0);
   backface-visibility: hidden;
 }
 
 .filter-toggle[aria-expanded="true"] {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(8px);
+  transform: none;
 }
+
 
 .filter-toggle:hover,
 .theme-toggle:hover,
@@ -840,6 +840,40 @@ input[type="search"]::-webkit-search-cancel-button {
   animation: fade-up 380ms ease both;
   min-width: 0;
   overflow: hidden;
+  position: relative;
+  border-top: 4px solid var(--tier-accent, var(--border));
+  background: linear-gradient(135deg, var(--tier-wash, var(--surface)) 0%, var(--surface) 42%);
+}
+
+/* Tier accents make the cards scannable without changing the underlying data. */
+.pass-tier-gold,
+.pass-tier-gold-membership {
+  --tier-accent: #c58a16;
+  --tier-wash: color-mix(in srgb, #f3c969 16%, var(--surface));
+}
+
+.pass-tier-prestige,
+.pass-tier-prestige-membership {
+  --tier-accent: #9b59b6;
+  --tier-wash: color-mix(in srgb, #c58be0 16%, var(--surface));
+}
+
+.pass-tier-platinum,
+.pass-tier-platinum-membership {
+  --tier-accent: #718096;
+  --tier-wash: color-mix(in srgb, #cbd5e1 18%, var(--surface));
+}
+
+.pass-tier-silver,
+.pass-tier-silver-membership {
+  --tier-accent: #87939b;
+  --tier-wash: color-mix(in srgb, #cbd5e1 12%, var(--surface));
+}
+
+.pass-tier-bronze,
+.pass-tier-bronze-membership {
+  --tier-accent: #ad6b3f;
+  --tier-wash: color-mix(in srgb, #d99a70 14%, var(--surface));
 }
 
 .card-top {
@@ -898,6 +932,7 @@ input[type="search"]::-webkit-search-cancel-button {
   color: var(--muted-ink);
   font-weight: 400;
 }
+
 
 .pass-price-total {
   margin: 0.15rem 0 0;
@@ -1062,6 +1097,9 @@ input[type="search"]::-webkit-search-cancel-button {
     flex-direction: column;
     gap: 0.15rem;
   }
+
+  .notice-banner { top: calc(0.35rem + env(safe-area-inset-top, 0px)); }
+  .pe-dialog { width: calc(100% - 1rem); max-height: calc(100dvh - 1rem - env(safe-area-inset-top, 0px)); }
 
   .detail-row .pass-price-note {
     order: -1;

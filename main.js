@@ -124,10 +124,14 @@
 
     function openDialog() {
       if (supportsDialog) {
-        if (!pricingNoticeDialog.open) pricingNoticeDialog.showModal();
+        if (!pricingNoticeDialog.open) {
+          lockNoticeScroll();
+          pricingNoticeDialog.showModal();
+        }
         return;
       }
 
+      lockNoticeScroll();
       pricingNoticeDialog.setAttribute("open", "");
       pricingNoticeDialog.style.display = "block";
     }
@@ -135,12 +139,41 @@
     function closeDialog() {
       if (supportsDialog) {
         if (pricingNoticeDialog.open) pricingNoticeDialog.close();
+        unlockNoticeScroll();
         return;
       }
 
       pricingNoticeDialog.removeAttribute("open");
       pricingNoticeDialog.style.display = "none";
+      unlockNoticeScroll();
     }
+
+    let noticeScrollY = 0;
+    let noticeScrollLocked = false;
+    function lockNoticeScroll() {
+      if (noticeScrollLocked) return;
+      noticeScrollLocked = true;
+      noticeScrollY = window.scrollY || window.pageYOffset || 0;
+      document.body.classList.add("is-scroll-locked");
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${noticeScrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
+    }
+    function unlockNoticeScroll() {
+      if (!noticeScrollLocked) return;
+      noticeScrollLocked = false;
+      document.body.classList.remove("is-scroll-locked");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      window.scrollTo(0, noticeScrollY);
+    }
+
+    pricingNoticeDialog.addEventListener("close", unlockNoticeScroll);
 
     function dismissBanner() {
       pricingNoticeBanner.hidden = true;

@@ -377,6 +377,13 @@
       }
       const cardEl = node.querySelector(".pass-card");
       cardEl.classList.toggle("has-membership-total", Boolean(membershipTotal));
+      const tierClass = String(offer?.passType || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      if (tierClass) {
+        cardEl.classList.add(`pass-tier-${tierClass}`);
+      }
 
       const sortedParksToDisplay = [...offer.expandedParks].sort((a, b) => a.localeCompare(b));
       const parkList = node.querySelector(".park-list");
