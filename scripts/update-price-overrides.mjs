@@ -575,6 +575,10 @@ function findAccessoPackage(jsonValue, source) {
       candidates.push(pkg);
     }
 
+    // Accesso can leave superseded membership packages in the payload. Prefer
+    // the newest package id so an expired price does not win over the current one.
+    candidates.sort((left, right) => Number(right?.id || 0) - Number(left?.id || 0));
+
     const pricedCandidates = [];
     for (const pkg of candidates) {
       const pricing = extractAccessoMembershipPricing(jsonValue, { ...source, _pkg: pkg });
@@ -598,7 +602,10 @@ function findAccessoPackage(jsonValue, source) {
 
   // Season Passes (Gold, Prestige, etc.)
   const normalizedTier = passType.replace(/\s*Pass$/i, "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const passRegex = new RegExp(`^(?:\\d{4}\\s*\\*?\\s*)?${normalizedTier}\\s+Pass(?:\\s*\\*?\\s*\\d{4})?$`, "i");
+  const passName = ["regular", "season"].includes(normalizedTier.toLowerCase())
+    ? `(?:${normalizedTier}\\s+Pass|.*Season\\s+Pass)`
+    : `${normalizedTier}\\s+Pass`;
+  const passRegex = new RegExp(`^(?:\\d{4}\\s*\\*?\\s*)?${passName}(?:\\s*\\*?\\s*\\d{4})?$`, "i");
   const candidates = [];
 
   for (const pkg of packageList) {
@@ -683,7 +690,7 @@ function extractAccessoMembershipPricing(jsonValue, source) {
   if (ctList.length === 0) return null;
   const ct = ctList[0];
 
-  const monthlyVal = extractDisplayedPrice(
+  const monthlyVal = extractDisplayedPrice(source.monthlyOverride) || extractDisplayedPrice(
     ct.price_label_override || pkg.CHARACS?.price_label_override || pkg.price_label_override
   ) || parsePriceNumber(ct.retail_amount) || parsePriceNumber(ct.retail_value);
   if (monthlyVal <= 0) return null;

@@ -865,7 +865,11 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .pass-tier-silver,
-.pass-tier-silver-membership {
+.pass-tier-silver-membership,
+.pass-tier-season,
+.pass-tier-season-membership,
+.pass-tier-regular,
+.pass-tier-regular-membership {
   --tier-accent: #87939b;
   --tier-wash: color-mix(in srgb, #cbd5e1 12%, var(--surface));
 }

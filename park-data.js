@@ -50,6 +50,7 @@ const parkData = {
             parkCode: "kd",
             currencySymbol: "$",
             passes: {
+              Silver: { access: "Kings Dominion & Soak City", accessThru: "September 6, 2027" },
               Gold: { access: "Six Flags East" },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
@@ -102,6 +103,7 @@ const parkData = {
             parkCode: "ne",
             currencySymbol: "$",
             passes: {
+              Silver: { access: "Six Flags New England & Hurricane Harbor", accessThru: "September 6, 2027" },
               Gold: { access: "Six Flags East" },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
@@ -151,7 +153,7 @@ const parkData = {
             }
           },
           {
-            park: "Wild Safari",
+            park: "Six Flags Wild Safari",
             parkType: ["Wildlife"],
             slug: "greatadventure",
             state: "New Jersey",
@@ -203,6 +205,7 @@ const parkData = {
             parkCode: "cp",
             currencySymbol: "$",
             passes: {
+              Silver: { access: "Cedar Point", accessThru: "September 6, 2027" },
               Gold: { 
                 access: "Six Flags Midwest",
                 noParking: "Canada's Wonderland"
@@ -233,6 +236,7 @@ const parkData = {
             parkCode: "ki",
             currencySymbol: "$",
             passes: {
+              Silver: { access: "Kings Island & Soak City", accessThru: "September 6, 2027" },
               Gold: { 
                 access: "Six Flags Midwest",
                 noParking: "Canada's Wonderland"
@@ -521,6 +525,10 @@ const parkData = {
             parkCode: "kbf",
             currencySymbol: "$",
             passes: {
+              Season: {
+                access: "Knott's Berry Farm",
+                noParking: ["Knott's Berry Farm"]
+               },
               Gold: { 
                 access: "Six Flags West", 
                 noParking: ["Knott's Berry Farm", "Knott's Soak City"]
@@ -528,6 +536,10 @@ const parkData = {
               Prestige: { access: SixFlagsPrestigeAccess }
             },
             memberships: {
+              "Regular Membership": {
+                access: "Knott's Berry Farm",
+                noParking: ["Knott's Berry Farm"]
+              },
               "Gold Membership": { 
                 access: "Six Flags West", 
                 noParking: ["Knott's Berry Farm", "Knott's Soak City"]
@@ -680,19 +692,14 @@ const parkData = {
             parkCode: "mm",
             currencySymbol: "$",
             passes: {
+              Silver: { access: "Six Flags Magic Mountain", accessThru: "September 6, 2027" },
               Gold: { 
                 access: "Six Flags West", 
                 noParking: ["Knott's Berry Farm", "Knott's Soak City"]
               },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
-            memberships: {
-              "Gold Membership": { 
-                access: "Six Flags West",
-                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
-              },
-              "Prestige Membership": { access: SixFlagsPrestigeAccess }
-            }
+            memberships: {}
           },
           {
             park: "Six Flags Mexico",
@@ -709,13 +716,7 @@ const parkData = {
               },
               Prestige: { access: SixFlagsPrestigeAccess }
             },
-            memberships: {
-              "Gold Membership": { 
-                access: "Six Flags West",
-                noParking: ["Knott's Berry Farm", "Knott's Soak City"]
-              },
-              "Prestige Membership": { access: SixFlagsPrestigeAccess }
-            }
+            memberships: {}
           }
         ]
       }

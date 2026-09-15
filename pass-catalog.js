@@ -17,6 +17,9 @@ function normalizeGroupName(groupValue) {
 
 function getCanonicalPassType(passType) {
   const value = String(passType || "").trim();
+  if (/^regular(?:\s+membership)?$/i.test(value)) {
+    return "Regular";
+  }
   if (/^gold(?:\s+membership)?(?:\s+\(no initiation fee\))?$/i.test(value)) {
     return "Gold";
   }
@@ -731,7 +734,15 @@ const supportedCurrencies = Array.from(
 const companies = Array.from(new Set(passOffers.map((offer) => offer.company))).sort((a, b) => a.localeCompare(b));
 
 const tierSetByCompany = Object.fromEntries(
-  companies.map((company) => [company, new Set(passOffers.filter((offer) => offer.company === company).map((offer) => offer.passType))])
+  companies.map((company) => [
+    company,
+    new Set(
+      passOffers
+        .filter((offer) => offer.company === company)
+        .map((offer) => offer.passType)
+        .sort((left, right) => left.localeCompare(right))
+    )
+  ])
 );
 
 const allParks = Array.from(
