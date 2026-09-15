@@ -2,7 +2,11 @@
 // Keep park definitions in `parks.js` price-free and update prices here.
 
 window.priceOverridesMeta = {
+<<<<<<< HEAD
   "generatedAt": "2026-09-15T15:53:21.986Z",
+=======
+  "generatedAt": "2026-09-15T15:59:16.371Z",
+>>>>>>> 1dde58f7c270e2c6e39346839da0895f94b3d615
   "timezone": "UTC"
 };
 
@@ -432,7 +436,7 @@ window.priceOverrides = {
     "Gold Membership": {
       "updatedAt": "2026-09-15",
       "pricing": {
-        "monthly": "$7.00",
+        "monthly": "$6.25",
         "type": "membership",
         "downPayment": "$20.00",
         "minMonths": 12
@@ -944,6 +948,27 @@ window.priceOverrides = {
     "Prestige": {
       "updatedAt": "2026-09-15",
       "price": "$349.00"
+<<<<<<< HEAD
+=======
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-09-15",
+      "pricing": {
+        "monthly": "$12.00",
+        "type": "membership",
+        "downPayment": "$20.00",
+        "minMonths": 12
+      }
+    },
+    "Prestige Membership": {
+      "updatedAt": "2026-09-15",
+      "pricing": {
+        "monthly": "$28.00",
+        "type": "membership",
+        "downPayment": "$40.00",
+        "minMonths": 12
+      }
+>>>>>>> 1dde58f7c270e2c6e39346839da0895f94b3d615
     }
   },
   "Six Flags Mexico": {
@@ -954,6 +979,15 @@ window.priceOverrides = {
     "Prestige": {
       "updatedAt": "2026-09-15",
       "price": "$1999.00"
+    },
+    "Gold Membership": {
+      "updatedAt": "2026-09-15",
+      "pricing": {
+        "monthly": "$115.00",
+        "type": "membership",
+        "downPayment": "$200.00",
+        "minMonths": 12
+      }
     }
   }
 };
