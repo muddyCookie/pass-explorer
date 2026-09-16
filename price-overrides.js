@@ -2,7 +2,7 @@
 // Keep park definitions in `parks.js` price-free and update prices here.
 
 window.priceOverridesMeta = {
-  "generatedAt": "2026-09-16T01:20:00.551Z",
+  "generatedAt": "2026-09-16T15:51:58.182Z",
   "timezone": "UTC"
 };
 
