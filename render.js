@@ -116,7 +116,9 @@
 
     const isMembership = offer?.pricing?.type === "membership" || Boolean(offer?.pricing?.monthly);
     if (isMembership) {
-      return `${homePark} - ${passType} Membership`;
+      return /membership$/i.test(passType)
+        ? `${homePark} - ${passType}`
+        : `${homePark} - ${passType} Membership`;
     }
 
     return shouldOmitPassSuffix(offer.company, passType)
@@ -211,6 +213,43 @@
       }
       return a.originalIndex - b.originalIndex;
     };
+    const compareByParkThenPriceThenTierThenOriginal = (a, b) => {
+      const parkNameDiff = a.homePark.localeCompare(b.homePark);
+      if (parkNameDiff !== 0) {
+        return parkNameDiff;
+      }
+
+      const aPriceMissing = !Number.isFinite(a.numericPrice);
+      const bPriceMissing = !Number.isFinite(b.numericPrice);
+      if (aPriceMissing || bPriceMissing) {
+        if (aPriceMissing && bPriceMissing) {
+          return compareByNameThenTierThenOriginal(a, b);
+        }
+        return aPriceMissing ? 1 : -1;
+      }
+
+      if (a.numericPrice !== b.numericPrice) {
+        return a.numericPrice - b.numericPrice;
+      }
+
+      return compareByNameThenTierThenOriginal(a, b);
+    };
+    const compareByPriceThenTierThenOriginal = (a, b) => {
+      const aPriceMissing = !Number.isFinite(a.numericPrice);
+      const bPriceMissing = !Number.isFinite(b.numericPrice);
+      if (aPriceMissing || bPriceMissing) {
+        if (aPriceMissing && bPriceMissing) {
+          return compareByNameThenTierThenOriginal(a, b);
+        }
+        return aPriceMissing ? 1 : -1;
+      }
+
+      if (a.numericPrice !== b.numericPrice) {
+        return a.numericPrice - b.numericPrice;
+      }
+
+      return compareByNameThenTierThenOriginal(a, b);
+    };
     const compareBySelectedSort = (a, b) => {
       const aPriceMissing = !Number.isFinite(a.numericPrice);
       const bPriceMissing = !Number.isFinite(b.numericPrice);
@@ -242,7 +281,7 @@
     let locationDividerIndex = -1;
     let locationDividerText = "";
 
-    if (locationFilterActive && singleSelectedPark === "all") {
+      if (locationFilterActive && singleSelectedPark === "all") {
       const homeLocationOffers = [];
       const otherIncludingOffers = [];
 
@@ -254,8 +293,8 @@
         }
       }
 
-      homeLocationOffers.sort(compareBySelectedSort);
-      otherIncludingOffers.sort(compareBySelectedSort);
+      homeLocationOffers.sort(selectedSort === "none" ? compareByParkThenPriceThenTierThenOriginal : compareBySelectedSort);
+      otherIncludingOffers.sort(selectedSort === "none" ? compareByParkThenPriceThenTierThenOriginal : compareBySelectedSort);
 
       const label = singleSelectedState !== "all"
         ? (singleSelectedCountry !== "all" ? `${singleSelectedState}, ${singleSelectedCountry}` : singleSelectedState)
@@ -281,18 +320,18 @@
       }
 
       if (selectedSort === "none") {
-        homeParkOffers.sort(compareByPassTypeThenOriginal);
+        homeParkOffers.sort(compareByPriceThenTierThenOriginal);
       } else {
         homeParkOffers.sort(compareBySelectedSort);
       }
-      otherMatchingOffers.sort(compareBySelectedSort);
+      otherMatchingOffers.sort(selectedSort === "none" ? compareByParkThenPriceThenTierThenOriginal : compareBySelectedSort);
 
       otherPassesDividerIndex = homeParkOffers.length > 0 && otherMatchingOffers.length > 0
         ? homeParkOffers.length
         : -1;
       visibleOffers = [...homeParkOffers, ...otherMatchingOffers];
     } else {
-      visibleOffers.sort(compareBySelectedSort);
+      visibleOffers.sort(selectedSort === "none" ? compareByParkThenPriceThenTierThenOriginal : compareBySelectedSort);
     }
 
     resultsMeta.textContent = `Showing ${visibleOffers.length} pass offer${visibleOffers.length === 1 ? "" : "s"}`;

@@ -13,12 +13,105 @@ const groupOrder = [
   "Six Flags West"
 ];
 
+const SixFlagsPrestigeAccess = [
+  "Six Flags East",
+  "Six Flags Midwest",
+  "Six Flags Texas",
+  "Six Flags West"
+];
+
+const SixFlagsSilverAccessThru = "September 6, 2027";
+
+function normalizeAccessValue(value, fallback = "") {
+  if (Array.isArray(value)) {
+    return value.map((entry) => String(entry || "").trim()).filter(Boolean);
+  }
+
+  const text = String(value || "").trim();
+  return text || fallback;
+}
+
+function sixFlagsPasses(homePark, region, options = {}) {
+  const includeSilver = options.includeSilver !== false;
+  return {
+    ...(includeSilver
+      ? {
+          Silver: {
+            access: normalizeAccessValue(options.silverAccess || homePark || "", homePark),
+            accessThru: String(options.silverAccessThru || SixFlagsSilverAccessThru || "").trim()
+          }
+        }
+      : {}),
+    Gold: {
+      access: normalizeAccessValue(options.goldAccess || region || "", region),
+      ...(options.goldNoParking != null ? { noParking: options.goldNoParking } : {}),
+      ...(options.goldPriceOverride != null ? { priceOverride: options.goldPriceOverride } : {})
+    },
+    Prestige: {
+      access: SixFlagsPrestigeAccess
+    }
+  };
+}
+
+function sixFlagsMemberships(region, options = {}) {
+  const goldMembershipNoParking = options.goldMembershipNoParking ?? options.goldNoParking ?? null;
+  const memberships = {
+    "Gold Membership": {
+      access: normalizeAccessValue(options.goldAccess || region || "", region),
+      ...(goldMembershipNoParking != null ? { noParking: goldMembershipNoParking } : {})
+    },
+    "Prestige Membership": {
+      access: SixFlagsPrestigeAccess
+    }
+  };
+
+  if (options.goldNoInitiationFee) {
+    memberships["Gold Membership (No Initiation Fee)"] = {
+      access: normalizeAccessValue(options.goldAccess || region || "", region),
+      ...(goldMembershipNoParking != null ? { noParking: goldMembershipNoParking } : {}),
+      noInitiationFee: true
+    };
+  }
+
+  if (options.prestigeNoInitiationFee) {
+    memberships["Prestige Membership (No Initiation Fee)"] = {
+      access: SixFlagsPrestigeAccess,
+      noInitiationFee: true
+    };
+  }
+
+  return options.includeMemberships === false ? {} : memberships;
+}
+
+function sixFlagsPark(parkConfig, region, options = {}) {
+  const passes = {
+    ...sixFlagsPasses(parkConfig.park, region, options),
+    ...(options.extraPasses || {})
+  };
+
+  const memberships = options.includeMemberships === false
+    ? {}
+    : {
+        ...sixFlagsMemberships(region, options),
+        ...(options.extraMemberships || {})
+      };
+
+  return {
+    ...parkConfig,
+    passes,
+    ...(Object.keys(memberships).length > 0 ? { memberships } : {})
+  };
+}
+
 const companyCatalog = [
   {
     name: "Six Flags",
     defaultCurrency: "USD",
     defaultCountry: "United States",
     defaultDate: "2027-12-31",
+    defaultAccessThruByTier: {
+      Silver: SixFlagsSilverAccessThru
+    },
     defaultUrl: "sixflags",
     defaultUrlPass: "season-passes",
     defaultMembershipUrlPass: "memberships"
@@ -236,6 +329,7 @@ const companyConfig = Object.fromEntries(
       defaultCurrency: company.defaultCurrency || "USD",
       defaultCountry: company.defaultCountry || "United States",
       defaultDate: String(company.defaultDate || "").trim(),
+      defaultAccessThruByTier: company.defaultAccessThruByTier || {},
       tierOrder: company.tierOrder || [],
       passDisplayRules: company.passDisplayRules || {},
       defaultSlug: String(company.defaultSlug || "").trim(),

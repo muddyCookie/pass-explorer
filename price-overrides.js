@@ -2,12 +2,16 @@
 // Keep park definitions in `parks.js` price-free and update prices here.
 
 window.priceOverridesMeta = {
-  "generatedAt": "2026-10-04T16:14:12.276Z",
+  "generatedAt": "2026-10-04T22:29:24.051Z",
   "timezone": "UTC"
 };
 
 window.priceOverrides = {
   "Carowinds & Carolina Harbor": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$79.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$99.00"
@@ -36,6 +40,10 @@ window.priceOverrides = {
     }
   },
   "Dorney Park & Wildwater Kingdom": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$79.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$99.00"
@@ -96,6 +104,10 @@ window.priceOverrides = {
     }
   },
   "Canada's Wonderland & Splash Works": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$89.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$105.00"
@@ -138,6 +150,10 @@ window.priceOverrides = {
     }
   },
   "Cedar Point Shores": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$99.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$125.00"
@@ -218,10 +234,6 @@ window.priceOverrides = {
     }
   },
   "Knott's Berry Farm": {
-    "Season": {
-      "updatedAt": "2026-10-04",
-      "price": "$115.00"
-    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$139.00"
@@ -230,14 +242,9 @@ window.priceOverrides = {
       "updatedAt": "2026-10-04",
       "price": "$349.00"
     },
-    "Regular Membership": {
+    "Season": {
       "updatedAt": "2026-10-04",
-      "pricing": {
-        "monthly": "$12.00",
-        "type": "membership",
-        "downPayment": "$40.00",
-        "minMonths": 12
-      }
+      "price": "$115.00"
     },
     "Gold Membership": {
       "updatedAt": "2026-10-04",
@@ -252,6 +259,15 @@ window.priceOverrides = {
       "updatedAt": "2026-10-04",
       "pricing": {
         "monthly": "$28.00",
+        "type": "membership",
+        "downPayment": "$40.00",
+        "minMonths": 12
+      }
+    },
+    "Regular Membership": {
+      "updatedAt": "2026-10-04",
+      "pricing": {
+        "monthly": "$12.00",
         "type": "membership",
         "downPayment": "$40.00",
         "minMonths": 12
@@ -591,7 +607,7 @@ window.priceOverrides = {
   "Frontier City": {
     "Gold": {
       "updatedAt": "2026-10-04",
-      "price": "$59.00"
+      "price": "$65.00"
     },
     "Prestige": {
       "updatedAt": "2026-10-04",
@@ -617,6 +633,10 @@ window.priceOverrides = {
     }
   },
   "Hurricane Harbor Arlington": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$79.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$95.00"
@@ -719,6 +739,10 @@ window.priceOverrides = {
     }
   },
   "Six Flags Fiesta Texas & Hurricane Harbor": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$79.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$95.00"
@@ -765,6 +789,10 @@ window.priceOverrides = {
     }
   },
   "Six Flags Over Texas": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$79.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$95.00"
@@ -839,6 +867,10 @@ window.priceOverrides = {
     }
   },
   "Hurricane Harbor Los Angeles": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$99.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$139.00"
@@ -867,6 +899,10 @@ window.priceOverrides = {
     }
   },
   "Hurricane Harbor Oaxtepec": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$1700.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$1800.00"
@@ -947,6 +983,10 @@ window.priceOverrides = {
     }
   },
   "Six Flags Mexico": {
+    "Silver": {
+      "updatedAt": "2026-10-04",
+      "price": "$1700.00"
+    },
     "Gold": {
       "updatedAt": "2026-10-04",
       "price": "$1800.00"

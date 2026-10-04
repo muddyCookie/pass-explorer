@@ -223,6 +223,21 @@ function flattenParkSources(sourceKind, sourceConfig, parkData = []) {
             parkCode
           });
         }
+
+        if (categoryKey === "passes" && !Object.prototype.hasOwnProperty.call(entries, "Silver")) {
+          flattened.push({
+            ...stripNestedSourceFields(sourceConfig),
+            ...stripNestedSourceFields(park),
+            target: defaultTarget,
+            sourceKind,
+            sourceGroup,
+            passType: "Silver",
+            sourceUrlTemplate,
+            portalHost: portalName,
+            parkCode,
+            tolerateMissingPrice: true
+          });
+        }
       }
     }
   }
@@ -404,8 +419,13 @@ async function loadJson(filePath) {
 
 async function loadParkData() {
   const parkDataPath = join(repoRoot, "park-data.js");
+  const companiesPath = join(repoRoot, "companies.js");
   const source = await readFile(parkDataPath, "utf8");
-  const sandbox = {};
+  const companiesSource = await readFile(companiesPath, "utf8");
+  const sandbox = { window: {}, globalThis: {} };
+  sandbox.window = sandbox;
+  sandbox.globalThis = sandbox;
+  runInNewContext(companiesSource, sandbox, { filename: companiesPath });
   runInNewContext(`${source}\nglobalThis.__parkData = parkData;`, sandbox);
   return sandbox.__parkData && typeof sandbox.__parkData === "object"
     ? sandbox.__parkData
@@ -835,7 +855,7 @@ async function main() {
       // Some catalog aliases deliberately point to portals that do not sell a
       // separate membership. They are not scraper failures and must not make a
       // successful refresh fail.
-      if (String(source.sourceKind || "").toLowerCase() === "accesso-portal" && !error) {
+      if ((String(source.sourceKind || "").toLowerCase() === "accesso-portal" && !error) || (source.tolerateMissingPrice && !error)) {
         unavailable.push(message);
       } else {
         errors.push(message);

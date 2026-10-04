@@ -18,7 +18,7 @@ function normalizeGroupName(groupValue) {
 function getCanonicalPassType(passType) {
   const value = String(passType || "").trim();
   if (/^regular(?:\s+membership)?$/i.test(value)) {
-    return "Regular";
+    return "Regular Membership";
   }
   if (/^gold(?:\s+membership)?(?:\s+\(no initiation fee\))?$/i.test(value)) {
     return "Gold";
@@ -253,6 +253,11 @@ function getDefaultAccessibleParks(passType, homePark, companyName) {
   }
 
   return [homePark];
+}
+
+function getDefaultAccessThruForTier(companyName, passType) {
+  const companyDefaults = companyConfig[companyName]?.defaultAccessThruByTier || {};
+  return String(companyDefaults[passType] || "").trim();
 }
 
 function normalizePassDefinition(rawPassDefinition) {
@@ -529,6 +534,14 @@ function expandParkingParks(entries, homePark, includeHomePark = false) {
   return expanded;
 }
 
+function getTierEntriesForPark(parkConfig, parkName) {
+  return Object.keys(parkConfig.passes || {}).map((passType) => {
+    const rawPassDefinition = parkConfig.passes?.[passType] || { access: parkName };
+    const override = getPriceOverride(parkName, passType);
+    return [passType, applyPassOverride(normalizePassDefinition(rawPassDefinition), override)];
+  });
+}
+
 function resolveExplicitParkingIncludedParks(accessibleParks, parkingConfig, homePark) {
   if (!parkingConfig) {
     return null;
@@ -635,12 +648,7 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
   }
 
   const links = buildParkLinksForCompany(company, parkConfig);
-  const tierOffers = Object.entries(parkConfig.passes || {})
-    .map(([passType, rawPassDefinition]) => {
-      const normalized = normalizePassDefinition(rawPassDefinition);
-      const override = getPriceOverride(String(parkConfig.park || "").trim(), passType);
-      return [passType, applyPassOverride(normalized, override)];
-    })
+  const tierOffers = getTierEntriesForPark(parkConfig, parkName)
     .filter(([, passDefinition]) => Boolean(passDefinition?.price || passDefinition?.pricing));
   const passUrlByTier = parkConfig.passPurchaseUrlByTier || parkConfig.buyPassUrlByTier || {};
   const membershipUrlByTier = parkConfig.membershipPurchaseUrlByTier || parkConfig.buyMembershipUrlByTier || {};
@@ -702,6 +710,7 @@ for (const parkConfig of getExpandedParkCatalogEntries()) {
       : "";
     const accessThru = String(
       passDefinition.accessThru
+      || getDefaultAccessThruForTier(company, passType)
       || membershipAccessThru
       || getCompanyDefaultDate(company)
       || ""
