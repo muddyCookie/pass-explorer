@@ -64,12 +64,12 @@
       matchMode: "all"
     },
     type: {
-      label: "Tier",
+      label: "Pass / Membership Tiers",
       inputKey: "typeFilterInput",
       listKey: "typeFilterList",
       selectKey: "typeFilterSelect",
-      emptyText: "No matching tiers",
-      selectLabel: "Add Tier Tag",
+      emptyText: "No matching pass / membership tiers",
+      selectLabel: "Add Pass / Membership Tier Tag",
       matchMode: "any"
     },
     parkType: {

@@ -325,9 +325,6 @@ const parkData = {
             parkCode: "cp",
             currencySymbol: "$",
             passes: {
-              Silver: {
-                access: "Cedar Point Shores",
-              },
               Gold: {
                 access: "Six Flags Midwest",
                 noParking: "Canada's Wonderland"
@@ -563,7 +560,7 @@ const parkData = {
             currencySymbol: "$",
             passes: {
               Silver: {
-                access: "Hurricane Harbor Arlington",
+                access: ["Six Flags Over Texas", "Hurricane Harbor Arlington"]
               },
               Gold: {
                 access: "Six Flags Texas"
@@ -688,7 +685,7 @@ const parkData = {
             currencySymbol: "$",
             passes: {
               Silver: {
-                access: "Six Flags Over Texas",
+                access: ["Six Flags Over Texas", "Hurricane Harbor Arlington"]
               },
               Gold: {
                 access: "Six Flags Texas"
@@ -886,7 +883,8 @@ const parkData = {
             currency: "MXN",
             passes: {
               Silver: {
-                access: "Hurricane Harbor Oaxtepec",
+                access: ["Hurricane Harbor Oaxtepec", "Six Flags Mexico"],
+                noParking: ["Hurricane Harbor Oaxtepec", "Six Flags Mexico"]
               },
               Gold: {
                 access: "Six Flags West",
@@ -994,7 +992,8 @@ const parkData = {
             currency: "MXN",
             passes: {
               Silver: {
-                access: "Six Flags Mexico",
+                access: ["Six Flags Mexico", "Hurricane Harbor Oaxtepec"],
+                noParking: ["Six Flags Mexico", "Hurricane Harbor Oaxtepec"]
               },
               Gold: {
                 access: "Six Flags West",

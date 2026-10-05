@@ -18,7 +18,7 @@ function normalizeGroupName(groupValue) {
 function getCanonicalPassType(passType) {
   const value = String(passType || "").trim();
   if (/^regular(?:\s+membership)?$/i.test(value)) {
-    return "Regular Membership";
+    return "Regular";
   }
   if (/^gold(?:\s+membership)?(?:\s+\(no initiation fee\))?$/i.test(value)) {
     return "Gold";
