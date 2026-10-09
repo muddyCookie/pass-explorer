@@ -2,26 +2,26 @@
 // Keep park definitions in `parks.js` price-free and update prices here.
 
 window.priceOverridesMeta = {
-  "generatedAt": "2026-10-08T18:14:49.968Z",
+  "generatedAt": "2026-10-09T17:47:50.793Z",
   "timezone": "UTC"
 };
 
 window.priceOverrides = {
   "Carowinds & Carolina Harbor": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$79.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$249.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -30,7 +30,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$20.00",
         "type": "membership",
@@ -41,19 +41,19 @@ window.priceOverrides = {
   },
   "Dorney Park & Wildwater Kingdom": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$79.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$249.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -62,7 +62,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$20.00",
         "type": "membership",
@@ -73,19 +73,19 @@ window.priceOverrides = {
   },
   "Kings Dominion & Soak City": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$79.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$249.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -94,7 +94,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$20.00",
         "type": "membership",
@@ -105,19 +105,19 @@ window.priceOverrides = {
   },
   "Canada's Wonderland & Splash Works": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$89.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$105.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$239.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.50",
         "type": "membership",
@@ -126,7 +126,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$20.00",
         "type": "membership",
@@ -137,47 +137,47 @@ window.priceOverrides = {
   },
   "Cedar Point": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$125.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$289.00"
     }
   },
   "Cedar Point Shores": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$125.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$289.00"
     },
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     }
   },
   "Kings Island & Soak City": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$125.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$289.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$10.00",
         "type": "membership",
@@ -186,7 +186,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$24.00",
         "type": "membership",
@@ -197,15 +197,15 @@ window.priceOverrides = {
   },
   "Schlitterbahn New Braunfels": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$199.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -214,7 +214,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$14.00",
         "type": "membership",
@@ -225,29 +225,29 @@ window.priceOverrides = {
   },
   "California's Great America & South Bay Shores": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$85.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$169.00"
     }
   },
   "Knott's Berry Farm": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$139.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$349.00"
     },
     "Season": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$115.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$12.00",
         "type": "membership",
@@ -256,7 +256,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$28.00",
         "type": "membership",
@@ -265,7 +265,7 @@ window.priceOverrides = {
       }
     },
     "Regular Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$12.00",
         "type": "membership",
@@ -276,15 +276,15 @@ window.priceOverrides = {
   },
   "Knott's Soak City": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$139.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$349.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$12.00",
         "type": "membership",
@@ -293,7 +293,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$28.00",
         "type": "membership",
@@ -304,15 +304,15 @@ window.priceOverrides = {
   },
   "Hurricane Harbor New Jersey": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$249.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -321,7 +321,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$20.00",
         "type": "membership",
@@ -332,15 +332,15 @@ window.priceOverrides = {
   },
   "Six Flags Great Adventure": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$249.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -349,7 +349,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$20.00",
         "type": "membership",
@@ -360,19 +360,19 @@ window.priceOverrides = {
   },
   "Six Flags New England & Hurricane Harbor": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$59.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$69.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$209.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -381,7 +381,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$16.00",
         "type": "membership",
@@ -390,7 +390,7 @@ window.priceOverrides = {
       }
     },
     "Gold Membership (No Initiation Fee)": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$9.00",
         "type": "membership",
@@ -399,7 +399,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership (No Initiation Fee)": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$18.00",
         "type": "membership",
@@ -410,15 +410,15 @@ window.priceOverrides = {
   },
   "Six Flags Over Georgia & Hurricane Harbor": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$69.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$209.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -427,7 +427,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$16.00",
         "type": "membership",
@@ -438,15 +438,15 @@ window.priceOverrides = {
   },
   "Six Flags White Water": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$69.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$209.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -455,7 +455,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$16.00",
         "type": "membership",
@@ -466,15 +466,15 @@ window.priceOverrides = {
   },
   "Six Flags Wild Safari": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$249.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -483,7 +483,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$20.00",
         "type": "membership",
@@ -494,15 +494,15 @@ window.priceOverrides = {
   },
   "Hurricane Harbor Chicago": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$89.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$209.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -511,7 +511,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$14.00",
         "type": "membership",
@@ -522,15 +522,15 @@ window.priceOverrides = {
   },
   "Hurricane Harbor Rockford": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$89.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$209.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -539,7 +539,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$14.00",
         "type": "membership",
@@ -550,15 +550,15 @@ window.priceOverrides = {
   },
   "Six Flags Darien Lake & Hurricane Harbor": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$75.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$169.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -567,7 +567,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$13.00",
         "type": "membership",
@@ -578,15 +578,15 @@ window.priceOverrides = {
   },
   "Six Flags Great America": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$89.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$209.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -595,7 +595,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$14.00",
         "type": "membership",
@@ -606,15 +606,15 @@ window.priceOverrides = {
   },
   "Frontier City": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$59.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$169.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -623,7 +623,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$13.00",
         "type": "membership",
@@ -634,19 +634,19 @@ window.priceOverrides = {
   },
   "Hurricane Harbor Arlington": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$79.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$95.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$199.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -655,7 +655,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$14.00",
         "type": "membership",
@@ -664,7 +664,7 @@ window.priceOverrides = {
       }
     },
     "Gold Membership (No Initiation Fee)": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$10.00",
         "type": "membership",
@@ -673,7 +673,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership (No Initiation Fee)": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$16.00",
         "type": "membership",
@@ -684,15 +684,15 @@ window.priceOverrides = {
   },
   "Hurricane Harbor Oklahoma City": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$59.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$169.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -701,7 +701,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$13.00",
         "type": "membership",
@@ -712,15 +712,15 @@ window.priceOverrides = {
   },
   "Hurricane Harbor Splashtown": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$69.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$169.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -729,7 +729,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$14.00",
         "type": "membership",
@@ -740,19 +740,19 @@ window.priceOverrides = {
   },
   "Six Flags Fiesta Texas & Hurricane Harbor": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$79.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$95.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$199.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -761,7 +761,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$14.00",
         "type": "membership",
@@ -770,7 +770,7 @@ window.priceOverrides = {
       }
     },
     "Gold Membership (No Initiation Fee)": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$10.00",
         "type": "membership",
@@ -779,7 +779,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership (No Initiation Fee)": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$16.00",
         "type": "membership",
@@ -790,19 +790,19 @@ window.priceOverrides = {
   },
   "Six Flags Over Texas": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$79.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$95.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$199.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$8.00",
         "type": "membership",
@@ -811,7 +811,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$14.00",
         "type": "membership",
@@ -820,7 +820,7 @@ window.priceOverrides = {
       }
     },
     "Gold Membership (No Initiation Fee)": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$10.00",
         "type": "membership",
@@ -829,7 +829,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership (No Initiation Fee)": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$16.00",
         "type": "membership",
@@ -840,15 +840,15 @@ window.priceOverrides = {
   },
   "Hurricane Harbor Concord": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$75.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$169.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -857,7 +857,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$13.00",
         "type": "membership",
@@ -868,19 +868,19 @@ window.priceOverrides = {
   },
   "Hurricane Harbor Los Angeles": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$139.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$349.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$12.00",
         "type": "membership",
@@ -889,7 +889,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$28.00",
         "type": "membership",
@@ -900,29 +900,29 @@ window.priceOverrides = {
   },
   "Hurricane Harbor Oaxtepec": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$1700.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$1800.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$1999.00"
     }
   },
   "Hurricane Harbor Phoenix": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$79.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$169.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -931,7 +931,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$13.00",
         "type": "membership",
@@ -942,15 +942,15 @@ window.priceOverrides = {
   },
   "Six Flags Discovery Kingdom": {
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$75.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$169.00"
     },
     "Gold Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$7.00",
         "type": "membership",
@@ -959,7 +959,7 @@ window.priceOverrides = {
       }
     },
     "Prestige Membership": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "pricing": {
         "monthly": "$13.00",
         "type": "membership",
@@ -970,29 +970,29 @@ window.priceOverrides = {
   },
   "Six Flags Magic Mountain": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$99.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$139.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$349.00"
     }
   },
   "Six Flags Mexico": {
     "Silver": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$1700.00"
     },
     "Gold": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$1800.00"
     },
     "Prestige": {
-      "updatedAt": "2026-10-08",
+      "updatedAt": "2026-10-09",
       "price": "$2999.00"
     }
   }
